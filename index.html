@@ -1,0 +1,544 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { Play, RotateCcw, ChevronRight, Star, Trophy, BookOpen, Globe, CheckCircle, Menu, X } from 'lucide-react';
+
+/**
+ * DATA STRUKTUR
+ * Koordinat dinormalisasi dalam skala 0-100
+ * type: 'L' (Line) atau 'Q' (Quadratic Curve - x1, y1, x, y)
+ */
+const LANGUAGE_DATA = {
+  arabic: {
+    name: "Arab (Hijaiyah)",
+    direction: "rtl",
+    levels: [
+      {
+        id: 1,
+        title: "Jilid 1: Dasar",
+        chars: [
+          {
+            char: "Alif",
+            symbol: "ا",
+            strokes: [
+              { points: [{x: 50, y: 10}, {x: 50, y: 90}], type: 'line' }
+            ],
+            hint: "Tarik garis tegak lurus dari atas ke bawah."
+          },
+          {
+            char: "Ba",
+            symbol: "ب",
+            strokes: [
+              { points: [{x: 80, y: 40}, {x: 80, y: 60}, {x: 20, y: 60}, {x: 20, y: 50}], type: 'curve' },
+              { points: [{x: 50, y: 75}, {x: 50, y: 78}], type: 'dot' }
+            ],
+            hint: "Seperti perahu, lalu satu titik di bawah."
+          }
+        ]
+      },
+      {
+        id: 2,
+        title: "Jilid 2: Lengkung",
+        chars: [
+          {
+            char: "Jim",
+            symbol: "ج",
+            strokes: [
+              { points: [{x: 30, y: 30}, {x: 70, y: 30}, {x: 50, y: 50}], type: 'curve' }, // Top
+              { points: [{x: 50, y: 50}, {x: 20, y: 50}, {x: 20, y: 90}, {x: 80, y: 90}], type: 'curve' }, // Belly
+              { points: [{x: 50, y: 70}, {x: 50, y: 73}], type: 'dot' }
+            ],
+            hint: "Garis alis, perut besar, dan titik di tengah."
+          }
+        ]
+      }
+    ]
+  },
+  japanese: {
+    name: "Jepang (Kana)",
+    direction: "ltr",
+    levels: [
+      {
+        id: 1,
+        title: "Hiragana Dasar",
+        chars: [
+          {
+            char: "A",
+            symbol: "あ",
+            strokes: [
+              { points: [{x: 20, y: 30}, {x: 80, y: 30}], type: 'line' },
+              { points: [{x: 50, y: 10}, {x: 50, y: 70}], type: 'curve' },
+              { points: [{x: 60, y: 40}, {x: 30, y: 80}, {x: 80, y: 80}, {x: 80, y: 50}], type: 'loop' }
+            ],
+            hint: "Garis horizontal, vertikal melengkung, lalu simpul ikan."
+          },
+          {
+            char: "I",
+            symbol: "い",
+            strokes: [
+              { points: [{x: 20, y: 30}, {x: 20, y: 70}, {x: 30, y: 60}], type: 'hook' },
+              { points: [{x: 70, y: 30}, {x: 70, y: 60}], type: 'curve' }
+            ],
+            hint: "Dua garis seperti tanda kurung."
+          }
+        ]
+      }
+    ]
+  },
+  korean: {
+    name: "Korea (Hangul)",
+    direction: "ltr",
+    levels: [
+      {
+        id: 1,
+        title: "Konsonan Dasar",
+        chars: [
+          {
+            char: "Giyok (G)",
+            symbol: "ㄱ",
+            strokes: [
+               { points: [{x: 20, y: 20}, {x: 80, y: 20}, {x: 80, y: 80}], type: 'corner' }
+            ],
+            hint: "Satu tarikan: Kiri ke kanan, lalu ke bawah."
+          },
+          {
+            char: "Nieun (N)",
+            symbol: "ㄴ",
+            strokes: [
+               { points: [{x: 20, y: 20}, {x: 20, y: 80}, {x: 80, y: 80}], type: 'corner' }
+            ],
+            hint: "Atas ke bawah, lalu ke kanan."
+          }
+        ]
+      }
+    ]
+  },
+  chinese: {
+    name: "Mandarin (Hanzi)",
+    direction: "ltr",
+    levels: [
+      {
+        id: 1,
+        title: "Angka & Alam",
+        chars: [
+          {
+            char: "Satu (Yī)",
+            symbol: "一",
+            strokes: [
+              { points: [{x: 10, y: 50}, {x: 90, y: 50}], type: 'line' }
+            ],
+            hint: "Satu garis lurus mendatar."
+          },
+          {
+            char: "Orang (Rén)",
+            symbol: "人",
+            strokes: [
+              { points: [{x: 50, y: 10}, {x: 10, y: 90}], type: 'line' },
+              { points: [{x: 50, y: 40}, {x: 90, y: 90}], type: 'line' }
+            ],
+            hint: "Kiri miring, lalu kanan miring menopang."
+          }
+        ]
+      }
+    ]
+  },
+  alphabet: {
+    name: "Alphabet (ABC)",
+    direction: "ltr",
+    levels: [
+      {
+        id: 1,
+        title: "Huruf Besar",
+        chars: [
+          {
+            char: "A",
+            symbol: "A",
+            strokes: [
+              { points: [{x: 50, y: 10}, {x: 20, y: 90}], type: 'line' },
+              { points: [{x: 50, y: 10}, {x: 80, y: 90}], type: 'line' },
+              { points: [{x: 30, y: 60}, {x: 70, y: 60}], type: 'line' }
+            ],
+            hint: "Miring kiri, miring kanan, sabuk di tengah."
+          },
+           {
+            char: "B",
+            symbol: "B",
+            strokes: [
+              { points: [{x: 20, y: 10}, {x: 20, y: 90}], type: 'line' },
+              { points: [{x: 20, y: 10}, {x: 60, y: 25}, {x: 20, y: 50}], type: 'curve' },
+              { points: [{x: 20, y: 50}, {x: 70, y: 70}, {x: 20, y: 90}], type: 'curve' }
+            ],
+            hint: "Tiang lurus, lalu dua perut buncit."
+          }
+        ]
+      }
+    ]
+  }
+};
+
+const App = () => {
+  const [activeLang, setActiveLang] = useState('arabic');
+  const [activeLevelId, setActiveLevelId] = useState(1);
+  const [activeCharIndex, setActiveCharIndex] = useState(0);
+  const [strokeIndex, setStrokeIndex] = useState(0); // Current stroke step
+  const [points, setPoints] = useState([]); // User drawn points
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [feedback, setFeedback] = useState("");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [completedStrokes, setCompletedStrokes] = useState([]);
+  const [dailyStreak, setDailyStreak] = useState(1);
+  const [showConfetti, setShowConfetti] = useState(false);
+
+  const canvasRef = useRef(null);
+
+  const currentLangData = LANGUAGE_DATA[activeLang];
+  const currentLevel = currentLangData.levels.find(l => l.id === activeLevelId);
+  const currentChar = currentLevel.chars[activeCharIndex];
+
+  // Canvas Drawing Logic
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    const width = canvas.width;
+    const height = canvas.height;
+    
+    // Clear canvas
+    ctx.clearRect(0, 0, width, height);
+    
+    // 1. Draw Grid (Background)
+    drawGrid(ctx, width, height);
+
+    // 2. Draw Ghost Character (Background Guide)
+    ctx.globalAlpha = 0.2;
+    ctx.lineWidth = 15;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.strokeStyle = '#555';
+    
+    currentChar.strokes.forEach(stroke => {
+      drawStrokePath(ctx, stroke.points, width, height);
+    });
+
+    // 3. Draw Completed Strokes (Dark Black)
+    ctx.globalAlpha = 1.0;
+    ctx.strokeStyle = '#000';
+    for(let i=0; i < strokeIndex; i++) {
+        drawStrokePath(ctx, currentChar.strokes[i].points, width, height);
+    }
+
+    // 4. Draw User's Current Drawing (if valid/close)
+    // For this simple version, we mainly rely on the "Click to Stroke" animation visualization
+    // But if we want to show the current animation:
+    
+  }, [activeLang, activeLevelId, activeCharIndex, strokeIndex]);
+
+
+  const drawGrid = (ctx, w, h) => {
+    ctx.beginPath();
+    ctx.strokeStyle = '#e5e7eb'; // Tailwind gray-200
+    ctx.lineWidth = 2;
+    // Cross
+    ctx.moveTo(w/2, 0); ctx.lineTo(w/2, h);
+    ctx.moveTo(0, h/2); ctx.lineTo(w, h/2);
+    // Diagonals
+    ctx.moveTo(0, 0); ctx.lineTo(w, h);
+    ctx.moveTo(w, 0); ctx.lineTo(0, h);
+    ctx.stroke();
+  };
+
+  const drawStrokePath = (ctx, points, w, h) => {
+    if(points.length < 2) return;
+    ctx.beginPath();
+    ctx.moveTo(points[0].x * w / 100, points[0].y * h / 100);
+    
+    for(let i = 1; i < points.length; i++) {
+        // Simple smoothing for demo purposes
+        ctx.lineTo(points[i].x * w / 100, points[i].y * h / 100);
+    }
+    ctx.stroke();
+  };
+
+  const animateStroke = (strokeData) => {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    const w = canvas.width;
+    const h = canvas.height;
+    
+    let startTime = null;
+    const duration = 800; // ms
+
+    const animate = (timestamp) => {
+      if (!startTime) startTime = timestamp;
+      const progress = Math.min((timestamp - startTime) / duration, 1);
+      
+      // Re-render everything up to current state
+      // (Ideally we optimize this, but for < 10 strokes it's fine)
+      ctx.globalAlpha = 1;
+      ctx.strokeStyle = '#2563EB'; // Blue-600 active color
+      ctx.lineWidth = 15;
+      ctx.lineCap = 'round';
+
+      // Draw partial stroke based on progress
+      const pts = strokeData.points;
+      if (pts.length >= 2) {
+          ctx.beginPath();
+          const startX = pts[0].x * w / 100;
+          const startY = pts[0].y * h / 100;
+          ctx.moveTo(startX, startY);
+          
+          const totalPoints = pts.length - 1;
+          const currentPointIndex = Math.floor(progress * totalPoints);
+          
+          // Draw fully passed segments
+          for(let i=0; i < currentPointIndex; i++) {
+              ctx.lineTo(pts[i+1].x * w/100, pts[i+1].y * h/100);
+          }
+
+          // Draw interpolation for current segment
+          if (currentPointIndex < totalPoints) {
+            const p1 = pts[currentPointIndex];
+            const p2 = pts[currentPointIndex + 1];
+            const segProgress = (progress * totalPoints) - currentPointIndex;
+            
+            const curX = (p1.x + (p2.x - p1.x) * segProgress) * w / 100;
+            const curY = (p1.y + (p2.y - p1.y) * segProgress) * h / 100;
+            ctx.lineTo(curX, curY);
+          }
+          
+          ctx.stroke();
+      }
+
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      } else {
+        // Animation done
+        handleStrokeComplete();
+      }
+    };
+    
+    requestAnimationFrame(animate);
+  };
+
+  const handleNextStroke = () => {
+    if (strokeIndex < currentChar.strokes.length) {
+      animateStroke(currentChar.strokes[strokeIndex]);
+    }
+  };
+
+  const handleStrokeComplete = () => {
+    const newIndex = strokeIndex + 1;
+    setStrokeIndex(newIndex);
+    
+    if (newIndex >= currentChar.strokes.length) {
+      setFeedback("Sempurna! Mumtaz!");
+      setShowConfetti(true);
+      setTimeout(() => setShowConfetti(false), 3000);
+    } else {
+      setFeedback("Bagus! Lanjut...");
+    }
+  };
+
+  const handleReset = () => {
+    setStrokeIndex(0);
+    setFeedback("");
+    const ctx = canvasRef.current.getContext('2d');
+    ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+    // Force re-render grid/ghost
+    setActiveCharIndex(activeCharIndex); 
+  };
+
+  const handleNextChar = () => {
+    if (activeCharIndex < currentLevel.chars.length - 1) {
+      setActiveCharIndex(prev => prev + 1);
+      setStrokeIndex(0);
+      setFeedback("");
+    } else {
+       setFeedback("Jilid Selesai! Masya Allah!");
+    }
+  };
+
+  const handlePrevChar = () => {
+    if (activeCharIndex > 0) {
+      setActiveCharIndex(prev => prev - 1);
+      setStrokeIndex(0);
+      setFeedback("");
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-50 font-sans text-slate-800 relative overflow-hidden">
+      
+      {/* HEADER */}
+      <header className="bg-white shadow-sm p-4 flex justify-between items-center z-10 relative">
+        <div className="flex items-center gap-2">
+           <button onClick={() => setSidebarOpen(true)} className="p-2 hover:bg-slate-100 rounded-lg lg:hidden">
+             <Menu size={24} />
+           </button>
+           <div className="bg-indigo-600 text-white p-2 rounded-lg">
+             <Globe size={20} />
+           </div>
+           <div>
+             <h1 className="font-bold text-lg leading-tight">GlobalScript</h1>
+             <p className="text-xs text-slate-500">Belajar Menulis Dunia</p>
+           </div>
+        </div>
+
+        <div className="flex items-center gap-4">
+          <div className="hidden md:flex items-center gap-1 bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-sm font-medium">
+            <Trophy size={16} />
+            <span>Hari ke-{dailyStreak}</span>
+          </div>
+          <div className="flex items-center gap-1 bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full text-sm font-medium">
+             <Star size={16} className="fill-indigo-700" />
+             <span>Level {activeLevelId}</span>
+          </div>
+        </div>
+      </header>
+
+      <div className="flex h-[calc(100vh-80px)]">
+        
+        {/* SIDEBAR (Desktop: Always visible, Mobile: Slide over) */}
+        <aside className={`
+          absolute lg:relative z-20 top-0 left-0 h-full w-64 bg-white border-r border-slate-200 transform transition-transform duration-300 ease-in-out
+          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+        `}>
+          <div className="p-4 flex justify-between items-center lg:hidden">
+            <span className="font-bold text-slate-500">Menu</span>
+            <button onClick={() => setSidebarOpen(false)}><X size={24} /></button>
+          </div>
+          
+          <div className="p-4 space-y-6">
+            <div>
+              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Pilih Bahasa</h3>
+              <div className="space-y-2">
+                {Object.keys(LANGUAGE_DATA).map(key => (
+                  <button
+                    key={key}
+                    onClick={() => { setActiveLang(key); setSidebarOpen(false); handleReset(); }}
+                    className={`w-full flex items-center justify-between p-3 rounded-xl transition-all ${
+                      activeLang === key 
+                      ? 'bg-indigo-600 text-white shadow-md shadow-indigo-200' 
+                      : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
+                    }`}
+                  >
+                    <span className="capitalize font-medium">{key}</span>
+                    {activeLang === key && <CheckCircle size={16} />}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Tantangan Iqro</h3>
+              <div className="space-y-2">
+                 {currentLangData.levels.map(lvl => (
+                   <button
+                    key={lvl.id}
+                    onClick={() => { setActiveLevelId(lvl.id); setActiveCharIndex(0); handleReset(); }}
+                    className={`w-full text-left p-3 rounded-lg text-sm flex items-center gap-2 ${
+                      activeLevelId === lvl.id ? 'bg-indigo-50 text-indigo-700 font-medium' : 'text-slate-500 hover:bg-slate-50'
+                    }`}
+                   >
+                     <BookOpen size={16} />
+                     {lvl.title}
+                   </button>
+                 ))}
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        {/* MAIN CONTENT */}
+        <main className="flex-1 flex flex-col items-center justify-start p-4 lg:p-8 bg-slate-50 overflow-y-auto">
+          
+          {/* Progress Indicator */}
+          <div className="w-full max-w-md mb-6 flex justify-between text-sm text-slate-500">
+             <span>{currentLangData.name}</span>
+             <span>Huruf {activeCharIndex + 1} dari {currentLevel.chars.length}</span>
+          </div>
+
+          {/* CANVAS CONTAINER */}
+          <div className="relative bg-white p-4 rounded-3xl shadow-xl shadow-slate-200 border-4 border-slate-100">
+             {showConfetti && (
+               <div className="absolute inset-0 flex items-center justify-center z-50 pointer-events-none">
+                 <div className="text-6xl animate-bounce">🎉⭐</div>
+               </div>
+             )}
+             
+             <div className="absolute top-4 right-4 text-slate-300 font-bold text-xl select-none">
+               {strokeIndex}/{currentChar.strokes.length}
+             </div>
+
+             <canvas
+               ref={canvasRef}
+               width={300}
+               height={300}
+               className="bg-white rounded-xl cursor-crosshair touch-none"
+             />
+             
+             {/* Character Preview (Small) */}
+             <div className="absolute top-4 left-4 bg-slate-100 p-2 rounded-lg">
+               <span className="text-2xl font-bold font-serif">{currentChar.symbol}</span>
+             </div>
+          </div>
+
+          {/* HINT TEXT */}
+          <div className="mt-6 text-center max-w-md">
+            <h2 className="text-3xl font-bold text-slate-800 mb-2">{currentChar.char}</h2>
+            <p className="text-slate-500 min-h-[1.5em]">{feedback || currentChar.hint}</p>
+          </div>
+
+          {/* CONTROLS */}
+          <div className="mt-8 w-full max-w-md space-y-4">
+            
+            {/* Primary Action Button (Click to Stroke) */}
+            <button
+              onClick={handleNextStroke}
+              disabled={strokeIndex >= currentChar.strokes.length}
+              className={`w-full py-4 rounded-2xl text-lg font-bold shadow-lg transition-transform active:scale-95 flex items-center justify-center gap-2
+                ${strokeIndex >= currentChar.strokes.length 
+                  ? 'bg-green-500 text-white shadow-green-200' 
+                  : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-200'}`}
+            >
+              {strokeIndex >= currentChar.strokes.length ? (
+                <>
+                   <CheckCircle /> Selesai
+                </>
+              ) : (
+                <>
+                   <Play size={20} fill="currentColor" /> Tulis Garis (Klik)
+                </>
+              )}
+            </button>
+
+            {/* Secondary Controls */}
+            <div className="grid grid-cols-3 gap-3">
+               <button 
+                 onClick={handlePrevChar}
+                 disabled={activeCharIndex === 0}
+                 className="p-3 bg-white border border-slate-200 rounded-xl text-slate-600 hover:bg-slate-50 flex justify-center disabled:opacity-50">
+                 Sebelumnya
+               </button>
+               
+               <button 
+                 onClick={handleReset}
+                 className="p-3 bg-white border border-slate-200 rounded-xl text-slate-600 hover:bg-slate-50 flex justify-center items-center gap-1">
+                 <RotateCcw size={18} /> Ulang
+               </button>
+               
+               <button 
+                 onClick={handleNextChar}
+                 disabled={activeCharIndex === currentLevel.chars.length - 1}
+                 className="p-3 bg-white border border-slate-200 rounded-xl text-slate-600 hover:bg-slate-50 flex justify-center items-center gap-1 disabled:opacity-50">
+                 Lanjut <ChevronRight size={18} />
+               </button>
+            </div>
+          </div>
+
+        </main>
+      </div>
+    </div>
+  );
+};
+
+export default App;
