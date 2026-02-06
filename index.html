@@ -1,805 +1,912 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Play, RotateCcw, ChevronRight, Star, Book, Globe, CheckCircle, Menu, X, Eraser, Printer, Volume2 } from 'lucide-react';
-
-/* =========================================
-   1. DATA GENERATOR & RAW DATA
-   (Membuat ribuan level secara otomatis)
-   ========================================= */
-
-// Helper: Membuat Stage Otomatis (1 Huruf = 1 Stage)
-const createStages = (chars) => {
-  return chars.map((char, index) => ({
-    id: index + 1,
-    title: `${char.symbol} - ${char.read}`,
-    newChars: [char]
-  }));
-};
-
-// --- DATA MENTAH HURUF ---
-
-const CHARS_ALPHABET = [
-  { id: 'A', symbol: "A", read: "A", hint: "Gunung dengan sabuk." },
-  { id: 'B', symbol: "B", read: "B", hint: "Tiang lurus dua perut." },
-  { id: 'C', symbol: "C", read: "C", hint: "Bulan sabit." },
-  { id: 'D', symbol: "D", read: "D", hint: "Perut besar." },
-  { id: 'E', symbol: "E", read: "E", hint: "Sisir tiga gigi." },
-  { id: 'F', symbol: "F", read: "F", hint: "Bendera." },
-  { id: 'G', symbol: "G", read: "G", hint: "C ada kursinya." },
-  { id: 'H', symbol: "H", read: "H", hint: "Tangga." },
-  { id: 'I', symbol: "I", read: "I", hint: "Tiang listrik." },
-  { id: 'J', symbol: "J", read: "J", hint: "Kail pancing." },
-  { id: 'K', symbol: "K", read: "K", hint: "Tangan ke atas, kaki ke bawah." },
-  { id: 'L', symbol: "L", read: "L", hint: "Siku-siku." },
-  { id: 'M', symbol: "M", read: "M", hint: "Dua gunung." },
-  { id: 'N', symbol: "N", read: "N", hint: "Petir/Zigzag." },
-  { id: 'O', symbol: "O", read: "O", hint: "Donat." },
-  { id: 'P', symbol: "P", read: "P", hint: "Kepala di atas." },
-  { id: 'Q', symbol: "Q", read: "Q", hint: "O punya ekor." },
-  { id: 'R', symbol: "R", read: "R", hint: "P punya kaki." },
-  { id: 'S', symbol: "S", read: "S", hint: "Ular meliuk." },
-  { id: 'T', symbol: "T", read: "T", hint: "Palu." },
-  { id: 'U', symbol: "U", read: "U", hint: "Gelas." },
-  { id: 'V', symbol: "V", read: "V", hint: "Burung terbang." },
-  { id: 'W', symbol: "W", read: "W", hint: "M terbalik." },
-  { id: 'X', symbol: "X", read: "X", hint: "Silang." },
-  { id: 'Y', symbol: "Y", read: "Y", hint: "Ketapel." },
-  { id: 'Z', symbol: "Z", read: "Z", hint: "Zigzag tajam." }
-];
-
-const CHARS_ARABIC = [
-  { id: 'alif', symbol: "ا", read: "Alif", hint: "Tongkat lurus." },
-  { id: 'ba', symbol: "ب", read: "Ba", hint: "Perahu titik satu di bawah." },
-  { id: 'ta', symbol: "ت", read: "Ta", hint: "Perahu titik dua di atas." },
-  { id: 'tsa', symbol: "ث", read: "Tsa", hint: "Perahu titik tiga." },
-  { id: 'jim', symbol: "ج", read: "Jim", hint: "Perut buncit titik di dalam." },
-  { id: 'ha', symbol: "ح", read: "Ha", hint: "Perut buncit kosong." },
-  { id: 'kha', symbol: "خ", read: "Kha", hint: "Perut buncit titik di atas." },
-  { id: 'dal', symbol: "د", read: "Dal", hint: "Mulut terbuka." },
-  { id: 'dzal', symbol: "ذ", read: "Dzal", hint: "Dal pakai titik." },
-  { id: 'ra', symbol: "ر", read: "Ra", hint: "Perosotan." },
-  { id: 'zai', symbol: "ز", read: "Zai", hint: "Perosotan pakai titik." },
-  { id: 'sin', symbol: "س", read: "Sin", hint: "Gigi tiga perut besar." },
-  { id: 'syin', symbol: "ش", read: "Syin", hint: "Sin pakai titik tiga." },
-  { id: 'shad', symbol: "ص", read: "Shad", hint: "Kepala lonjong perut besar." },
-  { id: 'dhad', symbol: "ض", read: "Dhad", hint: "Shad pakai titik." },
-  { id: 'tha', symbol: "ط", read: "Tha", hint: "Kepala lonjong pakai tiang." },
-  { id: 'zha', symbol: "ظ", read: "Zha", hint: "Tha pakai titik." },
-  { id: 'ain', symbol: "ع", read: "'Ain", hint: "C kecil dan C besar." },
-  { id: 'ghain', symbol: "غ", read: "Ghain", hint: "Ain pakai titik." },
-  { id: 'fa', symbol: "ف", read: "Fa", hint: "Kepala bulat leher pendek." },
-  { id: 'qof', symbol: "ق", read: "Qof", hint: "Kepala bulat perut dalam." },
-  { id: 'kaf', symbol: "ك", read: "Kaf", hint: "S kecil di atas kursi." },
-  { id: 'lam', symbol: "ل", read: "Lam", hint: "Kail pancing besar." },
-  { id: 'mim', symbol: "م", read: "Mim", hint: "Kepala bulat ekor bawah." },
-  { id: 'nun', symbol: "ن", read: "Nun", hint: "Mangkuk titik satu." },
-  { id: 'waw', symbol: "و", read: "Waw", hint: "Kepala bulat meluncur." },
-  { id: 'ha_besar', symbol: "ه", read: "Ha", hint: "Bulatan simpul." },
-  { id: 'ya', symbol: "ي", read: "Ya", hint: "Angsa titik dua." }
-];
-
-const CHARS_HANGUL = [
-  // Konsonan (14)
-  { id: 'g', symbol: "ㄱ", read: "Giyok (G)", hint: "Pistol." },
-  { id: 'n', symbol: "ㄴ", read: "Nieun (N)", hint: "Duduk." },
-  { id: 'd', symbol: "ㄷ", read: "Digeut (D)", hint: "Kotak terbuka." },
-  { id: 'r', symbol: "ㄹ", read: "Rieul (R/L)", hint: "Ular." },
-  { id: 'm', symbol: "ㅁ", read: "Mieum (M)", hint: "Kotak." },
-  { id: 'b', symbol: "ㅂ", read: "Bieup (B)", hint: "Ember." },
-  { id: 's', symbol: "ㅅ", read: "Siot (S)", hint: "Orang berdiri." },
-  { id: 'ng', symbol: "ㅇ", read: "Ieung (Ng)", hint: "Bulatan." },
-  { id: 'j', symbol: "ㅈ", read: "Jieut (J)", hint: "Siot pakai topi." },
-  { id: 'ch', symbol: "ㅊ", read: "Chieut (Ch)", hint: "Jieut pakai topi." },
-  { id: 'k', symbol: "ㅋ", read: "Kieuk (K)", hint: "Pistol ada pelatuk." },
-  { id: 't', symbol: "ㅌ", read: "Tieut (T)", hint: "Sisir E." },
-  { id: 'p', symbol: "ㅍ", read: "Pieup (P)", hint: "Pilar Romawi." },
-  { id: 'h', symbol: "ㅎ", read: "Hieut (H)", hint: "Orang pakai topi." },
-  // Vokal (10 Dasar)
-  { id: 'a', symbol: "ㅏ", read: "A", hint: "Tongkat tangan kanan." },
-  { id: 'ya', symbol: "ㅑ", read: "Ya", hint: "Tongkat dua tangan kanan." },
-  { id: 'eo', symbol: "ㅓ", read: "Eo", hint: "Tongkat tangan kiri." },
-  { id: 'yeo', symbol: "ㅕ", read: "Yeo", hint: "Tongkat dua tangan kiri." },
-  { id: 'o', symbol: "ㅗ", read: "O", hint: "Tangan ke atas." },
-  { id: 'yo', symbol: "ㅛ", read: "Yo", hint: "Dua tangan ke atas." },
-  { id: 'u', symbol: "ㅜ", read: "U", hint: "Tangan ke bawah." },
-  { id: 'yu', symbol: "ㅠ", read: "Yu", hint: "Dua tangan ke bawah." },
-  { id: 'eu', symbol: "ㅡ", read: "Eu", hint: "Garis datar." },
-  { id: 'i', symbol: "ㅣ", read: "I", hint: "Garis tegak." }
-];
-
-const CHARS_HIRAGANA = [
-  { symbol: "あ", read: "A", hint: "Ikan." }, { symbol: "い", read: "I", hint: "Dua garis." }, { symbol: "う", read: "U", hint: "Bungkuk." }, { symbol: "え", read: "E", hint: "Burung." }, { symbol: "お", read: "O", hint: "A + titik." },
-  { symbol: "か", read: "Ka", hint: "Kekuatan." }, { symbol: "き", read: "Ki", hint: "Kunci." }, { symbol: "く", read: "Ku", hint: "Mulut." }, { symbol: "け", read: "Ke", hint: "Pedang." }, { symbol: "こ", read: "Ko", hint: "Cacing." },
-  { symbol: "さ", read: "Sa", hint: "Senyum." }, { symbol: "し", read: "Shi", hint: "Kail." }, { symbol: "す", read: "Su", hint: "Simpul." }, { symbol: "せ", read: "Se", hint: "Pangkuan." }, { symbol: "そ", read: "So", hint: "Zigzag." },
-  { symbol: "た", read: "Ta", hint: "Ta + Ko." }, { symbol: "ち", read: "Chi", hint: "Lima." }, { symbol: "つ", read: "Tsu", hint: "Ombak." }, { symbol: "て", read: "Te", hint: "Tangan." }, { symbol: "と", read: "To", hint: "Duri." },
-  { symbol: "な", read: "Na", hint: "Salib." }, { symbol: "に", read: "Ni", hint: "Garis + Ko." }, { symbol: "ぬ", read: "Nu", hint: "Mie." }, { symbol: "ね", read: "Ne", hint: "Kucing." }, { symbol: "の", read: "No", hint: "Larangan." },
-  { symbol: "は", read: "Ha", hint: "Ha + Simpul." }, { symbol: "ひ", read: "Hi", hint: "Senyum V." }, { symbol: "ふ", read: "Fu", hint: "Gunung Fuji." }, { symbol: "へ", read: "He", hint: "Gunung." }, { symbol: "ほ", read: "Ho", hint: "Ha + Topi." },
-  { symbol: "ま", read: "Ma", hint: "Dua garis simpul." }, { symbol: "み", read: "Mi", hint: "21." }, { symbol: "む", read: "Mu", hint: "Sapi (Moo)." }, { symbol: "め", read: "Me", hint: "Mie (Nu) tanpa ekor." }, { symbol: "も", read: "Mo", hint: "Kail dua umpan." },
-  { symbol: "や", read: "Ya", hint: "Yakitori." }, { symbol: "ゆ", read: "Yu", hint: "Ikan melintas." }, { symbol: "よ", read: "Yo", hint: "Yo-yo." },
-  { symbol: "ら", read: "Ra", hint: "Angka 5." }, { symbol: "り", read: "Ri", hint: "Dua garis." }, { symbol: "る", read: "Ru", hint: "Tiga simpul." }, { symbol: "れ", read: "Re", hint: "Z melengkung." }, { symbol: "ろ", read: "Ro", hint: "Tiga (Ru) tanpa simpul." },
-  { symbol: "わ", read: "Wa", hint: "Re gemuk." }, { symbol: "を", read: "Wo", hint: "Huruf C dan h." }, { symbol: "ん", read: "N", hint: "Huruf h miring." }
-].map((c, i) => ({ ...c, id: `hira_${i}` }));
-
-const CHARS_KATAKANA = [
-  { symbol: "ア", read: "A", hint: "T miring." }, { symbol: "イ", read: "I", hint: "Orang." }, { symbol: "ウ", read: "U", hint: "Atap." }, { symbol: "エ", read: "E", hint: "I Romawi." }, { symbol: "オ", read: "O", hint: "Orang menari." },
-  { symbol: "カ", read: "Ka", hint: "Ka tanpa titik." }, { symbol: "キ", read: "Ki", hint: "Dua garis." }, { symbol: "ク", read: "Ku", hint: "Tujuh." }, { symbol: "ケ", read: "Ke", hint: "K melengkung." }, { symbol: "コ", read: "Ko", hint: "Siku." },
-  { symbol: "サ", read: "Sa", hint: "Tiang." }, { symbol: "シ", read: "Shi", hint: "Air ciprat." }, { symbol: "ス", read: "Su", hint: "Gantungan." }, { symbol: "セ", read: "Se", hint: "Siku miring." }, { symbol: "ソ", read: "So", hint: "Jarum." },
-  { symbol: "タ", read: "Ta", hint: "Sore (Yu)." }, { symbol: "チ", read: "Chi", hint: "Seribu." }, { symbol: "ツ", read: "Tsu", hint: "Senyum." }, { symbol: "テ", read: "Te", hint: "Dua garis." }, { symbol: "ト", read: "To", hint: "Totem." },
-  { symbol: "ナ", read: "Na", hint: "Pedang." }, { symbol: "ニ", read: "Ni", hint: "Dua." }, { symbol: "ヌ", read: "Nu", hint: "Tujuh." }, { symbol: "ネ", read: "Ne", hint: "Pohon." }, { symbol: "ノ", read: "No", hint: "Coretan." },
-  { symbol: "ハ", read: "Ha", hint: "Kumis." }, { symbol: "ヒ", read: "Hi", hint: "Kursi." }, { symbol: "フ", read: "Fu", hint: "Tujuh bengkok." }, { symbol: "ヘ", read: "He", hint: "Gunung." }, { symbol: "ホ", read: "Ho", hint: "Pohon salib." },
-  { symbol: "マ", read: "Ma", hint: "Siku 7." }, { symbol: "ミ", read: "Mi", hint: "Tiga garis." }, { symbol: "ム", read: "Mu", hint: "Segitiga." }, { symbol: "メ", read: "Me", hint: "Silang." }, { symbol: "モ", read: "Mo", hint: "Dua garis E." },
-  { symbol: "ヤ", read: "Ya", hint: "Tujuh miring." }, { symbol: "ユ", read: "Yu", hint: "Nomor 1." }, { symbol: "ヨ", read: "Yo", hint: "E terbalik." },
-  { symbol: "ラ", read: "Ra", hint: "Topi." }, { symbol: "リ", read: "Ri", hint: "Dua garis." }, { symbol: "ル", read: "Ru", hint: "Kaki." }, { symbol: "レ", read: "Re", hint: "L." }, { symbol: "ロ", read: "Ro", hint: "Kotak." },
-  { symbol: "ワ", read: "Wa", hint: "Tanya." }, { symbol: "ヲ", read: "Wo", hint: "F." }, { symbol: "ン", read: "N", hint: "Senyum satu mata." }
-].map((c, i) => ({ ...c, id: `kata_${i}` }));
-
-const CHARS_JAVANESE = [
-  { symbol: "ꦲ", read: "Ha", hint: "Ha" }, { symbol: "ꦤ", read: "Na", hint: "Na" }, { symbol: "ꦕ", read: "Ca", hint: "Ca" }, { symbol: "ꦫ", read: "Ra", hint: "Ra" }, { symbol: "ꦏ", read: "Ka", hint: "Ka" },
-  { symbol: "ꦢ", read: "Da", hint: "Da" }, { symbol: "ꦠ", read: "Ta", hint: "Ta" }, { symbol: "ꦱ", read: "Sa", hint: "Sa" }, { symbol: "ꦮ", read: "Wa", hint: "Wa" }, { symbol: "ꦭ", read: "La", hint: "La" },
-  { symbol: "ꦥ", read: "Pa", hint: "Pa" }, { symbol: "ꦝ", read: "Dha", hint: "Dha" }, { symbol: "ꦗ", read: "Ja", hint: "Ja" }, { symbol: "ꦪ", read: "Ya", hint: "Ya" }, { symbol: "ꦚ", read: "Nya", hint: "Nya" },
-  { symbol: "ꦩ", read: "Ma", hint: "Ma" }, { symbol: "ꦒ", read: "Ga", hint: "Ga" }, { symbol: "ꦧ", read: "Ba", hint: "Ba" }, { symbol: "ꦛ", read: "Tha", hint: "Tha" }, { symbol: "ꦔ", read: "Nga", hint: "Nga" }
-].map((c, i) => ({ ...c, id: `java_${i}` }));
-
-const CHARS_THAI = [
-  { symbol: "ก", read: "Ko Kai", hint: "Ayam." }, { symbol: "ข", read: "Kho Khai", hint: "Telur." }, { symbol: "ฃ", read: "Kho Khuad", hint: "Botol." }, { symbol: "ค", read: "Kho Khwai", hint: "Kerbau." }, { symbol: "ฅ", read: "Kho Khon", hint: "Orang." },
-  { symbol: "ฆ", read: "Kho Rakhang", hint: "Lonceng." }, { symbol: "ง", read: "Ngo Ngu", hint: "Ular." }, { symbol: "จ", read: "Cho Chan", hint: "Piring." }, { symbol: "ฉ", read: "Cho Ching", hint: "Simbal." }, { symbol: "ช", read: "Cho Chang", hint: "Gajah." },
-  { symbol: "ซ", read: "So So", hint: "Rantai." }, { symbol: "ฌ", read: "Cho Choe", hint: "Pohon." }, { symbol: "ญ", read: "Yo Ying", hint: "Wanita." }, { symbol: "ฎ", read: "Do Chada", hint: "Mahkota." }, { symbol: "ฏ", read: "To Patak", hint: "Tombak." },
-  { symbol: "ฐ", read: "Tho Than", hint: "Peralatan." }, { symbol: "ฑ", read: "Tho Montho", hint: "Raksasa." }, { symbol: "ฒ", read: "Tho Phuthao", hint: "Orang Tua." }, { symbol: "ณ", read: "No Nen", hint: "Biksuni." }, { symbol: "ด", read: "Do Dek", hint: "Anak." },
-  { symbol: "ต", read: "To Tao", hint: "Kura-kura." }, { symbol: "ถ", read: "Tho Thung", hint: "Tas." }, { symbol: "ท", read: "Tho Thahan", hint: "Tentara." }, { symbol: "ธ", read: "Tho Thong", hint: "Bendera." }, { symbol: "น", read: "No Nu", hint: "Tikus." },
-  { symbol: "บ", read: "Bo Baimai", hint: "Daun." }, { symbol: "ป", read: "Po Pla", hint: "Ikan." }, { symbol: "ผ", read: "Pho Phueng", hint: "Lebah." }, { symbol: "ฝ", read: "Fo Fa", hint: "Tutup." }, { symbol: "พ", read: "Pho Phan", hint: "Nampan." },
-  { symbol: "ฟ", read: "Fo Fan", hint: "Gigi." }, { symbol: "ภ", read: "Pho Samphao", hint: "Perahu Layar." }, { symbol: "ม", read: "Mo Ma", hint: "Kuda." }, { symbol: "ย", read: "Yo Yak", hint: "Raksasa." }, { symbol: "ร", read: "Ro Ruea", hint: "Perahu." },
-  { symbol: "ล", read: "Lo Ling", hint: "Monyet." }, { symbol: "ว", read: "Wo Waen", hint: "Cincin." }, { symbol: "ศ", read: "So Sala", hint: "Paviliun." }, { symbol: "ษ", read: "So Ruesi", hint: "Pertapa." }, { symbol: "ส", read: "So Suea", hint: "Harimau." },
-  { symbol: "ห", read: "Ho Hip", hint: "Kotak." }, { symbol: "ฬ", read: "Lo Chula", hint: "Layang-layang." }, { symbol: "อ", read: "O Ang", hint: "Baskom." }, { symbol: "ฮ", read: "Ho Nokhuk", hint: "Burung Hantu." }
-].map((c, i) => ({ ...c, id: `thai_${i}` }));
-
-
-const LANGUAGE_DATA = {
-  alphabet: {
-    name: "Alphabet (26)",
-    langCode: "en-US",
-    fontFamily: "sans-serif",
-    stages: createStages(CHARS_ALPHABET)
-  },
-  arabic: {
-    name: "Arab (28)",
-    langCode: "ar-SA",
-    fontFamily: "serif",
-    stages: createStages(CHARS_ARABIC)
-  },
-  javanese: {
-    name: "Aksara Jawa (20)",
-    langCode: "jv-ID", // Support di beberapa browser
-    fontFamily: "'Noto Sans Javanese', serif",
-    stages: createStages(CHARS_JAVANESE)
-  },
-  hangul: {
-    name: "Korea Hangul (24)",
-    langCode: "ko-KR",
-    fontFamily: "sans-serif",
-    stages: createStages(CHARS_HANGUL)
-  },
-  hiragana: {
-    name: "Jepang Hiragana (46)",
-    langCode: "ja-JP",
-    fontFamily: "sans-serif",
-    stages: createStages(CHARS_HIRAGANA)
-  },
-  katakana: {
-    name: "Jepang Katakana (46)",
-    langCode: "ja-JP",
-    fontFamily: "sans-serif",
-    stages: createStages(CHARS_KATAKANA)
-  },
-  thai: {
-    name: "Aksara Thai (44)",
-    langCode: "th-TH",
-    fontFamily: "'Noto Sans Thai', sans-serif",
-    stages: createStages(CHARS_THAI)
-  }
-};
-
-/**
- * ENGINE DRILL (30 ITEMS - IQRO METHOD)
- * Logic:
- * Stage 1: 100% Huruf Baru.
- * Stage >1: 70% Huruf Baru (Diulang-ulang), 30% Huruf Lama (Random Review).
- */
-const generateDrillQueue = (langData, stageId) => {
-  const currentStage = langData.stages.find(s => s.id === stageId);
-  const prevStages = langData.stages.filter(s => s.id < stageId);
-  
-  const DRILL_COUNT = 30;
-  let queue = [];
-
-  if (!currentStage) return [];
-
-  // Karena struktur baru 1 level = 1 huruf, maka newChars selalu cuma 1 item.
-  const targetChar = currentStage.newChars[0];
-  
-  // Kumpulkan huruf lama untuk review
-  let oldChars = [];
-  prevStages.forEach(s => {
-    oldChars = [...oldChars, ...s.newChars];
-  });
-
-  for (let i = 0; i < DRILL_COUNT; i++) {
-    let char;
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GlobalScript - Belajar Menulis Dunia</title>
     
-    if (stageId === 1) {
-       // Stage 1: Full Target
-       char = targetChar;
-    } else {
-       // Stage > 1: Mix
-       // Pola: Baru, Baru, Lama, Baru, Baru, Lama... (2:1 Ratio)
-       const isReview = oldChars.length > 0 && ((i + 1) % 3 === 0);
-       
-       if (isReview) {
-         char = oldChars[Math.floor(Math.random() * oldChars.length)];
-       } else {
-         char = targetChar;
-       }
-    }
-
-    queue.push({ 
-        ...char, 
-        uniqueId: `drill-${stageId}-${i}`, 
-        userImage: null 
-    });
-  }
-  return queue;
-};
-
-const App = () => {
-  const [activeLangKey, setActiveLangKey] = useState('alphabet'); 
-  const [activeStageId, setActiveStageId] = useState(1);
-  
-  const [drillQueue, setDrillQueue] = useState([]);
-  const [currentDrillIndex, setCurrentDrillIndex] = useState(0);
-  
-  // Drawing State
-  const [userStrokes, setUserStrokes] = useState([]); 
-  const [isDrawing, setIsDrawing] = useState(false);
-  const [currentStroke, setCurrentStroke] = useState([]);
-
-  const [feedback, setFeedback] = useState("");
-  const [leftSidebarOpen, setLeftSidebarOpen] = useState(false);
-  const [rightSidebarOpen, setRightSidebarOpen] = useState(true);
-  const [showConfetti, setShowConfetti] = useState(false);
-
-  const canvasRef = useRef(null);
-
-  const currentLangData = LANGUAGE_DATA[activeLangKey];
-  const currentStage = currentLangData.stages.find(s => s.id === activeStageId) || currentLangData.stages[0];
-  const currentTaskChar = drillQueue[currentDrillIndex];
-
-  // TTS Helper
-  const speak = (text) => {
-    if ('speechSynthesis' in window) {
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = currentLangData.langCode;
-        utterance.rate = 0.8; 
-        window.speechSynthesis.cancel();
-        window.speechSynthesis.speak(utterance);
-    }
-  };
-
-  // Play audio when char changes
-  useEffect(() => {
-    if (currentTaskChar) {
-        setFeedback(currentTaskChar.hint);
-    }
-  }, [currentTaskChar]);
-
-  // Responsive Init
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth < 1024) {
-        setRightSidebarOpen(false); 
-      } else {
-        setRightSidebarOpen(true); 
-      }
-    };
-    handleResize(); 
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  // Init Drill
-  useEffect(() => {
-    // Reset ke stage 1 jika ganti bahasa
-    setActiveStageId(1);
-  }, [activeLangKey]);
-
-  useEffect(() => {
-    const queue = generateDrillQueue(currentLangData, activeStageId);
-    setDrillQueue(queue);
-    setCurrentDrillIndex(0);
-    setUserStrokes([]);
-    setCurrentStroke([]);
-    setFeedback("Tebalkan huruf bercahaya di layar.");
-  }, [activeLangKey, activeStageId]);
-
-  // RENDER CANVAS
-  useEffect(() => {
-    if (!currentTaskChar) return;
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+    <!-- React & ReactDOM -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
     
-    const rect = canvas.getBoundingClientRect();
-    if (canvas.width !== rect.width || canvas.height !== rect.height) {
-        canvas.width = rect.width;
-        canvas.height = rect.height;
-    }
-
-    const ctx = canvas.getContext('2d');
-    const w = canvas.width;
-    const h = canvas.height;
+    <!-- Babel untuk JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     
-    ctx.clearRect(0, 0, w, h);
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
     
-    // 1. GRID
-    drawGrid(ctx, w, h);
+    <!-- Google Fonts: Noto Sans (Universal), Noto Sans Arabic, Thai, Javanese, JP, KR -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;700&family=Noto+Sans+Arabic:wght@400;700&family=Noto+Sans+Thai:wght@400;700&family=Noto+Sans+Javanese&family=Noto+Sans+JP:wght@400;700&family=Noto+Sans+KR:wght@400;700&family=Noto+Serif+TC:wght@400;700&display=swap" rel="stylesheet">
 
-    // 2. GLOWING GHOST CHARACTER
-    ctx.save();
-    // Adjust font size for long text (like some Thai chars are tall)
-    const fontSize = w * 0.60;
-    const fontFamily = currentLangData.fontFamily || "sans-serif";
-    ctx.font = `bold ${fontSize}px ${fontFamily}, "Noto Sans", "Arial"`;
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    
-    // Glowing Effect
-    ctx.shadowColor = "#58D68D"; 
-    ctx.shadowBlur = 20;
-    ctx.fillStyle = "rgba(88, 214, 141, 0.25)"; 
-    
-    const yOffset = h * 0.05; 
-    ctx.fillText(currentTaskChar.symbol, w / 2, h / 2 + yOffset);
-    
-    ctx.strokeStyle = "rgba(88, 214, 141, 0.4)";
-    ctx.lineWidth = 1;
-    ctx.strokeText(currentTaskChar.symbol, w / 2, h / 2 + yOffset);
-    
-    ctx.restore();
-
-    // 3. USER INK
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-    ctx.globalAlpha = 1.0;
-    ctx.strokeStyle = '#1e293b'; 
-    ctx.lineWidth = 16; 
-    
-    userStrokes.forEach(strokePoints => {
-        drawUserPath(ctx, strokePoints);
-    });
-
-    if (currentStroke.length > 0) {
-        drawUserPath(ctx, currentStroke);
-    }
-
-  }, [drillQueue, currentDrillIndex, userStrokes, currentStroke, activeLangKey]);
-
-  // --- HELPERS ---
-  const drawGrid = (ctx, w, h) => {
-    ctx.save();
-    ctx.beginPath();
-    ctx.strokeStyle = '#58D68D'; 
-    ctx.lineWidth = 1;
-    ctx.globalAlpha = 0.3; 
-    
-    const padding = 15;
-    ctx.rect(padding, padding, w-(padding*2), h-(padding*2));
-    
-    ctx.setLineDash([8, 8]);
-    ctx.moveTo(w/2, padding); ctx.lineTo(w/2, h-padding);
-    ctx.moveTo(padding, h/2); ctx.lineTo(w-padding, h/2);
-    
-    // Diagonal lines for complicated chars
-    if (currentLangData.fontFamily.includes('serif') || activeLangKey !== 'alphabet') {
-        ctx.moveTo(padding, padding); ctx.lineTo(w-padding, h-padding);
-        ctx.moveTo(w-padding, padding); ctx.lineTo(padding, h-padding);
-    }
-    
-    ctx.stroke();
-    ctx.restore();
-  };
-
-  const drawUserPath = (ctx, points) => {
-    if(points.length < 2) {
-        if(points.length === 1) {
-            ctx.beginPath();
-            ctx.arc(points[0].x, points[0].y, ctx.lineWidth/2, 0, Math.PI*2);
-            ctx.fill();
-        }
-        return;
-    }
-    ctx.beginPath();
-    ctx.moveTo(points[0].x, points[0].y);
-    for(let i = 1; i < points.length; i++) {
-         ctx.lineTo(points[i].x, points[i].y);
-    }
-    ctx.stroke();
-  };
-
-  const getCoords = (e) => {
-    const canvas = canvasRef.current;
-    const rect = canvas.getBoundingClientRect();
-    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-    return {
-        x: clientX - rect.left,
-        y: clientY - rect.top
-    };
-  };
-
-  const startDrawing = (e) => {
-    if (currentDrillIndex >= drillQueue.length) return;
-    if (e.cancelable) e.preventDefault(); 
-    setIsDrawing(true);
-    const coords = getCoords(e);
-    setCurrentStroke([coords]);
-  };
-
-  const draw = (e) => {
-    if (!isDrawing) return;
-    if (e.cancelable) e.preventDefault();
-    const coords = getCoords(e);
-    setCurrentStroke(prev => [...prev, coords]);
-  };
-
-  const endDrawing = () => {
-    if (!isDrawing) return;
-    setIsDrawing(false);
-    if (currentStroke.length > 0) {
-        setUserStrokes(prev => [...prev, currentStroke]);
-    }
-    setCurrentStroke([]);
-  };
-
-  // --- ACTIONS ---
-  const handleClear = () => {
-    setUserStrokes([]);
-    setCurrentStroke([]);
-  };
-
-  const saveToNotebook = () => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const dataUrl = canvas.toDataURL('image/png');
-    const updatedQueue = [...drillQueue];
-    updatedQueue[currentDrillIndex].userImage = dataUrl;
-    setDrillQueue(updatedQueue);
-  };
-
-  const handleNext = () => {
-    saveToNotebook();
-    if (currentDrillIndex < drillQueue.length - 1) {
-        setCurrentDrillIndex(prev => prev + 1);
-        setUserStrokes([]);
-        setFeedback(currentTaskChar.hint); 
-    } else {
-        setFeedback("Stage Selesai!");
-        setShowConfetti(true);
-        setTimeout(() => setShowConfetti(false), 3000);
-        setRightSidebarOpen(true);
-    }
-  };
-
-  const handlePrint = () => {
-    window.print();
-  };
-
-  if (!currentTaskChar) return <div className="p-10 flex justify-center text-emerald-500">Memuat Aset...</div>;
-
-  return (
-    <div className="min-h-screen bg-[#E9F7EF] font-sans text-slate-800 flex flex-col overflow-hidden select-none">
-      
-      {/* CSS PRINTING */}
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Javanese&family=Noto+Sans+Thai:wght@400;700&display=swap');
+    <style>
+        body { font-family: 'Noto Sans', sans-serif; background-color: #E9F7EF; }
         
+        /* Custom Scrollbar */
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 20px; }
+        
+        /* Print Styles */
         @media print {
-          @page { margin: 1cm; size: A4; }
-          body { background: white; }
-          header, aside, .tools-panel, .action-buttons, .canvas-tools, .canvas-container, .audio-btn { display: none !important; }
-          .notebook-section { 
-            position: relative !important; 
-            width: 100% !important; 
-            height: auto !important; 
-            overflow: visible !important;
-            border: none !important;
-            background: white !important;
-            transform: none !important;
-            display: block !important;
-          }
-          .notebook-grid {
-            display: grid !important;
-            grid-template-columns: repeat(5, 1fr) !important;
-            gap: 10px !important;
-          }
-          .notebook-item {
-            border: 1px solid #ccc !important;
-            break-inside: avoid;
-            background: white !important;
-          }
-          .print-header { display: block !important; text-align: center; margin-bottom: 20px; }
-          .notebook-title { display: none; }
+            @page { margin: 0.5cm; size: A4; }
+            body { background: white; -webkit-print-color-adjust: exact; }
+            header, aside, .tools-panel, .action-buttons, .canvas-tools, .canvas-container, .audio-btn, .mobile-menu-btn, .lang-selector { display: none !important; }
+            .notebook-section { 
+                position: relative !important; 
+                width: 100% !important; 
+                height: auto !important; 
+                overflow: visible !important;
+                border: none !important;
+                background: white !important;
+                transform: none !important;
+                display: block !important;
+                box-shadow: none !important;
+            }
+            .notebook-grid {
+                display: grid !important;
+                grid-template-columns: repeat(5, 1fr) !important;
+                gap: 15px !important;
+            }
+            .notebook-item {
+                border: 1px solid #ccc !important;
+                break-inside: avoid;
+                background: white !important;
+            }
+            .print-header { display: block !important; text-align: center; margin-bottom: 20px; color: black !important; }
+            .notebook-title { display: none !important; }
+            .notebook-footer { display: none !important; }
         }
         .print-header { display: none; }
-      `}</style>
+    </style>
+</head>
+<body>
+    <div id="root"></div>
 
-      {/* HEADER */}
-      <header className="bg-white border-b border-[#D5F5E3] px-4 py-3 flex justify-between items-center z-20 shadow-sm h-16 shrink-0">
-        <div className="flex items-center gap-3">
-           <button onClick={() => setLeftSidebarOpen(!leftSidebarOpen)} className="p-2 hover:bg-[#E9F7EF] rounded-lg lg:hidden text-emerald-700">
-             <Menu size={24} />
-           </button>
-           <div className="w-9 h-9 bg-[#58D68D] rounded-xl flex items-center justify-center text-white shadow-md shadow-emerald-100">
-             <Globe size={20} />
-           </div>
-           <div>
-             <h1 className="font-bold text-lg leading-none tracking-tight text-emerald-900">GlobalScript</h1>
-             <p className="text-[10px] text-emerald-600 font-medium tracking-wider">IQRO METHOD</p>
-           </div>
-        </div>
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
 
-        <div className="flex items-center gap-2">
-           <div className="hidden sm:flex px-3 py-1 bg-[#E9F7EF] rounded-full text-xs font-bold text-emerald-700 border border-[#D5F5E3]">
-              {currentLangData.name}
-           </div>
-           <button 
-             onClick={() => setRightSidebarOpen(!rightSidebarOpen)}
-             className="relative p-2 hover:bg-[#E9F7EF] rounded-lg text-emerald-700 lg:hidden"
-           >
-              <Book size={24} />
-              <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-[#58D68D] rounded-full border border-white"></span>
-           </button>
-        </div>
-      </header>
+        /* =========================================
+           0. ICONS (MANUAL SVG DEFINITIONS)
+           Untuk menghindari error Lucide CDN di React
+           ========================================= */
+        const IconBase = ({ children, size = 24, className = "" }) => (
+            <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                width={size} 
+                height={size} 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                className={className}
+            >
+                {children}
+            </svg>
+        );
 
-      {/* BODY */}
-      <div className="flex flex-1 overflow-hidden relative">
+        const Globe = (props) => (
+            <IconBase {...props}>
+                <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+            </IconBase>
+        );
+        const Menu = (props) => (
+            <IconBase {...props}>
+                <line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="18" x2="20" y2="18"/>
+            </IconBase>
+        );
+        const X = (props) => (
+            <IconBase {...props}>
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </IconBase>
+        );
+        const Book = (props) => (
+            <IconBase {...props}>
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+            </IconBase>
+        );
+        const CheckCircle = (props) => (
+            <IconBase {...props}>
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+            </IconBase>
+        );
+        const ChevronDown = (props) => (
+            <IconBase {...props}>
+                <polyline points="6 9 12 15 18 9"/>
+            </IconBase>
+        );
+        const ChevronRight = (props) => (
+            <IconBase {...props}>
+                <polyline points="9 18 15 12 9 6"/>
+            </IconBase>
+        );
+        const RotateCcw = (props) => (
+            <IconBase {...props}>
+                <path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
+            </IconBase>
+        );
+        const Eraser = (props) => (
+            <IconBase {...props}>
+                <path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"/><path d="M22 21H7"/><path d="m5 11 9 9"/>
+            </IconBase>
+        );
+        const Printer = (props) => (
+            <IconBase {...props}>
+                <polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>
+            </IconBase>
+        );
+        const Volume2 = (props) => (
+            <IconBase {...props}>
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+            </IconBase>
+        );
+        const Star = (props) => (
+            <IconBase {...props}>
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+            </IconBase>
+        );
+
+        /* =========================================
+           1. LOCALIZATION (BAHASA ANTARMUKA)
+           ========================================= */
+        const UI_STRINGS = {
+            id: {
+                appTitle: "GlobalScript",
+                appSubtitle: "METODE IQRO DIGITAL",
+                menuTitle: "Pengaturan Belajar",
+                subjectLabel: "Mata Pelajaran",
+                stageLabel: "Pilih Tingkat (Jilid)",
+                stagePlaceholder: "Pilih Jilid...",
+                canvasInstruction: "Tebalkan huruf bercahaya",
+                clear: "Hapus",
+                repeat: "Ulang",
+                next: "Lanjut",
+                finish: "Selesai!",
+                notebookTitle: "Buku Latihan",
+                notebookPage: "halaman",
+                printBtn: "Cetak / Simpan PDF",
+                reportTitle: "Laporan Belajar",
+                tips: "Tips:",
+                loading: "Memuat...",
+                selectLang: "Bahasa Aplikasi",
+                levelPrefix: "Jilid"
+            },
+            en: {
+                appTitle: "GlobalScript",
+                appSubtitle: "DIGITAL IQRO METHOD",
+                menuTitle: "Learning Settings",
+                subjectLabel: "Subject",
+                stageLabel: "Select Level (Stage)",
+                stagePlaceholder: "Select Level...",
+                canvasInstruction: "Trace the glowing letter",
+                clear: "Clear",
+                repeat: "Retry",
+                next: "Next",
+                finish: "Done!",
+                notebookTitle: "Workbook",
+                notebookPage: "pages",
+                printBtn: "Print / Save PDF",
+                reportTitle: "Learning Report",
+                tips: "Hint:",
+                loading: "Loading...",
+                selectLang: "App Language",
+                levelPrefix: "Level"
+            }
+        };
+
+        /* =========================================
+           2. DATA HURUF (LIBRARY)
+           ========================================= */
         
-        {/* LEFT SIDEBAR (MENU) */}
-        <aside className={`
-          absolute lg:relative z-30 h-full w-64 bg-white border-r border-[#D5F5E3] flex flex-col transition-transform duration-300 shadow-xl lg:shadow-none
-          ${leftSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-        `}>
-           <div className="p-4 border-b border-[#E9F7EF] flex justify-between items-center lg:hidden">
-              <span className="font-bold text-emerald-800">Menu Belajar</span>
-              <button onClick={() => setLeftSidebarOpen(false)}><X size={20} className="text-emerald-500"/></button>
-           </div>
-           
-           <div className="flex-1 overflow-y-auto p-4 space-y-6">
-             {/* Language Selector */}
-             <div>
-               <h3 className="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-2">Pilih Aksara</h3>
-               <div className="grid grid-cols-1 gap-2">
-                 {Object.keys(LANGUAGE_DATA).map(key => (
-                   <button
-                     key={key}
-                     onClick={() => { setActiveLangKey(key); setLeftSidebarOpen(false); }}
-                     className={`p-3 rounded-xl text-sm font-medium border text-left flex justify-between items-center transition-all ${
-                       activeLangKey === key 
-                       ? 'bg-[#E9F7EF] text-emerald-800 border-[#58D68D] shadow-sm' 
-                       : 'bg-white text-slate-500 border-slate-100 hover:bg-[#E9F7EF]'
-                     }`}
-                   >
-                     {LANGUAGE_DATA[key].name}
-                     {activeLangKey === key && <CheckCircle size={16} className="text-[#58D68D]" />}
-                   </button>
-                 ))}
-               </div>
-             </div>
+        const createStages = (chars) => {
+            return chars.map((char, index) => ({
+                id: index + 1,
+                title: `${char.symbol} - ${char.read}`,
+                newChars: [char]
+            }));
+        };
 
-             {/* Stage Selector */}
-             <div>
-                <div className="flex justify-between items-center mb-2">
-                   <h3 className="text-xs font-bold text-emerald-400 uppercase tracking-wider">Pilih Huruf</h3>
-                   <span className="text-[10px] bg-slate-100 px-2 rounded-full text-slate-500">{currentLangData.stages.length} Level</span>
-                </div>
+        // --- RAW DATA ---
+        const CHARS_ALPHABET = [
+            { id: 'A', symbol: "A", read: "A", hint: "Gunung dengan sabuk." },
+            { id: 'B', symbol: "B", read: "B", hint: "Tiang lurus dua perut." },
+            { id: 'C', symbol: "C", read: "C", hint: "Bulan sabit." },
+            { id: 'D', symbol: "D", read: "D", hint: "Perut besar." },
+            { id: 'E', symbol: "E", read: "E", hint: "Sisir tiga gigi." },
+            { id: 'F', symbol: "F", read: "F", hint: "Bendera." },
+            { id: 'G', symbol: "G", read: "G", hint: "C ada kursinya." },
+            { id: 'H', symbol: "H", read: "H", hint: "Tangga." },
+            { id: 'I', symbol: "I", read: "I", hint: "Tiang listrik." },
+            { id: 'J', symbol: "J", read: "J", hint: "Kail pancing." },
+            { id: 'K', symbol: "K", read: "K", hint: "Tangan ke atas, kaki ke bawah." },
+            { id: 'L', symbol: "L", read: "L", hint: "Siku-siku." },
+            { id: 'M', symbol: "M", read: "M", hint: "Dua gunung." },
+            { id: 'N', symbol: "N", read: "N", hint: "Petir/Zigzag." },
+            { id: 'O', symbol: "O", read: "O", hint: "Donat." },
+            { id: 'P', symbol: "P", read: "P", hint: "Kepala di atas." },
+            { id: 'Q', symbol: "Q", read: "Q", hint: "O punya ekor." },
+            { id: 'R', symbol: "R", read: "R", hint: "P punya kaki." },
+            { id: 'S', symbol: "S", read: "S", hint: "Ular meliuk." },
+            { id: 'T', symbol: "T", read: "T", hint: "Palu." },
+            { id: 'U', symbol: "U", read: "U", hint: "Gelas." },
+            { id: 'V', symbol: "V", read: "V", hint: "Burung terbang." },
+            { id: 'W', symbol: "W", read: "W", hint: "M terbalik." },
+            { id: 'X', symbol: "X", read: "X", hint: "Silang." },
+            { id: 'Y', symbol: "Y", read: "Y", hint: "Ketapel." },
+            { id: 'Z', symbol: "Z", read: "Z", hint: "Zigzag tajam." }
+        ];
+
+        const CHARS_ARABIC = [
+            { id: 'alif', symbol: "ا", read: "Alif", hint: "Tongkat lurus." },
+            { id: 'ba', symbol: "ب", read: "Ba", hint: "Perahu titik satu di bawah." },
+            { id: 'ta', symbol: "ت", read: "Ta", hint: "Perahu titik dua di atas." },
+            { id: 'tsa', symbol: "ث", read: "Tsa", hint: "Perahu titik tiga." },
+            { id: 'jim', symbol: "ج", read: "Jim", hint: "Perut buncit titik di dalam." },
+            { id: 'ha', symbol: "ح", read: "Ha", hint: "Perut buncit kosong." },
+            { id: 'kha', symbol: "خ", read: "Kha", hint: "Perut buncit titik di atas." },
+            { id: 'dal', symbol: "د", read: "Dal", hint: "Mulut terbuka." },
+            { id: 'dzal', symbol: "ذ", read: "Dzal", hint: "Dzal" },
+            { id: 'ra', symbol: "ر", read: "Ra", hint: "Perosotan." },
+            { id: 'zai', symbol: "ز", read: "Zai", hint: "Perosotan titik satu." },
+            { id: 'sin', symbol: "س", read: "Sin", hint: "Gigi tiga perut besar." },
+            { id: 'syin', symbol: "ش", read: "Syin", hint: "Sin titik tiga." },
+            { id: 'shad', symbol: "ص", read: "Shad", hint: "Kepala lonjong." },
+            { id: 'dhad', symbol: "ض", read: "Dhad", hint: "Shad titik satu." },
+            { id: 'tha', symbol: "ط", read: "Tha", hint: "Kepala lonjong bertiang." },
+            { id: 'zha', symbol: "ظ", read: "Zha", hint: "Tha titik satu." },
+            { id: 'ain', symbol: "ع", read: "'Ain", hint: "C kecil dan C besar." },
+            { id: 'ghain', symbol: "غ", read: "Ghain", hint: "Ain titik satu." },
+            { id: 'fa', symbol: "ف", read: "Fa", hint: "Kepala bulat leher pendek." },
+            { id: 'qof', symbol: "ق", read: "Qof", hint: "Kepala bulat perut dalam." },
+            { id: 'kaf', symbol: "ك", read: "Kaf", hint: "S kecil di atas kursi." },
+            { id: 'lam', symbol: "ل", read: "Lam", hint: "Kail pancing." },
+            { id: 'mim', symbol: "م", read: "Mim", hint: "Kepala bulat ekor bawah." },
+            { id: 'nun', symbol: "ن", read: "Nun", hint: "Mangkuk titik satu." },
+            { id: 'waw', symbol: "و", read: "Waw", hint: "Kepala bulat meluncur." },
+            { id: 'ha_besar', symbol: "ه", read: "Ha", hint: "Bulatan simpul." },
+            { id: 'ya', symbol: "ي", read: "Ya", hint: "Angsa titik dua." }
+        ];
+
+        const CHARS_HANGUL = [
+            { id: 'g', symbol: "ㄱ", read: "Giyok (G)", hint: "Pistol." },
+            { id: 'n', symbol: "ㄴ", read: "Nieun (N)", hint: "Duduk." },
+            { id: 'd', symbol: "ㄷ", read: "Digeut (D)", hint: "Kotak terbuka." },
+            { id: 'r', symbol: "ㄹ", read: "Rieul (R/L)", hint: "Ular." },
+            { id: 'm', symbol: "ㅁ", read: "Mieum (M)", hint: "Kotak." },
+            { id: 'b', symbol: "ㅂ", read: "Bieup (B)", hint: "Ember." },
+            { id: 's', symbol: "ㅅ", read: "Siot (S)", hint: "Orang berdiri." },
+            { id: 'ng', symbol: "ㅇ", read: "Ieung (Ng)", hint: "Bulatan." },
+            { id: 'j', symbol: "ㅈ", read: "Jieut (J)", hint: "Siot pakai topi." },
+            { id: 'ch', symbol: "ㅊ", read: "Chieut (Ch)", hint: "Jieut pakai topi." },
+            { id: 'k', symbol: "ㅋ", read: "Kieuk (K)", hint: "Pistol ada pelatuk." },
+            { id: 't', symbol: "ㅌ", read: "Tieut (T)", hint: "Sisir E." },
+            { id: 'p', symbol: "ㅍ", read: "Pieup (P)", hint: "Pilar Romawi." },
+            { id: 'h', symbol: "ㅎ", read: "Hieut (H)", hint: "Orang pakai topi." },
+            { id: 'a', symbol: "ㅏ", read: "A", hint: "Tongkat tangan kanan." },
+            { id: 'ya', symbol: "ㅑ", read: "Ya", hint: "Tongkat dua tangan kanan." },
+            { id: 'eo', symbol: "ㅓ", read: "Eo", hint: "Tongkat tangan kiri." },
+            { id: 'yeo', symbol: "ㅕ", read: "Yeo", hint: "Tongkat dua tangan kiri." },
+            { id: 'o', symbol: "ㅗ", read: "O", hint: "Tangan ke atas." },
+            { id: 'yo', symbol: "ㅛ", read: "Yo", hint: "Dua tangan ke atas." },
+            { id: 'u', symbol: "ㅜ", read: "U", hint: "Tangan ke bawah." },
+            { id: 'yu', symbol: "ㅠ", read: "Yu", hint: "Dua tangan ke bawah." },
+            { id: 'eu', symbol: "ㅡ", read: "Eu", hint: "Garis datar." },
+            { id: 'i', symbol: "ㅣ", read: "I", hint: "Garis tegak." }
+        ];
+
+        const CHARS_HIRAGANA = [
+            { symbol: "あ", read: "A", hint: "Ikan." }, { symbol: "い", read: "I", hint: "Dua garis." }, { symbol: "う", read: "U", hint: "Bungkuk." }, { symbol: "え", read: "E", hint: "Burung." }, { symbol: "お", read: "O", hint: "A + titik." },
+            { symbol: "か", read: "Ka", hint: "Kekuatan." }, { symbol: "き", read: "Ki", hint: "Kunci." }, { symbol: "く", read: "Ku", hint: "Mulut." }, { symbol: "け", read: "Ke", hint: "Pedang." }, { symbol: "こ", read: "Ko", hint: "Cacing." },
+            { symbol: "さ", read: "Sa", hint: "Senyum." }, { symbol: "し", read: "Shi", hint: "Kail." }, { symbol: "す", read: "Su", hint: "Simpul." }, { symbol: "せ", read: "Se", hint: "Pangkuan." }, { symbol: "そ", read: "So", hint: "Zigzag." },
+            { symbol: "た", read: "Ta", hint: "Ta + Ko." }, { symbol: "ち", read: "Chi", hint: "Lima." }, { symbol: "つ", read: "Tsu", hint: "Ombak." }, { symbol: "て", read: "Te", hint: "Tangan." }, { symbol: "と", read: "To", hint: "Duri." },
+            { symbol: "な", read: "Na", hint: "Salib." }, { symbol: "に", read: "Ni", hint: "Garis + Ko." }, { symbol: "ぬ", read: "Nu", hint: "Mie." }, { symbol: "ね", read: "Ne", hint: "Kucing." }, { symbol: "の", read: "No", hint: "Larangan." },
+            { symbol: "は", read: "Ha", hint: "Ha + Simpul." }, { symbol: "ひ", read: "Hi", hint: "Senyum V." }, { symbol: "ふ", read: "Fu", hint: "Gunung Fuji." }, { symbol: "へ", read: "He", hint: "Gunung." }, { symbol: "ほ", read: "Ho", hint: "Ha + Topi." },
+            { symbol: "ま", read: "Ma", hint: "Dua garis simpul." }, { symbol: "み", read: "Mi", hint: "21." }, { symbol: "む", read: "Mu", hint: "Sapi (Moo)." }, { symbol: "め", read: "Me", hint: "Mie (Nu) tanpa ekor." }, { symbol: "も", read: "Mo", hint: "Kail dua umpan." },
+            { symbol: "や", read: "Ya", hint: "Yakitori." }, { symbol: "ゆ", read: "Yu", hint: "Ikan melintas." }, { symbol: "よ", read: "Yo", hint: "Yo-yo." },
+            { symbol: "ら", read: "Ra", hint: "Angka 5." }, { symbol: "り", read: "Ri", hint: "Dua garis." }, { symbol: "る", read: "Ru", hint: "Tiga simpul." }, { symbol: "れ", read: "Re", hint: "Z melengkung." }, { symbol: "ろ", read: "Ro", hint: "Tiga (Ru) tanpa simpul." },
+            { symbol: "わ", read: "Wa", hint: "Re gemuk." }, { symbol: "を", read: "Wo", hint: "Huruf C dan h." }, { symbol: "ん", read: "N", hint: "Huruf h miring." }
+        ].map((c, i) => ({ ...c, id: `hira_${i}` }));
+
+        const CHARS_KATAKANA = [
+            { symbol: "ア", read: "A", hint: "T miring." }, { symbol: "イ", read: "I", hint: "Orang." }, { symbol: "ウ", read: "U", hint: "Atap." }, { symbol: "エ", read: "E", hint: "I Romawi." }, { symbol: "オ", read: "O", hint: "Orang menari." },
+            { symbol: "カ", read: "Ka", hint: "Ka tanpa titik." }, { symbol: "キ", read: "Ki", hint: "Dua garis." }, { symbol: "ク", read: "Ku", hint: "Tujuh." }, { symbol: "ケ", read: "Ke", hint: "K melengkung." }, { symbol: "コ", read: "Ko", hint: "Siku." },
+            { symbol: "サ", read: "Sa", hint: "Tiang." }, { symbol: "シ", read: "Shi", hint: "Air ciprat." }, { symbol: "ス", read: "Su", hint: "Gantungan." }, { symbol: "セ", read: "Se", hint: "Siku miring." }, { symbol: "ソ", read: "So", hint: "Jarum." },
+            { symbol: "タ", read: "Ta", hint: "Sore (Yu)." }, { symbol: "チ", read: "Chi", hint: "Seribu." }, { symbol: "ツ", read: "Tsu", hint: "Senyum." }, { symbol: "テ", read: "Te", hint: "Dua garis." }, { symbol: "ト", read: "To", hint: "Totem." },
+            { symbol: "ナ", read: "Na", hint: "Pedang." }, { symbol: "ニ", read: "Ni", hint: "Dua." }, { symbol: "ヌ", read: "Nu", hint: "Tujuh." }, { symbol: "ネ", read: "Ne", hint: "Pohon." }, { symbol: "ノ", read: "No", hint: "Coretan." },
+            { symbol: "ハ", read: "Ha", hint: "Kumis." }, { symbol: "ヒ", read: "Hi", hint: "Kursi." }, { symbol: "フ", read: "Fu", hint: "Tujuh bengkok." }, { symbol: "ヘ", read: "He", hint: "Gunung." }, { symbol: "ホ", read: "Ho", hint: "Pohon salib." },
+            { symbol: "マ", read: "Ma", hint: "Siku 7." }, { symbol: "ミ", read: "Mi", hint: "Tiga garis." }, { symbol: "ム", read: "Mu", hint: "Segitiga." }, { symbol: "メ", read: "Me", hint: "Silang." }, { symbol: "モ", read: "Mo", hint: "Dua garis E." },
+            { symbol: "ヤ", read: "Ya", hint: "Tujuh miring." }, { symbol: "ユ", read: "Yu", hint: "Nomor 1." }, { symbol: "ヨ", read: "Yo", hint: "E terbalik." },
+            { symbol: "ラ", read: "Ra", hint: "Topi." }, { symbol: "リ", read: "Ri", hint: "Dua garis." }, { symbol: "ル", read: "Ru", hint: "Kaki." }, { symbol: "レ", read: "Re", hint: "L." }, { symbol: "ロ", read: "Ro", hint: "Kotak." },
+            { symbol: "ワ", read: "Wa", hint: "Tanya." }, { symbol: "ヲ", read: "Wo", hint: "F." }, { symbol: "ン", read: "N", hint: "Senyum satu mata." }
+        ].map((c, i) => ({ ...c, id: `kata_${i}` }));
+
+        const CHARS_JAVANESE = [
+            { symbol: "ꦲ", read: "Ha", hint: "Ha" }, { symbol: "ꦤ", read: "Na", hint: "Na" }, { symbol: "ꦕ", read: "Ca", hint: "Ca" }, { symbol: "ꦫ", read: "Ra", hint: "Ra" }, { symbol: "ꦏ", read: "Ka", hint: "Ka" },
+            { symbol: "ꦢ", read: "Da", hint: "Da" }, { symbol: "ꦠ", read: "Ta", hint: "Ta" }, { symbol: "ꦱ", read: "Sa", hint: "Sa" }, { symbol: "ꦮ", read: "Wa", hint: "Wa" }, { symbol: "ꦭ", read: "La", hint: "La" },
+            { symbol: "ꦥ", read: "Pa", hint: "Pa" }, { symbol: "ꦝ", read: "Dha", hint: "Dha" }, { symbol: "ꦗ", read: "Ja", hint: "Ja" }, { symbol: "ꦪ", read: "Ya", hint: "Ya" }, { symbol: "ꦚ", read: "Nya", hint: "Nya" },
+            { symbol: "ꦩ", read: "Ma", hint: "Ma" }, { symbol: "ꦒ", read: "Ga", hint: "Ga" }, { symbol: "ꦧ", read: "Ba", hint: "Ba" }, { symbol: "ꦛ", read: "Tha", hint: "Tha" }, { symbol: "ꦔ", read: "Nga", hint: "Nga" }
+        ].map((c, i) => ({ ...c, id: `java_${i}` }));
+
+        const CHARS_THAI = [
+            { symbol: "ก", read: "Ko Kai", hint: "Ayam." }, { symbol: "ข", read: "Kho Khai", hint: "Telur." }, { symbol: "ฃ", read: "Kho Khuad", hint: "Botol." }, { symbol: "ค", read: "Kho Khwai", hint: "Kerbau." }, { symbol: "ฅ", read: "Kho Khon", hint: "Orang." },
+            { symbol: "ฆ", read: "Kho Rakhang", hint: "Lonceng." }, { symbol: "ง", read: "Ngo Ngu", hint: "Ular." }, { symbol: "จ", read: "Cho Chan", hint: "Piring." }, { symbol: "ฉ", read: "Cho Ching", hint: "Simbal." }, { symbol: "ช", read: "Cho Chang", hint: "Gajah." },
+            { symbol: "ซ", read: "So So", hint: "Rantai." }, { symbol: "ฌ", read: "Cho Choe", hint: "Pohon." }, { symbol: "ญ", read: "Yo Ying", hint: "Wanita." }, { symbol: "ฎ", read: "Do Chada", hint: "Mahkota." }, { symbol: "ฏ", read: "To Patak", hint: "Tombak." },
+            { symbol: "ฐ", read: "Tho Than", hint: "Peralatan." }, { symbol: "ฑ", read: "Tho Montho", hint: "Raksasa." }, { symbol: "ฒ", read: "Tho Phuthao", hint: "Orang Tua." }, { symbol: "ณ", read: "No Nen", hint: "Biksuni." }, { symbol: "ด", read: "Do Dek", hint: "Anak." },
+            { symbol: "ต", read: "To Tao", hint: "Kura-kura." }, { symbol: "ถ", read: "Tho Thung", hint: "Tas." }, { symbol: "ท", read: "Tho Thahan", hint: "Tentara." }, { symbol: "ธ", read: "Tho Thong", hint: "Bendera." }, { symbol: "น", read: "No Nu", hint: "Tikus." },
+            { symbol: "บ", read: "Bo Baimai", hint: "Daun." }, { symbol: "ป", read: "Po Pla", hint: "Ikan." }, { symbol: "ผ", read: "Pho Phueng", hint: "Lebah." }, { symbol: "ฝ", read: "Fo Fa", hint: "Tutup." }, { symbol: "พ", read: "Pho Phan", hint: "Nampan." },
+            { symbol: "ฟ", read: "Fo Fan", hint: "Gigi." }, { symbol: "ภ", read: "Pho Samphao", hint: "Perahu Layar." }, { symbol: "ม", read: "Mo Ma", hint: "Kuda." }, { symbol: "ย", read: "Yo Yak", hint: "Raksasa." }, { symbol: "ร", read: "Ro Ruea", hint: "Perahu." },
+            { symbol: "ล", read: "Lo Ling", hint: "Monyet." }, { symbol: "ว", read: "Wo Waen", hint: "Cincin." }, { symbol: "ศ", read: "So Sala", hint: "Paviliun." }, { symbol: "ษ", read: "So Ruesi", hint: "Pertapa." }, { symbol: "ส", read: "So Suea", hint: "Harimau." },
+            { symbol: "ห", read: "Ho Hip", hint: "Kotak." }, { symbol: "ฬ", read: "Lo Chula", hint: "Layang-layang." }, { symbol: "อ", read: "O Ang", hint: "Baskom." }, { symbol: "ฮ", read: "Ho Nokhuk", hint: "Burung Hantu." }
+        ].map((c, i) => ({ ...c, id: `thai_${i}` }));
+
+        const SUBJECTS = {
+            alphabet: { name: "Alphabet (26)", langCode: "en-US", fontFamily: "sans-serif", stages: createStages(CHARS_ALPHABET) },
+            arabic: { name: "Arab / Hijaiyah", langCode: "ar-SA", fontFamily: "Noto Sans Arabic, serif", stages: createStages(CHARS_ARABIC) },
+            javanese: { name: "Aksara Jawa", langCode: "jv-ID", fontFamily: "Noto Sans Javanese, serif", stages: createStages(CHARS_JAVANESE) },
+            hangul: { name: "Korea / Hangul", langCode: "ko-KR", fontFamily: "Noto Sans KR, sans-serif", stages: createStages(CHARS_HANGUL) },
+            hiragana: { name: "Jepang / Hiragana", langCode: "ja-JP", fontFamily: "Noto Sans JP, sans-serif", stages: createStages(CHARS_HIRAGANA) },
+            katakana: { name: "Jepang / Katakana", langCode: "ja-JP", fontFamily: "Noto Sans JP, sans-serif", stages: createStages(CHARS_KATAKANA) },
+            thai: { name: "Aksara Thai", langCode: "th-TH", fontFamily: "Noto Sans Thai, sans-serif", stages: createStages(CHARS_THAI) }
+        };
+
+        const generateDrillQueue = (langData, stageId) => {
+            const currentStage = langData.stages.find(s => s.id === stageId);
+            const prevStages = langData.stages.filter(s => s.id < stageId);
+            
+            const DRILL_COUNT = 30;
+            let queue = [];
+
+            if (!currentStage) return [];
+
+            const targetChar = currentStage.newChars[0];
+            
+            // Kumpulkan semua huruf lama
+            let oldChars = [];
+            prevStages.forEach(s => {
+                oldChars = [...oldChars, ...s.newChars];
+            });
+
+            for (let i = 0; i < DRILL_COUNT; i++) {
+                let char;
+                if (stageId === 1) {
+                    char = targetChar;
+                } else {
+                    // Stage > 1: Mix
+                    const isReview = oldChars.length > 0 && ((i + 1) % 3 === 0);
+                    if (isReview) {
+                        char = oldChars[Math.floor(Math.random() * oldChars.length)];
+                    } else {
+                        char = targetChar;
+                    }
+                }
+                queue.push({ 
+                    ...char, 
+                    uniqueId: `drill-${stageId}-${i}-${Math.random().toString(36).substr(2, 9)}`, 
+                    userImage: null 
+                });
+            }
+            return queue;
+        };
+
+        const App = () => {
+            const [appLang, setAppLang] = useState('id'); // 'id' or 'en'
+            const [activeSubjectKey, setActiveSubjectKey] = useState('alphabet'); 
+            const [activeStageId, setActiveStageId] = useState(1);
+            
+            const [drillQueue, setDrillQueue] = useState([]);
+            const [currentDrillIndex, setCurrentDrillIndex] = useState(0);
+            
+            const [userStrokes, setUserStrokes] = useState([]); 
+            const [isDrawing, setIsDrawing] = useState(false);
+            const [currentStroke, setCurrentStroke] = useState([]);
+
+            const [feedback, setFeedback] = useState("");
+            const [leftSidebarOpen, setLeftSidebarOpen] = useState(false);
+            const [rightSidebarOpen, setRightSidebarOpen] = useState(true);
+            const [showConfetti, setShowConfetti] = useState(false);
+
+            const canvasRef = useRef(null);
+            
+            // Strings based on app language
+            const strings = UI_STRINGS[appLang];
+            const currentSubjectData = SUBJECTS[activeSubjectKey];
+            const currentStage = currentSubjectData.stages.find(s => s.id === activeStageId) || currentSubjectData.stages[0];
+            const currentTaskChar = drillQueue[currentDrillIndex];
+
+            // Setup Responsive Sidebar
+            useEffect(() => {
+                const handleResize = () => {
+                    if (window.innerWidth < 1024) {
+                        setRightSidebarOpen(false); 
+                    } else {
+                        setRightSidebarOpen(true); 
+                    }
+                };
+                handleResize(); 
+                window.addEventListener('resize', handleResize);
+                return () => window.removeEventListener('resize', handleResize);
+            }, []);
+
+            // Generate Drill when Subject or Stage changes
+            useEffect(() => {
+                const queue = generateDrillQueue(currentSubjectData, activeStageId);
+                setDrillQueue(queue);
+                setCurrentDrillIndex(0);
+                setUserStrokes([]);
+                setCurrentStroke([]);
+                setFeedback(strings.canvasInstruction);
+            }, [activeSubjectKey, activeStageId, appLang]); // Re-generate if lang changes? No, but text might.
+
+            // Reset stage when subject changes
+            const changeSubject = (key) => {
+                setActiveSubjectKey(key);
+                setActiveStageId(1); // Always reset to level 1 for safety
+                setLeftSidebarOpen(false);
+            };
+
+            // TTS
+            const speak = (text) => {
+                if ('speechSynthesis' in window) {
+                    const utterance = new SpeechSynthesisUtterance(text);
+                    utterance.lang = currentSubjectData.langCode;
+                    utterance.rate = 0.8; 
+                    window.speechSynthesis.cancel();
+                    window.speechSynthesis.speak(utterance);
+                }
+            };
+
+            // Auto-speak hint on new char
+            useEffect(() => {
+                if (currentTaskChar) {
+                    setFeedback(currentTaskChar.hint);
+                }
+            }, [currentTaskChar]);
+
+            // --- CANVAS LOGIC ---
+            useEffect(() => {
+                if (!currentTaskChar) return;
+                const canvas = canvasRef.current;
+                if (!canvas) return;
                 
-                <div className="space-y-1 max-h-[40vh] overflow-y-auto pr-1 custom-scrollbar">
-                  {currentLangData.stages.map(stage => (
-                    <button
-                      key={stage.id}
-                      onClick={() => { setActiveStageId(stage.id); setLeftSidebarOpen(false); }}
-                      className={`w-full text-left p-2.5 rounded-xl text-sm flex items-center gap-3 transition-colors ${
-                        activeStageId === stage.id 
-                        ? 'bg-[#58D68D] text-white font-bold shadow-md shadow-emerald-100' 
-                        : 'text-slate-500 hover:bg-[#E9F7EF]'
-                      }`}
-                    >
-                      <div className={`w-6 h-6 shrink-0 rounded-full flex items-center justify-center text-[10px] font-bold border ${
-                         activeStageId === stage.id ? 'bg-white text-[#58D68D]' : 'bg-slate-100 border-slate-200'
-                      }`}>
-                        {stage.id}
-                      </div>
-                      <span className="truncate">{stage.title}</span>
-                    </button>
-                  ))}
-                </div>
-             </div>
-           </div>
-        </aside>
+                const rect = canvas.getBoundingClientRect();
+                if (canvas.width !== rect.width || canvas.height !== rect.height) {
+                    canvas.width = rect.width;
+                    canvas.height = rect.height;
+                }
 
-        {/* CENTER: CANVAS WORKSPACE */}
-        <main className="flex-1 flex flex-col items-center justify-start p-4 lg:p-6 relative overflow-y-auto">
-             {showConfetti && (
-               <div className="absolute inset-0 flex items-center justify-center z-50 pointer-events-none animate-bounce">
-                 <span className="text-8xl filter drop-shadow-lg">🌟</span>
-               </div>
-             )}
-
-             <div className="mb-4 text-center canvas-tools">
-                <span className="bg-[#D5F5E3] px-4 py-1.5 rounded-full text-emerald-800 text-xs uppercase tracking-widest font-bold border border-[#58D68D] shadow-sm">
-                   Level {activeStageId}: {currentTaskChar.read}
-                </span>
-             </div>
-
-             {/* THE CANVAS */}
-             <div className="relative group touch-none canvas-container select-none">
-                <div className="bg-white p-2 rounded-[2rem] shadow-2xl shadow-emerald-100 border-4 border-white ring-2 ring-[#D5F5E3] mb-6 transition-transform duration-300">
-                  <canvas
-                    ref={canvasRef}
-                    width={320} 
-                    height={320}
-                    className="bg-white rounded-[1.8rem] cursor-crosshair touch-none w-[300px] h-[300px] sm:w-[380px] sm:h-[380px]"
-                    onMouseDown={startDrawing}
-                    onMouseMove={draw}
-                    onMouseUp={endDrawing}
-                    onMouseLeave={endDrawing}
-                    onTouchStart={startDrawing}
-                    onTouchMove={draw}
-                    onTouchEnd={endDrawing}
-                  />
-                  
-                  {/* Spelling / Reading Overlay */}
-                  <div className="absolute top-4 left-6 pointer-events-none">
-                     <span className="bg-white/90 backdrop-blur px-3 py-1 rounded-lg text-lg font-bold text-slate-700 shadow-sm border border-slate-200">
-                       {currentTaskChar.read}
-                     </span>
-                  </div>
-
-                  {/* Audio Button */}
-                  <div className="absolute top-4 right-4 pointer-events-auto audio-btn">
-                     <button 
-                        onClick={() => speak(currentTaskChar.read)}
-                        className="p-2 bg-emerald-100 hover:bg-emerald-200 text-emerald-700 rounded-full shadow-sm transition-colors"
-                        title="Dengar Suara"
-                     >
-                        <Volume2 size={24} />
-                     </button>
-                  </div>
-                </div>
+                const ctx = canvas.getContext('2d');
+                const w = canvas.width;
+                const h = canvas.height;
                 
-                {/* Floating Clear Button */}
-                <div className="absolute bottom-10 right-6 flex flex-col gap-2 pointer-events-auto">
-                   <button 
-                     onClick={handleClear}
-                     className="p-3 bg-white text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full shadow-md border border-slate-100 transition-all active:scale-90"
-                     title="Hapus"
-                   >
-                     <Eraser size={22} />
-                   </button>
-                </div>
-             </div>
+                ctx.clearRect(0, 0, w, h);
+                
+                // 1. Grid
+                drawGrid(ctx, w, h);
 
-             {/* Action Buttons */}
-             <div className="flex flex-col sm:flex-row gap-3 w-full max-w-sm action-buttons">
-                 <button
-                    onClick={handleClear}
-                    className="flex-1 py-3.5 rounded-2xl font-bold border-2 border-[#D5F5E3] text-emerald-700 hover:bg-[#E9F7EF] transition-colors flex items-center justify-center gap-2"
-                 >
-                    <RotateCcw size={20} /> Ulang
-                 </button>
+                // 2. Ghost Char
+                ctx.save();
+                const fontSize = w * 0.60;
+                const fontFamily = currentSubjectData.fontFamily || "sans-serif";
+                ctx.font = `bold ${fontSize}px ${fontFamily}, "Noto Sans", "Arial"`;
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                
+                // Glow
+                ctx.shadowColor = "#58D68D"; 
+                ctx.shadowBlur = 20;
+                ctx.fillStyle = "rgba(88, 214, 141, 0.25)"; 
+                
+                const yOffset = h * 0.05; 
+                ctx.fillText(currentTaskChar.symbol, w / 2, h / 2 + yOffset);
+                ctx.strokeStyle = "rgba(88, 214, 141, 0.4)";
+                ctx.lineWidth = 1;
+                ctx.strokeText(currentTaskChar.symbol, w / 2, h / 2 + yOffset);
+                ctx.restore();
 
-                 <button
-                    onClick={handleNext}
-                    disabled={currentDrillIndex >= drillQueue.length}
-                    className={`
-                      flex-[2] py-3.5 rounded-2xl text-lg font-bold shadow-lg shadow-emerald-200 transition-all active:scale-95 flex items-center justify-center gap-2
-                      ${currentDrillIndex >= drillQueue.length
-                        ? 'bg-slate-400 text-white cursor-default'
-                        : 'bg-[#58D68D] hover:bg-[#4ac77d] text-white'
-                      }
-                    `}
-                 >
-                    {currentDrillIndex >= drillQueue.length ? (
-                      <>Selesai! <CheckCircle className="ml-1"/></>
-                    ) : (
-                      <>Selesai & Lanjut <ChevronRight size={22} /></>
-                    )}
-                 </button>
-             </div>
+                // 3. User Ink
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                ctx.globalAlpha = 1.0;
+                ctx.strokeStyle = '#1e293b'; 
+                ctx.lineWidth = 16; 
+                
+                userStrokes.forEach(strokePoints => {
+                    drawUserPath(ctx, strokePoints);
+                });
+                if (currentStroke.length > 0) {
+                    drawUserPath(ctx, currentStroke);
+                }
+            }, [drillQueue, currentDrillIndex, userStrokes, currentStroke, activeSubjectKey, activeStageId]);
 
-             <p className="mt-6 text-emerald-600/70 text-sm font-medium text-center max-w-xs leading-relaxed min-h-[1.5rem]">
-               Tips: {feedback}
-             </p>
-        </main>
+            const drawGrid = (ctx, w, h) => {
+                ctx.save();
+                ctx.beginPath();
+                ctx.strokeStyle = '#58D68D'; 
+                ctx.lineWidth = 1;
+                ctx.globalAlpha = 0.3; 
+                const padding = 15;
+                ctx.rect(padding, padding, w-(padding*2), h-(padding*2));
+                ctx.setLineDash([8, 8]);
+                ctx.moveTo(w/2, padding); ctx.lineTo(w/2, h-padding);
+                ctx.moveTo(padding, h/2); ctx.lineTo(w-padding, h/2);
+                if (currentSubjectData.fontFamily.includes('serif') || activeSubjectKey !== 'alphabet') {
+                    ctx.moveTo(padding, padding); ctx.lineTo(w-padding, h-padding);
+                    ctx.moveTo(w-padding, padding); ctx.lineTo(padding, h-padding);
+                }
+                ctx.stroke();
+                ctx.restore();
+            };
 
-        {/* RIGHT SIDEBAR (NOTEBOOK) */}
-        <aside className={`
-          notebook-section absolute lg:relative z-40 top-0 right-0 h-full w-80 bg-white border-l border-[#D5F5E3] flex flex-col transition-transform duration-300 shadow-2xl lg:shadow-none
-          ${rightSidebarOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'}
-        `}>
-             <div className="print-header">
-               <h1 className="text-2xl font-bold text-emerald-800">Laporan Belajar</h1>
-               <p className="text-slate-500">{new Date().toLocaleDateString()} - {currentLangData.name} - Level {activeStageId}</p>
-             </div>
+            const drawUserPath = (ctx, points) => {
+                if(points.length < 2) {
+                    if(points.length === 1) {
+                        ctx.beginPath();
+                        ctx.arc(points[0].x, points[0].y, ctx.lineWidth/2, 0, Math.PI*2);
+                        ctx.fill();
+                    }
+                    return;
+                }
+                ctx.beginPath();
+                ctx.moveTo(points[0].x, points[0].y);
+                for(let i = 1; i < points.length; i++) {
+                    ctx.lineTo(points[i].x, points[i].y);
+                }
+                ctx.stroke();
+            };
 
-             <div className="p-5 bg-[#E9F7EF] border-b border-[#D5F5E3] shadow-sm z-10 flex justify-between items-start notebook-title">
-               <div>
-                 <h2 className="font-bold text-emerald-800 flex items-center gap-2 text-sm uppercase tracking-wide">
-                   <Book size={18} className="text-[#58D68D]"/>
-                   Buku Latihan
-                 </h2>
-                 <p className="text-xs text-emerald-600 mt-1">
-                   {currentDrillIndex} dari {drillQueue.length} halaman
-                 </p>
-               </div>
-               <button onClick={() => setRightSidebarOpen(false)} className="lg:hidden text-emerald-500">
-                  <X size={24}/>
-               </button>
-             </div>
+            const getCoords = (e) => {
+                const canvas = canvasRef.current;
+                const rect = canvas.getBoundingClientRect();
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                return { x: clientX - rect.left, y: clientY - rect.top };
+            };
 
-             <div className="flex-1 overflow-y-auto p-4 custom-scrollbar bg-slate-50/50">
-               <div className="grid grid-cols-2 gap-3 pb-20 notebook-grid">
-                 {drillQueue.map((item, idx) => {
-                   const status = idx < currentDrillIndex ? 'done' : idx === currentDrillIndex ? 'active' : 'pending';
-                   
-                   return (
-                     <div 
-                       key={item.uniqueId}
-                       className={`
-                         notebook-item aspect-square rounded-2xl flex items-center justify-center relative transition-all duration-500 overflow-hidden bg-white
-                         ${status === 'done' ? 'border-2 border-[#58D68D] shadow-sm' : ''}
-                         ${status === 'active' ? 'border-2 border-emerald-300 ring-4 ring-emerald-50 z-10' : ''}
-                         ${status === 'pending' ? 'border-2 border-slate-100 opacity-60' : ''}
-                       `}
-                     >
-                        {item.userImage ? (
-                          <img 
-                            src={item.userImage} 
-                            alt="Hasil Anak" 
-                            className="w-full h-full object-contain p-1"
-                          />
-                        ) : (
-                          <span className={`text-5xl font-bold ${
-                              status === 'pending' ? 'text-slate-200' : 'text-emerald-200'
-                            }`}
-                            style={{ fontFamily: currentLangData.fontFamily || 'sans-serif' }}
-                          >
-                            {item.symbol}
-                          </span>
-                        )}
+            const startDrawing = (e) => {
+                if (currentDrillIndex >= drillQueue.length) return;
+                if (e.cancelable) e.preventDefault(); 
+                setIsDrawing(true);
+                const coords = getCoords(e);
+                setCurrentStroke([coords]);
+            };
+
+            const draw = (e) => {
+                if (!isDrawing) return;
+                if (e.cancelable) e.preventDefault();
+                const coords = getCoords(e);
+                setCurrentStroke(prev => [...prev, coords]);
+            };
+
+            const endDrawing = () => {
+                if (!isDrawing) return;
+                setIsDrawing(false);
+                if (currentStroke.length > 0) {
+                    setUserStrokes(prev => [...prev, currentStroke]);
+                }
+                setCurrentStroke([]);
+            };
+
+            const handleClear = () => {
+                setUserStrokes([]);
+                setCurrentStroke([]);
+            };
+
+            const saveToNotebook = () => {
+                const canvas = canvasRef.current;
+                if (!canvas) return;
+                const dataUrl = canvas.toDataURL('image/png');
+                const updatedQueue = [...drillQueue];
+                updatedQueue[currentDrillIndex].userImage = dataUrl;
+                setDrillQueue(updatedQueue);
+            };
+
+            const handleNext = () => {
+                saveToNotebook();
+                if (currentDrillIndex < drillQueue.length - 1) {
+                    setCurrentDrillIndex(prev => prev + 1);
+                    setUserStrokes([]);
+                    // Mobile feedback
+                    if(window.navigator.vibrate) window.navigator.vibrate(50);
+                } else {
+                    setFeedback(strings.finish);
+                    setShowConfetti(true);
+                    setTimeout(() => setShowConfetti(false), 3000);
+                    setRightSidebarOpen(true);
+                }
+            };
+
+            if (!currentTaskChar) return <div className="p-10 flex justify-center text-emerald-600">{strings.loading}</div>;
+
+            return (
+                <div className="min-h-screen flex flex-col overflow-hidden text-slate-800">
+                    
+                    {/* --- HEADER --- */}
+                    <header className="bg-white border-b border-emerald-100 px-4 py-3 flex justify-between items-center z-20 shadow-sm h-16 shrink-0">
+                        <div className="flex items-center gap-3">
+                            <button onClick={() => setLeftSidebarOpen(!leftSidebarOpen)} className="p-2 hover:bg-emerald-50 rounded-lg lg:hidden text-emerald-700 mobile-menu-btn">
+                                <Menu size={24} />
+                            </button>
+                            <div className="w-10 h-10 bg-emerald-400 rounded-xl flex items-center justify-center text-white shadow-md shadow-emerald-200">
+                                <Globe size={22} />
+                            </div>
+                            <div>
+                                <h1 className="font-bold text-lg leading-none tracking-tight text-emerald-900">{strings.appTitle}</h1>
+                                <p className="text-[10px] text-emerald-600 font-medium tracking-wider">{strings.appSubtitle}</p>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center gap-3">
+                            {/* App Language Selector (Header) */}
+                            <div className="relative group hidden sm:block lang-selector">
+                                <button className="flex items-center gap-2 px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 rounded-full text-xs font-bold text-emerald-700 transition-colors">
+                                    <Globe size={14} /> 
+                                    {appLang.toUpperCase()}
+                                    <ChevronDown size={14} />
+                                </button>
+                                <div className="absolute right-0 top-full mt-2 w-32 bg-white rounded-xl shadow-xl border border-emerald-100 overflow-hidden hidden group-hover:block">
+                                    <button onClick={() => setAppLang('id')} className={`w-full text-left px-4 py-2 text-sm hover:bg-emerald-50 ${appLang === 'id' ? 'font-bold text-emerald-600' : 'text-slate-600'}`}>🇮🇩 Indonesia</button>
+                                    <button onClick={() => setAppLang('en')} className={`w-full text-left px-4 py-2 text-sm hover:bg-emerald-50 ${appLang === 'en' ? 'font-bold text-emerald-600' : 'text-slate-600'}`}>🇬🇧 English</button>
+                                </div>
+                            </div>
+                            
+                            <button 
+                                onClick={() => setRightSidebarOpen(!rightSidebarOpen)}
+                                className="relative p-2 hover:bg-emerald-50 rounded-lg text-emerald-700 lg:hidden notebook-btn"
+                            >
+                                <Book size={24} />
+                                <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-emerald-400 rounded-full border border-white"></span>
+                            </button>
+                        </div>
+                    </header>
+
+                    {/* --- BODY --- */}
+                    <div className="flex flex-1 overflow-hidden relative">
                         
-                        <span className={`absolute top-2 left-2 text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
-                          status==='active' ? 'bg-[#58D68D] text-white' : 'bg-slate-100 text-slate-400'
-                        }`}>
-                          {idx + 1}
-                        </span>
-                     </div>
-                   );
-                 })}
-               </div>
-             </div>
+                        {/* LEFT SIDEBAR (SETTINGS & SELECTION) */}
+                        <aside className={`
+                            absolute lg:relative z-30 h-full w-72 bg-white border-r border-emerald-100 flex flex-col transition-transform duration-300 shadow-2xl lg:shadow-none
+                            ${leftSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+                        `}>
+                            <div className="p-4 border-b border-emerald-50 flex justify-between items-center lg:hidden">
+                                <span className="font-bold text-emerald-800">{strings.menuTitle}</span>
+                                <button onClick={() => setLeftSidebarOpen(false)}><X size={20} className="text-emerald-500"/></button>
+                            </div>
 
-             {/* Footer Button for Print */}
-             <div className="p-4 border-t border-[#D5F5E3] bg-white notebook-title">
-               <button 
-                 onClick={handlePrint}
-                 className="w-full py-3 rounded-xl border-2 border-[#58D68D] text-[#58D68D] font-bold hover:bg-[#E9F7EF] flex items-center justify-center gap-2 transition-colors"
-               >
-                 <Printer size={20} />
-                 Cetak / Simpan PDF
-               </button>
-             </div>
-        </aside>
+                            {/* Mobile Language Selector */}
+                            <div className="p-4 border-b border-emerald-50 sm:hidden">
+                                <h3 className="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-2">{strings.selectLang}</h3>
+                                <div className="flex gap-2">
+                                    <button onClick={() => setAppLang('id')} className={`flex-1 py-2 rounded-lg text-sm border ${appLang === 'id' ? 'bg-emerald-100 border-emerald-300 text-emerald-800 font-bold' : 'bg-white border-slate-200'}`}>ID</button>
+                                    <button onClick={() => setAppLang('en')} className={`flex-1 py-2 rounded-lg text-sm border ${appLang === 'en' ? 'bg-emerald-100 border-emerald-300 text-emerald-800 font-bold' : 'bg-white border-slate-200'}`}>EN</button>
+                                </div>
+                            </div>
+                            
+                            <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar">
+                                {/* Subject Selector */}
+                                <div>
+                                    <h3 className="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-2">{strings.subjectLabel}</h3>
+                                    <div className="grid grid-cols-1 gap-2">
+                                        {Object.keys(SUBJECTS).map(key => (
+                                            <button
+                                                key={key}
+                                                onClick={() => changeSubject(key)}
+                                                className={`p-3 rounded-xl text-sm font-medium border text-left flex justify-between items-center transition-all ${
+                                                    activeSubjectKey === key 
+                                                    ? 'bg-emerald-50 text-emerald-900 border-emerald-400 shadow-sm ring-1 ring-emerald-200' 
+                                                    : 'bg-white text-slate-500 border-slate-100 hover:bg-emerald-50 hover:border-emerald-200'
+                                                }`}
+                                            >
+                                                {SUBJECTS[key].name}
+                                                {activeSubjectKey === key && <CheckCircle size={16} className="text-emerald-500" />}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
 
-      </div>
-    </div>
-  );
-};
+                                {/* SAFE DROPDOWN STAGE SELECTOR */}
+                                <div>
+                                    <h3 className="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-2">{strings.stageLabel}</h3>
+                                    <div className="relative">
+                                        <select 
+                                            value={activeStageId}
+                                            onChange={(e) => {
+                                                setActiveStageId(Number(e.target.value));
+                                                // Close sidebar only on mobile
+                                                if(window.innerWidth < 1024) setLeftSidebarOpen(false);
+                                            }}
+                                            className="w-full appearance-none bg-white border-2 border-slate-200 text-slate-700 py-3 pl-4 pr-10 rounded-xl focus:outline-none focus:border-emerald-400 focus:ring-4 focus:ring-emerald-50 font-medium cursor-pointer"
+                                        >
+                                            {currentSubjectData.stages.map(stage => (
+                                                <option key={stage.id} value={stage.id}>
+                                                    {strings.levelPrefix} {stage.id}: {stage.title}
+                                                </option>
+                                            ))}
+                                        </select>
+                                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-500">
+                                            <ChevronDown size={16} />
+                                        </div>
+                                    </div>
+                                    <p className="text-[10px] text-slate-400 mt-2 px-1">
+                                        * {appLang === 'id' ? 'Pilih jilid di atas untuk mengganti materi.' : 'Select a level above to change content.'}
+                                    </p>
+                                </div>
+                            </div>
+                        </aside>
 
-export default App;
+                        {/* CENTER: CANVAS WORKSPACE */}
+                        <main className="flex-1 flex flex-col items-center justify-start p-4 lg:p-6 relative overflow-y-auto bg-[#F0FDF4]">
+                            {showConfetti && (
+                                <div className="absolute inset-0 flex items-center justify-center z-50 pointer-events-none animate-bounce">
+                                    <span className="text-8xl filter drop-shadow-lg">🌟</span>
+                                </div>
+                            )}
+
+                            <div className="mb-4 text-center canvas-tools">
+                                <span className="inline-block bg-white px-4 py-1.5 rounded-full text-emerald-700 text-xs uppercase tracking-widest font-bold border border-emerald-200 shadow-sm">
+                                    {strings.levelPrefix} {activeStageId} &bull; {currentTaskChar.read}
+                                </span>
+                            </div>
+
+                            {/* THE CANVAS */}
+                            <div className="relative group touch-none canvas-container select-none">
+                                <div className="bg-white p-2 rounded-[2rem] shadow-2xl shadow-emerald-100 border-4 border-white ring-2 ring-emerald-100 mb-6 transition-transform duration-300">
+                                    <canvas
+                                        ref={canvasRef}
+                                        width={320} height={320}
+                                        className="bg-white rounded-[1.8rem] cursor-crosshair touch-none w-[300px] h-[300px] sm:w-[380px] sm:h-[380px]"
+                                        onMouseDown={startDrawing} onMouseMove={draw} onMouseUp={endDrawing} onMouseLeave={endDrawing}
+                                        onTouchStart={startDrawing} onTouchMove={draw} onTouchEnd={endDrawing}
+                                    />
+                                    
+                                    {/* Overlay Reading */}
+                                    <div className="absolute top-4 left-6 pointer-events-none">
+                                        <span className="bg-white/90 backdrop-blur px-3 py-1 rounded-lg text-lg font-bold text-slate-700 shadow-sm border border-slate-100">
+                                            {currentTaskChar.read}
+                                        </span>
+                                    </div>
+
+                                    {/* Audio Button */}
+                                    <div className="absolute top-4 right-4 pointer-events-auto audio-btn">
+                                        <button 
+                                            onClick={() => speak(currentTaskChar.read)}
+                                            className="p-2 bg-emerald-100 hover:bg-emerald-200 text-emerald-700 rounded-full shadow-sm transition-colors"
+                                        >
+                                            <Volume2 size={24} />
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                {/* Floating Clear */}
+                                <div className="absolute bottom-10 right-6 flex flex-col gap-2 pointer-events-auto">
+                                    <button 
+                                        onClick={handleClear}
+                                        className="p-3 bg-white text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full shadow-md border border-slate-100 transition-all active:scale-90"
+                                        title={strings.clear}
+                                    >
+                                        <Eraser size={22} />
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Action Buttons */}
+                            <div className="flex flex-col sm:flex-row gap-3 w-full max-w-sm action-buttons">
+                                <button
+                                    onClick={handleClear}
+                                    className="flex-1 py-3.5 rounded-2xl font-bold border-2 border-emerald-200 text-emerald-700 hover:bg-emerald-50 transition-colors flex items-center justify-center gap-2"
+                                >
+                                    <RotateCcw size={20} /> {strings.repeat}
+                                </button>
+
+                                <button
+                                    onClick={handleNext}
+                                    disabled={currentDrillIndex >= drillQueue.length}
+                                    className={`
+                                        flex-[2] py-3.5 rounded-2xl text-lg font-bold shadow-lg shadow-emerald-200 transition-all active:scale-95 flex items-center justify-center gap-2
+                                        ${currentDrillIndex >= drillQueue.length
+                                            ? 'bg-slate-400 text-white cursor-default'
+                                            : 'bg-emerald-500 hover:bg-emerald-600 text-white'
+                                        }
+                                    `}
+                                >
+                                    {currentDrillIndex >= drillQueue.length ? (
+                                        <>{strings.finish} <CheckCircle className="ml-1"/></>
+                                    ) : (
+                                        <>{strings.next} <ChevronRight size={22} /></>
+                                    )}
+                                </button>
+                            </div>
+
+                            <p className="mt-6 text-emerald-700/60 text-sm font-medium text-center max-w-xs leading-relaxed min-h-[1.5rem]">
+                                {strings.tips} {feedback}
+                            </p>
+                        </main>
+
+                        {/* RIGHT SIDEBAR (NOTEBOOK) */}
+                        <aside className={`
+                            notebook-section absolute lg:relative z-40 top-0 right-0 h-full w-80 bg-white border-l border-emerald-100 flex flex-col transition-transform duration-300 shadow-2xl lg:shadow-none
+                            ${rightSidebarOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'}
+                        `}>
+                            <div className="print-header">
+                                <h1 className="text-2xl font-bold">{strings.reportTitle}</h1>
+                                <p className="text-slate-500">{new Date().toLocaleDateString()} - {currentSubjectData.name} - {strings.levelPrefix} {activeStageId}</p>
+                            </div>
+
+                            <div className="p-5 bg-emerald-50 border-b border-emerald-100 shadow-sm z-10 flex justify-between items-start notebook-title">
+                                <div>
+                                    <h2 className="font-bold text-emerald-900 flex items-center gap-2 text-sm uppercase tracking-wide">
+                                        <Book size={18} className="text-emerald-500"/>
+                                        {strings.notebookTitle}
+                                    </h2>
+                                    <p className="text-xs text-emerald-600 mt-1">
+                                        {currentDrillIndex} / {drillQueue.length} {strings.notebookPage}
+                                    </p>
+                                </div>
+                                <button onClick={() => setRightSidebarOpen(false)} className="lg:hidden text-emerald-500">
+                                    <X size={24}/>
+                                </button>
+                            </div>
+
+                            <div className="flex-1 overflow-y-auto p-4 custom-scrollbar bg-slate-50/30">
+                                <div className="grid grid-cols-2 gap-3 pb-20 notebook-grid">
+                                    {drillQueue.map((item, idx) => {
+                                        const status = idx < currentDrillIndex ? 'done' : idx === currentDrillIndex ? 'active' : 'pending';
+                                        
+                                        return (
+                                            <div 
+                                                key={item.uniqueId}
+                                                className={`
+                                                    notebook-item aspect-square rounded-2xl flex items-center justify-center relative transition-all duration-500 overflow-hidden bg-white
+                                                    ${status === 'done' ? 'border-2 border-emerald-400 shadow-sm' : ''}
+                                                    ${status === 'active' ? 'border-2 border-emerald-300 ring-4 ring-emerald-100 z-10' : ''}
+                                                    ${status === 'pending' ? 'border-2 border-slate-100 opacity-60' : ''}
+                                                `}
+                                            >
+                                                {item.userImage ? (
+                                                    <img 
+                                                        src={item.userImage} 
+                                                        alt="Hasil" 
+                                                        className="w-full h-full object-contain p-1"
+                                                    />
+                                                ) : (
+                                                    <span className={`text-5xl font-bold ${
+                                                        status === 'pending' ? 'text-slate-200' : 'text-emerald-200'
+                                                        }`}
+                                                        style={{ fontFamily: currentSubjectData.fontFamily || 'sans-serif' }}
+                                                    >
+                                                        {item.symbol}
+                                                    </span>
+                                                )}
+                                                
+                                                <span className={`absolute top-2 left-2 text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                                                    status==='active' ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-400'
+                                                }`}>
+                                                    {idx + 1}
+                                                </span>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+
+                            <div className="p-4 border-t border-emerald-100 bg-white notebook-footer">
+                                <button 
+                                    onClick={() => window.print()}
+                                    className="w-full py-3 rounded-xl border-2 border-emerald-500 text-emerald-600 font-bold hover:bg-emerald-50 flex items-center justify-center gap-2 transition-colors"
+                                >
+                                    <Printer size={20} />
+                                    {strings.printBtn}
+                                </button>
+                            </div>
+                        </aside>
+
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
