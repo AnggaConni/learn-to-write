@@ -1,541 +1,802 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Play, RotateCcw, ChevronRight, Star, Trophy, BookOpen, Globe, CheckCircle, Menu, X } from 'lucide-react';
+import { Play, RotateCcw, ChevronRight, Star, Book, Globe, CheckCircle, Menu, X, Eraser, Printer, Volume2 } from 'lucide-react';
 
-/**
- * DATA STRUKTUR
- * Koordinat dinormalisasi dalam skala 0-100
- * type: 'L' (Line) atau 'Q' (Quadratic Curve - x1, y1, x, y)
- */
+/* =========================================
+   1. DATA GENERATOR & RAW DATA
+   (Membuat ribuan level secara otomatis)
+   ========================================= */
+
+// Helper: Membuat Stage Otomatis (1 Huruf = 1 Stage)
+const createStages = (chars) => {
+  return chars.map((char, index) => ({
+    id: index + 1,
+    title: `${char.symbol} - ${char.read}`,
+    newChars: [char]
+  }));
+};
+
+// --- DATA MENTAH HURUF ---
+
+const CHARS_ALPHABET = [
+  { id: 'A', symbol: "A", read: "A", hint: "Gunung dengan sabuk." },
+  { id: 'B', symbol: "B", read: "B", hint: "Tiang lurus dua perut." },
+  { id: 'C', symbol: "C", read: "C", hint: "Bulan sabit." },
+  { id: 'D', symbol: "D", read: "D", hint: "Perut besar." },
+  { id: 'E', symbol: "E", read: "E", hint: "Sisir tiga gigi." },
+  { id: 'F', symbol: "F", read: "F", hint: "Bendera." },
+  { id: 'G', symbol: "G", read: "G", hint: "C ada kursinya." },
+  { id: 'H', symbol: "H", read: "H", hint: "Tangga." },
+  { id: 'I', symbol: "I", read: "I", hint: "Tiang listrik." },
+  { id: 'J', symbol: "J", read: "J", hint: "Kail pancing." },
+  { id: 'K', symbol: "K", read: "K", hint: "Tangan ke atas, kaki ke bawah." },
+  { id: 'L', symbol: "L", read: "L", hint: "Siku-siku." },
+  { id: 'M', symbol: "M", read: "M", hint: "Dua gunung." },
+  { id: 'N', symbol: "N", read: "N", hint: "Petir/Zigzag." },
+  { id: 'O', symbol: "O", read: "O", hint: "Donat." },
+  { id: 'P', symbol: "P", read: "P", hint: "Kepala di atas." },
+  { id: 'Q', symbol: "Q", read: "Q", hint: "O punya ekor." },
+  { id: 'R', symbol: "R", read: "R", hint: "P punya kaki." },
+  { id: 'S', symbol: "S", read: "S", hint: "Ular meliuk." },
+  { id: 'T', symbol: "T", read: "T", hint: "Palu." },
+  { id: 'U', symbol: "U", read: "U", hint: "Gelas." },
+  { id: 'V', symbol: "V", read: "V", hint: "Burung terbang." },
+  { id: 'W', symbol: "W", read: "W", hint: "M terbalik." },
+  { id: 'X', symbol: "X", read: "X", hint: "Silang." },
+  { id: 'Y', symbol: "Y", read: "Y", hint: "Ketapel." },
+  { id: 'Z', symbol: "Z", read: "Z", hint: "Zigzag tajam." }
+];
+
+const CHARS_ARABIC = [
+  { id: 'alif', symbol: "ا", read: "Alif", hint: "Tongkat lurus." },
+  { id: 'ba', symbol: "ب", read: "Ba", hint: "Perahu titik satu di bawah." },
+  { id: 'ta', symbol: "ت", read: "Ta", hint: "Perahu titik dua di atas." },
+  { id: 'tsa', symbol: "ث", read: "Tsa", hint: "Perahu titik tiga." },
+  { id: 'jim', symbol: "ج", read: "Jim", hint: "Perut buncit titik di dalam." },
+  { id: 'ha', symbol: "ح", read: "Ha", hint: "Perut buncit kosong." },
+  { id: 'kha', symbol: "خ", read: "Kha", hint: "Perut buncit titik di atas." },
+  { id: 'dal', symbol: "د", read: "Dal", hint: "Mulut terbuka." },
+  { id: 'dzal', symbol: "ذ", read: "Dzal", hint: "Dal pakai titik." },
+  { id: 'ra', symbol: "ر", read: "Ra", hint: "Perosotan." },
+  { id: 'zai', symbol: "ز", read: "Zai", hint: "Perosotan pakai titik." },
+  { id: 'sin', symbol: "س", read: "Sin", hint: "Gigi tiga perut besar." },
+  { id: 'syin', symbol: "ش", read: "Syin", hint: "Sin pakai titik tiga." },
+  { id: 'shad', symbol: "ص", read: "Shad", hint: "Kepala lonjong perut besar." },
+  { id: 'dhad', symbol: "ض", read: "Dhad", hint: "Shad pakai titik." },
+  { id: 'tha', symbol: "ط", read: "Tha", hint: "Kepala lonjong pakai tiang." },
+  { id: 'zha', symbol: "ظ", read: "Zha", hint: "Tha pakai titik." },
+  { id: 'ain', symbol: "ع", read: "'Ain", hint: "C kecil dan C besar." },
+  { id: 'ghain', symbol: "غ", read: "Ghain", hint: "Ain pakai titik." },
+  { id: 'fa', symbol: "ف", read: "Fa", hint: "Kepala bulat leher pendek." },
+  { id: 'qof', symbol: "ق", read: "Qof", hint: "Kepala bulat perut dalam." },
+  { id: 'kaf', symbol: "ك", read: "Kaf", hint: "S kecil di atas kursi." },
+  { id: 'lam', symbol: "ل", read: "Lam", hint: "Kail pancing besar." },
+  { id: 'mim', symbol: "م", read: "Mim", hint: "Kepala bulat ekor bawah." },
+  { id: 'nun', symbol: "ن", read: "Nun", hint: "Mangkuk titik satu." },
+  { id: 'waw', symbol: "و", read: "Waw", hint: "Kepala bulat meluncur." },
+  { id: 'ha_besar', symbol: "ه", read: "Ha", hint: "Bulatan simpul." },
+  { id: 'ya', symbol: "ي", read: "Ya", hint: "Angsa titik dua." }
+];
+
+const CHARS_HANGUL = [
+  // Konsonan (14)
+  { id: 'g', symbol: "ㄱ", read: "Giyok (G)", hint: "Pistol." },
+  { id: 'n', symbol: "ㄴ", read: "Nieun (N)", hint: "Duduk." },
+  { id: 'd', symbol: "ㄷ", read: "Digeut (D)", hint: "Kotak terbuka." },
+  { id: 'r', symbol: "ㄹ", read: "Rieul (R/L)", hint: "Ular." },
+  { id: 'm', symbol: "ㅁ", read: "Mieum (M)", hint: "Kotak." },
+  { id: 'b', symbol: "ㅂ", read: "Bieup (B)", hint: "Ember." },
+  { id: 's', symbol: "ㅅ", read: "Siot (S)", hint: "Orang berdiri." },
+  { id: 'ng', symbol: "ㅇ", read: "Ieung (Ng)", hint: "Bulatan." },
+  { id: 'j', symbol: "ㅈ", read: "Jieut (J)", hint: "Siot pakai topi." },
+  { id: 'ch', symbol: "ㅊ", read: "Chieut (Ch)", hint: "Jieut pakai topi." },
+  { id: 'k', symbol: "ㅋ", read: "Kieuk (K)", hint: "Pistol ada pelatuk." },
+  { id: 't', symbol: "ㅌ", read: "Tieut (T)", hint: "Sisir E." },
+  { id: 'p', symbol: "ㅍ", read: "Pieup (P)", hint: "Pilar Romawi." },
+  { id: 'h', symbol: "ㅎ", read: "Hieut (H)", hint: "Orang pakai topi." },
+  // Vokal (10 Dasar)
+  { id: 'a', symbol: "ㅏ", read: "A", hint: "Tongkat tangan kanan." },
+  { id: 'ya', symbol: "ㅑ", read: "Ya", hint: "Tongkat dua tangan kanan." },
+  { id: 'eo', symbol: "ㅓ", read: "Eo", hint: "Tongkat tangan kiri." },
+  { id: 'yeo', symbol: "ㅕ", read: "Yeo", hint: "Tongkat dua tangan kiri." },
+  { id: 'o', symbol: "ㅗ", read: "O", hint: "Tangan ke atas." },
+  { id: 'yo', symbol: "ㅛ", read: "Yo", hint: "Dua tangan ke atas." },
+  { id: 'u', symbol: "ㅜ", read: "U", hint: "Tangan ke bawah." },
+  { id: 'yu', symbol: "ㅠ", read: "Yu", hint: "Dua tangan ke bawah." },
+  { id: 'eu', symbol: "ㅡ", read: "Eu", hint: "Garis datar." },
+  { id: 'i', symbol: "ㅣ", read: "I", hint: "Garis tegak." }
+];
+
+const CHARS_HIRAGANA = [
+  { symbol: "あ", read: "A", hint: "Ikan." }, { symbol: "い", read: "I", hint: "Dua garis." }, { symbol: "う", read: "U", hint: "Bungkuk." }, { symbol: "え", read: "E", hint: "Burung." }, { symbol: "お", read: "O", hint: "A + titik." },
+  { symbol: "か", read: "Ka", hint: "Kekuatan." }, { symbol: "き", read: "Ki", hint: "Kunci." }, { symbol: "く", read: "Ku", hint: "Mulut." }, { symbol: "け", read: "Ke", hint: "Pedang." }, { symbol: "こ", read: "Ko", hint: "Cacing." },
+  { symbol: "さ", read: "Sa", hint: "Senyum." }, { symbol: "し", read: "Shi", hint: "Kail." }, { symbol: "す", read: "Su", hint: "Simpul." }, { symbol: "せ", read: "Se", hint: "Pangkuan." }, { symbol: "そ", read: "So", hint: "Zigzag." },
+  { symbol: "た", read: "Ta", hint: "Ta + Ko." }, { symbol: "ち", read: "Chi", hint: "Lima." }, { symbol: "つ", read: "Tsu", hint: "Ombak." }, { symbol: "て", read: "Te", hint: "Tangan." }, { symbol: "と", read: "To", hint: "Duri." },
+  { symbol: "な", read: "Na", hint: "Salib." }, { symbol: "に", read: "Ni", hint: "Garis + Ko." }, { symbol: "ぬ", read: "Nu", hint: "Mie." }, { symbol: "ね", read: "Ne", hint: "Kucing." }, { symbol: "の", read: "No", hint: "Larangan." },
+  { symbol: "は", read: "Ha", hint: "Ha + Simpul." }, { symbol: "ひ", read: "Hi", hint: "Senyum V." }, { symbol: "ふ", read: "Fu", hint: "Gunung Fuji." }, { symbol: "へ", read: "He", hint: "Gunung." }, { symbol: "ほ", read: "Ho", hint: "Ha + Topi." },
+  { symbol: "ま", read: "Ma", hint: "Dua garis simpul." }, { symbol: "み", read: "Mi", hint: "21." }, { symbol: "む", read: "Mu", hint: "Sapi (Moo)." }, { symbol: "め", read: "Me", hint: "Mie (Nu) tanpa ekor." }, { symbol: "も", read: "Mo", hint: "Kail dua umpan." },
+  { symbol: "や", read: "Ya", hint: "Yakitori." }, { symbol: "ゆ", read: "Yu", hint: "Ikan melintas." }, { symbol: "よ", read: "Yo", hint: "Yo-yo." },
+  { symbol: "ら", read: "Ra", hint: "Angka 5." }, { symbol: "り", read: "Ri", hint: "Dua garis." }, { symbol: "る", read: "Ru", hint: "Tiga simpul." }, { symbol: "れ", read: "Re", hint: "Z melengkung." }, { symbol: "ろ", read: "Ro", hint: "Tiga (Ru) tanpa simpul." },
+  { symbol: "わ", read: "Wa", hint: "Re gemuk." }, { symbol: "を", read: "Wo", hint: "Huruf C dan h." }, { symbol: "ん", read: "N", hint: "Huruf h miring." }
+].map((c, i) => ({ ...c, id: `hira_${i}` }));
+
+const CHARS_KATAKANA = [
+  { symbol: "ア", read: "A", hint: "T miring." }, { symbol: "イ", read: "I", hint: "Orang." }, { symbol: "ウ", read: "U", hint: "Atap." }, { symbol: "エ", read: "E", hint: "I Romawi." }, { symbol: "オ", read: "O", hint: "Orang menari." },
+  { symbol: "カ", read: "Ka", hint: "Ka tanpa titik." }, { symbol: "キ", read: "Ki", hint: "Dua garis." }, { symbol: "ク", read: "Ku", hint: "Tujuh." }, { symbol: "ケ", read: "Ke", hint: "K melengkung." }, { symbol: "コ", read: "Ko", hint: "Siku." },
+  { symbol: "サ", read: "Sa", hint: "Tiang." }, { symbol: "シ", read: "Shi", hint: "Air ciprat." }, { symbol: "ス", read: "Su", hint: "Gantungan." }, { symbol: "セ", read: "Se", hint: "Siku miring." }, { symbol: "ソ", read: "So", hint: "Jarum." },
+  { symbol: "タ", read: "Ta", hint: "Sore (Yu)." }, { symbol: "チ", read: "Chi", hint: "Seribu." }, { symbol: "ツ", read: "Tsu", hint: "Senyum." }, { symbol: "テ", read: "Te", hint: "Dua garis." }, { symbol: "ト", read: "To", hint: "Totem." },
+  { symbol: "ナ", read: "Na", hint: "Pedang." }, { symbol: "ニ", read: "Ni", hint: "Dua." }, { symbol: "ヌ", read: "Nu", hint: "Tujuh." }, { symbol: "ネ", read: "Ne", hint: "Pohon." }, { symbol: "ノ", read: "No", hint: "Coretan." },
+  { symbol: "ハ", read: "Ha", hint: "Kumis." }, { symbol: "ヒ", read: "Hi", hint: "Kursi." }, { symbol: "フ", read: "Fu", hint: "Tujuh bengkok." }, { symbol: "ヘ", read: "He", hint: "Gunung." }, { symbol: "ホ", read: "Ho", hint: "Pohon salib." },
+  { symbol: "マ", read: "Ma", hint: "Siku 7." }, { symbol: "ミ", read: "Mi", hint: "Tiga garis." }, { symbol: "ム", read: "Mu", hint: "Segitiga." }, { symbol: "メ", read: "Me", hint: "Silang." }, { symbol: "モ", read: "Mo", hint: "Dua garis E." },
+  { symbol: "ヤ", read: "Ya", hint: "Tujuh miring." }, { symbol: "ユ", read: "Yu", hint: "Nomor 1." }, { symbol: "ヨ", read: "Yo", hint: "E terbalik." },
+  { symbol: "ラ", read: "Ra", hint: "Topi." }, { symbol: "リ", read: "Ri", hint: "Dua garis." }, { symbol: "ル", read: "Ru", hint: "Kaki." }, { symbol: "レ", read: "Re", hint: "L." }, { symbol: "ロ", read: "Ro", hint: "Kotak." },
+  { symbol: "ワ", read: "Wa", hint: "Tanya." }, { symbol: "ヲ", read: "Wo", hint: "F." }, { symbol: "ン", read: "N", hint: "Senyum satu mata." }
+].map((c, i) => ({ ...c, id: `kata_${i}` }));
+
+const CHARS_JAVANESE = [
+  { symbol: "ꦲ", read: "Ha", hint: "Ha" }, { symbol: "ꦤ", read: "Na", hint: "Na" }, { symbol: "ꦕ", read: "Ca", hint: "Ca" }, { symbol: "ꦫ", read: "Ra", hint: "Ra" }, { symbol: "ꦏ", read: "Ka", hint: "Ka" },
+  { symbol: "ꦢ", read: "Da", hint: "Da" }, { symbol: "ꦠ", read: "Ta", hint: "Ta" }, { symbol: "ꦱ", read: "Sa", hint: "Sa" }, { symbol: "ꦮ", read: "Wa", hint: "Wa" }, { symbol: "ꦭ", read: "La", hint: "La" },
+  { symbol: "ꦥ", read: "Pa", hint: "Pa" }, { symbol: "ꦝ", read: "Dha", hint: "Dha" }, { symbol: "ꦗ", read: "Ja", hint: "Ja" }, { symbol: "ꦪ", read: "Ya", hint: "Ya" }, { symbol: "ꦚ", read: "Nya", hint: "Nya" },
+  { symbol: "ꦩ", read: "Ma", hint: "Ma" }, { symbol: "ꦒ", read: "Ga", hint: "Ga" }, { symbol: "ꦧ", read: "Ba", hint: "Ba" }, { symbol: "ꦛ", read: "Tha", hint: "Tha" }, { symbol: "ꦔ", read: "Nga", hint: "Nga" }
+].map((c, i) => ({ ...c, id: `java_${i}` }));
+
+const CHARS_THAI = [
+  { symbol: "ก", read: "Ko Kai", hint: "Ayam." }, { symbol: "ข", read: "Kho Khai", hint: "Telur." }, { symbol: "ฃ", read: "Kho Khuad", hint: "Botol." }, { symbol: "ค", read: "Kho Khwai", hint: "Kerbau." }, { symbol: "ฅ", read: "Kho Khon", hint: "Orang." },
+  { symbol: "ฆ", read: "Kho Rakhang", hint: "Lonceng." }, { symbol: "ง", read: "Ngo Ngu", hint: "Ular." }, { symbol: "จ", read: "Cho Chan", hint: "Piring." }, { symbol: "ฉ", read: "Cho Ching", hint: "Simbal." }, { symbol: "ช", read: "Cho Chang", hint: "Gajah." },
+  { symbol: "ซ", read: "So So", hint: "Rantai." }, { symbol: "ฌ", read: "Cho Choe", hint: "Pohon." }, { symbol: "ญ", read: "Yo Ying", hint: "Wanita." }, { symbol: "ฎ", read: "Do Chada", hint: "Mahkota." }, { symbol: "ฏ", read: "To Patak", hint: "Tombak." },
+  { symbol: "ฐ", read: "Tho Than", hint: "Peralatan." }, { symbol: "ฑ", read: "Tho Montho", hint: "Raksasa." }, { symbol: "ฒ", read: "Tho Phuthao", hint: "Orang Tua." }, { symbol: "ณ", read: "No Nen", hint: "Biksuni." }, { symbol: "ด", read: "Do Dek", hint: "Anak." },
+  { symbol: "ต", read: "To Tao", hint: "Kura-kura." }, { symbol: "ถ", read: "Tho Thung", hint: "Tas." }, { symbol: "ท", read: "Tho Thahan", hint: "Tentara." }, { symbol: "ธ", read: "Tho Thong", hint: "Bendera." }, { symbol: "น", read: "No Nu", hint: "Tikus." },
+  { symbol: "บ", read: "Bo Baimai", hint: "Daun." }, { symbol: "ป", read: "Po Pla", hint: "Ikan." }, { symbol: "ผ", read: "Pho Phueng", hint: "Lebah." }, { symbol: "ฝ", read: "Fo Fa", hint: "Tutup." }, { symbol: "พ", read: "Pho Phan", hint: "Nampan." },
+  { symbol: "ฟ", read: "Fo Fan", hint: "Gigi." }, { symbol: "ภ", read: "Pho Samphao", hint: "Perahu Layar." }, { symbol: "ม", read: "Mo Ma", hint: "Kuda." }, { symbol: "ย", read: "Yo Yak", hint: "Raksasa." }, { symbol: "ร", read: "Ro Ruea", hint: "Perahu." },
+  { symbol: "ล", read: "Lo Ling", hint: "Monyet." }, { symbol: "ว", read: "Wo Waen", hint: "Cincin." }, { symbol: "ศ", read: "So Sala", hint: "Paviliun." }, { symbol: "ษ", read: "So Ruesi", hint: "Pertapa." }, { symbol: "ส", read: "So Suea", hint: "Harimau." },
+  { symbol: "ห", read: "Ho Hip", hint: "Kotak." }, { symbol: "ฬ", read: "Lo Chula", hint: "Layang-layang." }, { symbol: "อ", read: "O Ang", hint: "Baskom." }, { symbol: "ฮ", read: "Ho Nokhuk", hint: "Burung Hantu." }
+].map((c, i) => ({ ...c, id: `thai_${i}` }));
+
+
 const LANGUAGE_DATA = {
-  arabic: {
-    name: "Arab (Hijaiyah)",
-    direction: "rtl",
-    levels: [
-      {
-        id: 1,
-        title: "Jilid 1: Dasar",
-        chars: [
-          {
-            char: "Alif",
-            symbol: "ا",
-            strokes: [
-              { points: [{x: 50, y: 10}, {x: 50, y: 90}], type: 'line' }
-            ],
-            hint: "Tarik garis tegak lurus dari atas ke bawah."
-          },
-          {
-            char: "Ba",
-            symbol: "ب",
-            strokes: [
-              { points: [{x: 80, y: 40}, {x: 80, y: 60}, {x: 20, y: 60}, {x: 20, y: 50}], type: 'curve' },
-              { points: [{x: 50, y: 75}, {x: 50, y: 78}], type: 'dot' }
-            ],
-            hint: "Seperti perahu, lalu satu titik di bawah."
-          }
-        ]
-      },
-      {
-        id: 2,
-        title: "Jilid 2: Lengkung",
-        chars: [
-          {
-            char: "Jim",
-            symbol: "ج",
-            strokes: [
-              { points: [{x: 30, y: 30}, {x: 70, y: 30}, {x: 50, y: 50}], type: 'curve' }, // Top
-              { points: [{x: 50, y: 50}, {x: 20, y: 50}, {x: 20, y: 90}, {x: 80, y: 90}], type: 'curve' }, // Belly
-              { points: [{x: 50, y: 70}, {x: 50, y: 73}], type: 'dot' }
-            ],
-            hint: "Garis alis, perut besar, dan titik di tengah."
-          }
-        ]
-      }
-    ]
-  },
-  japanese: {
-    name: "Jepang (Kana)",
-    direction: "ltr",
-    levels: [
-      {
-        id: 1,
-        title: "Hiragana Dasar",
-        chars: [
-          {
-            char: "A",
-            symbol: "あ",
-            strokes: [
-              { points: [{x: 20, y: 30}, {x: 80, y: 30}], type: 'line' },
-              { points: [{x: 50, y: 10}, {x: 50, y: 70}], type: 'curve' },
-              { points: [{x: 60, y: 40}, {x: 30, y: 80}, {x: 80, y: 80}, {x: 80, y: 50}], type: 'loop' }
-            ],
-            hint: "Garis horizontal, vertikal melengkung, lalu simpul ikan."
-          },
-          {
-            char: "I",
-            symbol: "い",
-            strokes: [
-              { points: [{x: 20, y: 30}, {x: 20, y: 70}, {x: 30, y: 60}], type: 'hook' },
-              { points: [{x: 70, y: 30}, {x: 70, y: 60}], type: 'curve' }
-            ],
-            hint: "Dua garis seperti tanda kurung."
-          }
-        ]
-      }
-    ]
-  },
-  korean: {
-    name: "Korea (Hangul)",
-    direction: "ltr",
-    levels: [
-      {
-        id: 1,
-        title: "Konsonan Dasar",
-        chars: [
-          {
-            char: "Giyok (G)",
-            symbol: "ㄱ",
-            strokes: [
-               { points: [{x: 20, y: 20}, {x: 80, y: 20}, {x: 80, y: 80}], type: 'corner' }
-            ],
-            hint: "Satu tarikan: Kiri ke kanan, lalu ke bawah."
-          },
-          {
-            char: "Nieun (N)",
-            symbol: "ㄴ",
-            strokes: [
-               { points: [{x: 20, y: 20}, {x: 20, y: 80}, {x: 80, y: 80}], type: 'corner' }
-            ],
-            hint: "Atas ke bawah, lalu ke kanan."
-          }
-        ]
-      }
-    ]
-  },
-  chinese: {
-    name: "Mandarin (Hanzi)",
-    direction: "ltr",
-    levels: [
-      {
-        id: 1,
-        title: "Angka & Alam",
-        chars: [
-          {
-            char: "Satu (Yī)",
-            symbol: "一",
-            strokes: [
-              { points: [{x: 10, y: 50}, {x: 90, y: 50}], type: 'line' }
-            ],
-            hint: "Satu garis lurus mendatar."
-          },
-          {
-            char: "Orang (Rén)",
-            symbol: "人",
-            strokes: [
-              { points: [{x: 50, y: 10}, {x: 10, y: 90}], type: 'line' },
-              { points: [{x: 50, y: 40}, {x: 90, y: 90}], type: 'line' }
-            ],
-            hint: "Kiri miring, lalu kanan miring menopang."
-          }
-        ]
-      }
-    ]
-  },
   alphabet: {
-    name: "Alphabet (ABC)",
-    direction: "ltr",
-    levels: [
-      {
-        id: 1,
-        title: "Huruf Besar",
-        chars: [
-          {
-            char: "A",
-            symbol: "A",
-            strokes: [
-              { points: [{x: 50, y: 10}, {x: 20, y: 90}], type: 'line' },
-              { points: [{x: 50, y: 10}, {x: 80, y: 90}], type: 'line' },
-              { points: [{x: 30, y: 60}, {x: 70, y: 60}], type: 'line' }
-            ],
-            hint: "Miring kiri, miring kanan, sabuk di tengah."
-          },
-           {
-            char: "B",
-            symbol: "B",
-            strokes: [
-              { points: [{x: 20, y: 10}, {x: 20, y: 90}], type: 'line' },
-              { points: [{x: 20, y: 10}, {x: 60, y: 25}, {x: 20, y: 50}], type: 'curve' },
-              { points: [{x: 20, y: 50}, {x: 70, y: 70}, {x: 20, y: 90}], type: 'curve' }
-            ],
-            hint: "Tiang lurus, lalu dua perut buncit."
-          }
-        ]
-      }
-    ]
+    name: "Alphabet (26)",
+    langCode: "en-US",
+    fontFamily: "sans-serif",
+    stages: createStages(CHARS_ALPHABET)
+  },
+  arabic: {
+    name: "Arab (28)",
+    langCode: "ar-SA",
+    fontFamily: "serif",
+    stages: createStages(CHARS_ARABIC)
+  },
+  javanese: {
+    name: "Aksara Jawa (20)",
+    langCode: "jv-ID", // Support di beberapa browser
+    fontFamily: "'Noto Sans Javanese', serif",
+    stages: createStages(CHARS_JAVANESE)
+  },
+  hangul: {
+    name: "Korea Hangul (24)",
+    langCode: "ko-KR",
+    fontFamily: "sans-serif",
+    stages: createStages(CHARS_HANGUL)
+  },
+  hiragana: {
+    name: "Jepang Hiragana (46)",
+    langCode: "ja-JP",
+    fontFamily: "sans-serif",
+    stages: createStages(CHARS_HIRAGANA)
+  },
+  katakana: {
+    name: "Jepang Katakana (46)",
+    langCode: "ja-JP",
+    fontFamily: "sans-serif",
+    stages: createStages(CHARS_KATAKANA)
+  },
+  thai: {
+    name: "Aksara Thai (44)",
+    langCode: "th-TH",
+    fontFamily: "'Noto Sans Thai', sans-serif",
+    stages: createStages(CHARS_THAI)
   }
 };
 
+/**
+ * ENGINE DRILL (30 ITEMS - IQRO METHOD)
+ * Logic:
+ * Stage 1: 100% Huruf Baru.
+ * Stage >1: 70% Huruf Baru (Diulang-ulang), 30% Huruf Lama (Random Review).
+ */
+const generateDrillQueue = (langData, stageId) => {
+  const currentStage = langData.stages.find(s => s.id === stageId);
+  const prevStages = langData.stages.filter(s => s.id < stageId);
+  
+  const DRILL_COUNT = 30;
+  let queue = [];
+
+  if (!currentStage) return [];
+
+  // Karena struktur baru 1 level = 1 huruf, maka newChars selalu cuma 1 item.
+  const targetChar = currentStage.newChars[0];
+  
+  // Kumpulkan huruf lama untuk review
+  let oldChars = [];
+  prevStages.forEach(s => {
+    oldChars = [...oldChars, ...s.newChars];
+  });
+
+  for (let i = 0; i < DRILL_COUNT; i++) {
+    let char;
+    
+    if (stageId === 1) {
+       // Stage 1: Full Target
+       char = targetChar;
+    } else {
+       // Stage > 1: Mix
+       // Pola: Baru, Baru, Lama, Baru, Baru, Lama... (2:1 Ratio)
+       const isReview = oldChars.length > 0 && ((i + 1) % 3 === 0);
+       
+       if (isReview) {
+         char = oldChars[Math.floor(Math.random() * oldChars.length)];
+       } else {
+         char = targetChar;
+       }
+    }
+
+    queue.push({ 
+        ...char, 
+        uniqueId: `drill-${stageId}-${i}`, 
+        userImage: null 
+    });
+  }
+  return queue;
+};
+
 const App = () => {
-  const [activeLang, setActiveLang] = useState('arabic');
-  const [activeLevelId, setActiveLevelId] = useState(1);
-  const [activeCharIndex, setActiveCharIndex] = useState(0);
-  const [strokeIndex, setStrokeIndex] = useState(0); // Current stroke step
-  const [points, setPoints] = useState([]); // User drawn points
+  const [activeLangKey, setActiveLangKey] = useState('alphabet'); 
+  const [activeStageId, setActiveStageId] = useState(1);
+  
+  const [drillQueue, setDrillQueue] = useState([]);
+  const [currentDrillIndex, setCurrentDrillIndex] = useState(0);
+  
+  // Drawing State
+  const [userStrokes, setUserStrokes] = useState([]); 
   const [isDrawing, setIsDrawing] = useState(false);
+  const [currentStroke, setCurrentStroke] = useState([]);
+
   const [feedback, setFeedback] = useState("");
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [completedStrokes, setCompletedStrokes] = useState([]);
-  const [dailyStreak, setDailyStreak] = useState(1);
+  const [leftSidebarOpen, setLeftSidebarOpen] = useState(false);
+  const [rightSidebarOpen, setRightSidebarOpen] = useState(true);
   const [showConfetti, setShowConfetti] = useState(false);
 
   const canvasRef = useRef(null);
 
-  const currentLangData = LANGUAGE_DATA[activeLang];
-  const currentLevel = currentLangData.levels.find(l => l.id === activeLevelId);
-  const currentChar = currentLevel.chars[activeCharIndex];
+  const currentLangData = LANGUAGE_DATA[activeLangKey];
+  const currentStage = currentLangData.stages.find(s => s.id === activeStageId) || currentLangData.stages[0];
+  const currentTaskChar = drillQueue[currentDrillIndex];
 
-  // Canvas Drawing Logic
+  // TTS Helper
+  const speak = (text) => {
+    if ('speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = currentLangData.langCode;
+        utterance.rate = 0.8; 
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(utterance);
+    }
+  };
+
+  // Play audio when char changes
   useEffect(() => {
+    if (currentTaskChar) {
+        setFeedback(currentTaskChar.hint);
+    }
+  }, [currentTaskChar]);
+
+  // Responsive Init
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 1024) {
+        setRightSidebarOpen(false); 
+      } else {
+        setRightSidebarOpen(true); 
+      }
+    };
+    handleResize(); 
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Init Drill
+  useEffect(() => {
+    // Reset ke stage 1 jika ganti bahasa
+    setActiveStageId(1);
+  }, [activeLangKey]);
+
+  useEffect(() => {
+    const queue = generateDrillQueue(currentLangData, activeStageId);
+    setDrillQueue(queue);
+    setCurrentDrillIndex(0);
+    setUserStrokes([]);
+    setCurrentStroke([]);
+    setFeedback("Tebalkan huruf bercahaya di layar.");
+  }, [activeLangKey, activeStageId]);
+
+  // RENDER CANVAS
+  useEffect(() => {
+    if (!currentTaskChar) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
     
-    const ctx = canvas.getContext('2d');
-    const width = canvas.width;
-    const height = canvas.height;
-    
-    // Clear canvas
-    ctx.clearRect(0, 0, width, height);
-    
-    // 1. Draw Grid (Background)
-    drawGrid(ctx, width, height);
-
-    // 2. Draw Ghost Character (Background Guide)
-    ctx.globalAlpha = 0.2;
-    ctx.lineWidth = 15;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-    ctx.strokeStyle = '#555';
-    
-    currentChar.strokes.forEach(stroke => {
-      drawStrokePath(ctx, stroke.points, width, height);
-    });
-
-    // 3. Draw Completed Strokes (Dark Black)
-    ctx.globalAlpha = 1.0;
-    ctx.strokeStyle = '#000';
-    for(let i=0; i < strokeIndex; i++) {
-        drawStrokePath(ctx, currentChar.strokes[i].points, width, height);
+    const rect = canvas.getBoundingClientRect();
+    if (canvas.width !== rect.width || canvas.height !== rect.height) {
+        canvas.width = rect.width;
+        canvas.height = rect.height;
     }
 
-    // 4. Draw User's Current Drawing (if valid/close)
-    // For this simple version, we mainly rely on the "Click to Stroke" animation visualization
-    // But if we want to show the current animation:
-    
-  }, [activeLang, activeLevelId, activeCharIndex, strokeIndex]);
-
-
-  const drawGrid = (ctx, w, h) => {
-    ctx.beginPath();
-    ctx.strokeStyle = '#e5e7eb'; // Tailwind gray-200
-    ctx.lineWidth = 2;
-    // Cross
-    ctx.moveTo(w/2, 0); ctx.lineTo(w/2, h);
-    ctx.moveTo(0, h/2); ctx.lineTo(w, h/2);
-    // Diagonals
-    ctx.moveTo(0, 0); ctx.lineTo(w, h);
-    ctx.moveTo(w, 0); ctx.lineTo(0, h);
-    ctx.stroke();
-  };
-
-  const drawStrokePath = (ctx, points, w, h) => {
-    if(points.length < 2) return;
-    ctx.beginPath();
-    ctx.moveTo(points[0].x * w / 100, points[0].y * h / 100);
-    
-    for(let i = 1; i < points.length; i++) {
-        // Simple smoothing for demo purposes
-        ctx.lineTo(points[i].x * w / 100, points[i].y * h / 100);
-    }
-    ctx.stroke();
-  };
-
-  const animateStroke = (strokeData) => {
-    const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
     const w = canvas.width;
     const h = canvas.height;
     
-    let startTime = null;
-    const duration = 800; // ms
+    ctx.clearRect(0, 0, w, h);
+    
+    // 1. GRID
+    drawGrid(ctx, w, h);
 
-    const animate = (timestamp) => {
-      if (!startTime) startTime = timestamp;
-      const progress = Math.min((timestamp - startTime) / duration, 1);
-      
-      // Re-render everything up to current state
-      // (Ideally we optimize this, but for < 10 strokes it's fine)
-      ctx.globalAlpha = 1;
-      ctx.strokeStyle = '#2563EB'; // Blue-600 active color
-      ctx.lineWidth = 15;
-      ctx.lineCap = 'round';
+    // 2. GLOWING GHOST CHARACTER
+    ctx.save();
+    // Adjust font size for long text (like some Thai chars are tall)
+    const fontSize = w * 0.60;
+    const fontFamily = currentLangData.fontFamily || "sans-serif";
+    ctx.font = `bold ${fontSize}px ${fontFamily}, "Noto Sans", "Arial"`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    
+    // Glowing Effect
+    ctx.shadowColor = "#58D68D"; 
+    ctx.shadowBlur = 20;
+    ctx.fillStyle = "rgba(88, 214, 141, 0.25)"; 
+    
+    const yOffset = h * 0.05; 
+    ctx.fillText(currentTaskChar.symbol, w / 2, h / 2 + yOffset);
+    
+    ctx.strokeStyle = "rgba(88, 214, 141, 0.4)";
+    ctx.lineWidth = 1;
+    ctx.strokeText(currentTaskChar.symbol, w / 2, h / 2 + yOffset);
+    
+    ctx.restore();
 
-      // Draw partial stroke based on progress
-      const pts = strokeData.points;
-      if (pts.length >= 2) {
-          ctx.beginPath();
-          const startX = pts[0].x * w / 100;
-          const startY = pts[0].y * h / 100;
-          ctx.moveTo(startX, startY);
-          
-          const totalPoints = pts.length - 1;
-          const currentPointIndex = Math.floor(progress * totalPoints);
-          
-          // Draw fully passed segments
-          for(let i=0; i < currentPointIndex; i++) {
-              ctx.lineTo(pts[i+1].x * w/100, pts[i+1].y * h/100);
-          }
+    // 3. USER INK
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.globalAlpha = 1.0;
+    ctx.strokeStyle = '#1e293b'; 
+    ctx.lineWidth = 16; 
+    
+    userStrokes.forEach(strokePoints => {
+        drawUserPath(ctx, strokePoints);
+    });
 
-          // Draw interpolation for current segment
-          if (currentPointIndex < totalPoints) {
-            const p1 = pts[currentPointIndex];
-            const p2 = pts[currentPointIndex + 1];
-            const segProgress = (progress * totalPoints) - currentPointIndex;
-            
-            const curX = (p1.x + (p2.x - p1.x) * segProgress) * w / 100;
-            const curY = (p1.y + (p2.y - p1.y) * segProgress) * h / 100;
-            ctx.lineTo(curX, curY);
-          }
-          
-          ctx.stroke();
-      }
+    if (currentStroke.length > 0) {
+        drawUserPath(ctx, currentStroke);
+    }
 
-      if (progress < 1) {
-        requestAnimationFrame(animate);
-      } else {
-        // Animation done
-        handleStrokeComplete();
-      }
+  }, [drillQueue, currentDrillIndex, userStrokes, currentStroke, activeLangKey]);
+
+  // --- HELPERS ---
+  const drawGrid = (ctx, w, h) => {
+    ctx.save();
+    ctx.beginPath();
+    ctx.strokeStyle = '#58D68D'; 
+    ctx.lineWidth = 1;
+    ctx.globalAlpha = 0.3; 
+    
+    const padding = 15;
+    ctx.rect(padding, padding, w-(padding*2), h-(padding*2));
+    
+    ctx.setLineDash([8, 8]);
+    ctx.moveTo(w/2, padding); ctx.lineTo(w/2, h-padding);
+    ctx.moveTo(padding, h/2); ctx.lineTo(w-padding, h/2);
+    
+    // Diagonal lines for complicated chars
+    if (currentLangData.fontFamily.includes('serif') || activeLangKey !== 'alphabet') {
+        ctx.moveTo(padding, padding); ctx.lineTo(w-padding, h-padding);
+        ctx.moveTo(w-padding, padding); ctx.lineTo(padding, h-padding);
+    }
+    
+    ctx.stroke();
+    ctx.restore();
+  };
+
+  const drawUserPath = (ctx, points) => {
+    if(points.length < 2) {
+        if(points.length === 1) {
+            ctx.beginPath();
+            ctx.arc(points[0].x, points[0].y, ctx.lineWidth/2, 0, Math.PI*2);
+            ctx.fill();
+        }
+        return;
+    }
+    ctx.beginPath();
+    ctx.moveTo(points[0].x, points[0].y);
+    for(let i = 1; i < points.length; i++) {
+         ctx.lineTo(points[i].x, points[i].y);
+    }
+    ctx.stroke();
+  };
+
+  const getCoords = (e) => {
+    const canvas = canvasRef.current;
+    const rect = canvas.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    return {
+        x: clientX - rect.left,
+        y: clientY - rect.top
     };
-    
-    requestAnimationFrame(animate);
   };
 
-  const handleNextStroke = () => {
-    if (strokeIndex < currentChar.strokes.length) {
-      animateStroke(currentChar.strokes[strokeIndex]);
+  const startDrawing = (e) => {
+    if (currentDrillIndex >= drillQueue.length) return;
+    if (e.cancelable) e.preventDefault(); 
+    setIsDrawing(true);
+    const coords = getCoords(e);
+    setCurrentStroke([coords]);
+  };
+
+  const draw = (e) => {
+    if (!isDrawing) return;
+    if (e.cancelable) e.preventDefault();
+    const coords = getCoords(e);
+    setCurrentStroke(prev => [...prev, coords]);
+  };
+
+  const endDrawing = () => {
+    if (!isDrawing) return;
+    setIsDrawing(false);
+    if (currentStroke.length > 0) {
+        setUserStrokes(prev => [...prev, currentStroke]);
     }
+    setCurrentStroke([]);
   };
 
-  const handleStrokeComplete = () => {
-    const newIndex = strokeIndex + 1;
-    setStrokeIndex(newIndex);
-    
-    if (newIndex >= currentChar.strokes.length) {
-      setFeedback("Sempurna! Mumtaz!");
-      setShowConfetti(true);
-      setTimeout(() => setShowConfetti(false), 3000);
+  // --- ACTIONS ---
+  const handleClear = () => {
+    setUserStrokes([]);
+    setCurrentStroke([]);
+  };
+
+  const saveToNotebook = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const dataUrl = canvas.toDataURL('image/png');
+    const updatedQueue = [...drillQueue];
+    updatedQueue[currentDrillIndex].userImage = dataUrl;
+    setDrillQueue(updatedQueue);
+  };
+
+  const handleNext = () => {
+    saveToNotebook();
+    if (currentDrillIndex < drillQueue.length - 1) {
+        setCurrentDrillIndex(prev => prev + 1);
+        setUserStrokes([]);
+        setFeedback(currentTaskChar.hint); 
     } else {
-      setFeedback("Bagus! Lanjut...");
+        setFeedback("Stage Selesai!");
+        setShowConfetti(true);
+        setTimeout(() => setShowConfetti(false), 3000);
+        setRightSidebarOpen(true);
     }
   };
 
-  const handleReset = () => {
-    setStrokeIndex(0);
-    setFeedback("");
-    const ctx = canvasRef.current.getContext('2d');
-    ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-    // Force re-render grid/ghost
-    setActiveCharIndex(activeCharIndex); 
+  const handlePrint = () => {
+    window.print();
   };
 
-  const handleNextChar = () => {
-    if (activeCharIndex < currentLevel.chars.length - 1) {
-      setActiveCharIndex(prev => prev + 1);
-      setStrokeIndex(0);
-      setFeedback("");
-    } else {
-       setFeedback("Jilid Selesai! Masya Allah!");
-    }
-  };
-
-  const handlePrevChar = () => {
-    if (activeCharIndex > 0) {
-      setActiveCharIndex(prev => prev - 1);
-      setStrokeIndex(0);
-      setFeedback("");
-    }
-  };
+  if (!currentTaskChar) return <div className="p-10 flex justify-center text-emerald-500">Memuat Aset...</div>;
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans text-slate-800 relative overflow-hidden">
+    <div className="min-h-screen bg-[#E9F7EF] font-sans text-slate-800 flex flex-col overflow-hidden select-none">
       
+      {/* CSS PRINTING */}
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Javanese&family=Noto+Sans+Thai:wght@400;700&display=swap');
+        
+        @media print {
+          @page { margin: 1cm; size: A4; }
+          body { background: white; }
+          header, aside, .tools-panel, .action-buttons, .canvas-tools, .canvas-container, .audio-btn { display: none !important; }
+          .notebook-section { 
+            position: relative !important; 
+            width: 100% !important; 
+            height: auto !important; 
+            overflow: visible !important;
+            border: none !important;
+            background: white !important;
+            transform: none !important;
+            display: block !important;
+          }
+          .notebook-grid {
+            display: grid !important;
+            grid-template-columns: repeat(5, 1fr) !important;
+            gap: 10px !important;
+          }
+          .notebook-item {
+            border: 1px solid #ccc !important;
+            break-inside: avoid;
+            background: white !important;
+          }
+          .print-header { display: block !important; text-align: center; margin-bottom: 20px; }
+          .notebook-title { display: none; }
+        }
+        .print-header { display: none; }
+      `}</style>
+
       {/* HEADER */}
-      <header className="bg-white shadow-sm p-4 flex justify-between items-center z-10 relative">
-        <div className="flex items-center gap-2">
-           <button onClick={() => setSidebarOpen(true)} className="p-2 hover:bg-slate-100 rounded-lg lg:hidden">
+      <header className="bg-white border-b border-[#D5F5E3] px-4 py-3 flex justify-between items-center z-20 shadow-sm h-16 shrink-0">
+        <div className="flex items-center gap-3">
+           <button onClick={() => setLeftSidebarOpen(!leftSidebarOpen)} className="p-2 hover:bg-[#E9F7EF] rounded-lg lg:hidden text-emerald-700">
              <Menu size={24} />
            </button>
-           <div className="bg-indigo-600 text-white p-2 rounded-lg">
+           <div className="w-9 h-9 bg-[#58D68D] rounded-xl flex items-center justify-center text-white shadow-md shadow-emerald-100">
              <Globe size={20} />
            </div>
            <div>
-             <h1 className="font-bold text-lg leading-tight">GlobalScript</h1>
-             <p className="text-xs text-slate-500">Belajar Menulis Dunia</p>
+             <h1 className="font-bold text-lg leading-none tracking-tight text-emerald-900">GlobalScript</h1>
+             <p className="text-[10px] text-emerald-600 font-medium tracking-wider">IQRO METHOD</p>
            </div>
         </div>
 
-        <div className="flex items-center gap-4">
-          <div className="hidden md:flex items-center gap-1 bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-sm font-medium">
-            <Trophy size={16} />
-            <span>Hari ke-{dailyStreak}</span>
-          </div>
-          <div className="flex items-center gap-1 bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full text-sm font-medium">
-             <Star size={16} className="fill-indigo-700" />
-             <span>Level {activeLevelId}</span>
-          </div>
+        <div className="flex items-center gap-2">
+           <div className="hidden sm:flex px-3 py-1 bg-[#E9F7EF] rounded-full text-xs font-bold text-emerald-700 border border-[#D5F5E3]">
+              {currentLangData.name}
+           </div>
+           <button 
+             onClick={() => setRightSidebarOpen(!rightSidebarOpen)}
+             className="relative p-2 hover:bg-[#E9F7EF] rounded-lg text-emerald-700 lg:hidden"
+           >
+              <Book size={24} />
+              <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-[#58D68D] rounded-full border border-white"></span>
+           </button>
         </div>
       </header>
 
-      <div className="flex h-[calc(100vh-80px)]">
+      {/* BODY */}
+      <div className="flex flex-1 overflow-hidden relative">
         
-        {/* SIDEBAR (Desktop: Always visible, Mobile: Slide over) */}
+        {/* LEFT SIDEBAR (MENU) */}
         <aside className={`
-          absolute lg:relative z-20 top-0 left-0 h-full w-64 bg-white border-r border-slate-200 transform transition-transform duration-300 ease-in-out
-          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+          absolute lg:relative z-30 h-full w-64 bg-white border-r border-[#D5F5E3] flex flex-col transition-transform duration-300 shadow-xl lg:shadow-none
+          ${leftSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         `}>
-          <div className="p-4 flex justify-between items-center lg:hidden">
-            <span className="font-bold text-slate-500">Menu</span>
-            <button onClick={() => setSidebarOpen(false)}><X size={24} /></button>
-          </div>
-          
-          <div className="p-4 space-y-6">
-            <div>
-              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Pilih Bahasa</h3>
-              <div className="space-y-2">
-                {Object.keys(LANGUAGE_DATA).map(key => (
-                  <button
-                    key={key}
-                    onClick={() => { setActiveLang(key); setSidebarOpen(false); handleReset(); }}
-                    className={`w-full flex items-center justify-between p-3 rounded-xl transition-all ${
-                      activeLang === key 
-                      ? 'bg-indigo-600 text-white shadow-md shadow-indigo-200' 
-                      : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
-                    }`}
-                  >
-                    <span className="capitalize font-medium">{key}</span>
-                    {activeLang === key && <CheckCircle size={16} />}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Tantangan Iqro</h3>
-              <div className="space-y-2">
-                 {currentLangData.levels.map(lvl => (
+           <div className="p-4 border-b border-[#E9F7EF] flex justify-between items-center lg:hidden">
+              <span className="font-bold text-emerald-800">Menu Belajar</span>
+              <button onClick={() => setLeftSidebarOpen(false)}><X size={20} className="text-emerald-500"/></button>
+           </div>
+           
+           <div className="flex-1 overflow-y-auto p-4 space-y-6">
+             {/* Language Selector */}
+             <div>
+               <h3 className="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-2">Pilih Aksara</h3>
+               <div className="grid grid-cols-1 gap-2">
+                 {Object.keys(LANGUAGE_DATA).map(key => (
                    <button
-                    key={lvl.id}
-                    onClick={() => { setActiveLevelId(lvl.id); setActiveCharIndex(0); handleReset(); }}
-                    className={`w-full text-left p-3 rounded-lg text-sm flex items-center gap-2 ${
-                      activeLevelId === lvl.id ? 'bg-indigo-50 text-indigo-700 font-medium' : 'text-slate-500 hover:bg-slate-50'
-                    }`}
+                     key={key}
+                     onClick={() => { setActiveLangKey(key); setLeftSidebarOpen(false); }}
+                     className={`p-3 rounded-xl text-sm font-medium border text-left flex justify-between items-center transition-all ${
+                       activeLangKey === key 
+                       ? 'bg-[#E9F7EF] text-emerald-800 border-[#58D68D] shadow-sm' 
+                       : 'bg-white text-slate-500 border-slate-100 hover:bg-[#E9F7EF]'
+                     }`}
                    >
-                     <BookOpen size={16} />
-                     {lvl.title}
+                     {LANGUAGE_DATA[key].name}
+                     {activeLangKey === key && <CheckCircle size={16} className="text-[#58D68D]" />}
                    </button>
                  ))}
-              </div>
-            </div>
-          </div>
+               </div>
+             </div>
+
+             {/* Stage Selector */}
+             <div>
+                <div className="flex justify-between items-center mb-2">
+                   <h3 className="text-xs font-bold text-emerald-400 uppercase tracking-wider">Pilih Huruf</h3>
+                   <span className="text-[10px] bg-slate-100 px-2 rounded-full text-slate-500">{currentLangData.stages.length} Level</span>
+                </div>
+                
+                <div className="space-y-1 max-h-[40vh] overflow-y-auto pr-1 custom-scrollbar">
+                  {currentLangData.stages.map(stage => (
+                    <button
+                      key={stage.id}
+                      onClick={() => { setActiveStageId(stage.id); setLeftSidebarOpen(false); }}
+                      className={`w-full text-left p-2.5 rounded-xl text-sm flex items-center gap-3 transition-colors ${
+                        activeStageId === stage.id 
+                        ? 'bg-[#58D68D] text-white font-bold shadow-md shadow-emerald-100' 
+                        : 'text-slate-500 hover:bg-[#E9F7EF]'
+                      }`}
+                    >
+                      <div className={`w-6 h-6 shrink-0 rounded-full flex items-center justify-center text-[10px] font-bold border ${
+                         activeStageId === stage.id ? 'bg-white text-[#58D68D]' : 'bg-slate-100 border-slate-200'
+                      }`}>
+                        {stage.id}
+                      </div>
+                      <span className="truncate">{stage.title}</span>
+                    </button>
+                  ))}
+                </div>
+             </div>
+           </div>
         </aside>
 
-        {/* MAIN CONTENT */}
-        <main className="flex-1 flex flex-col items-center justify-start p-4 lg:p-8 bg-slate-50 overflow-y-auto">
-          
-          {/* Progress Indicator */}
-          <div className="w-full max-w-md mb-6 flex justify-between text-sm text-slate-500">
-             <span>{currentLangData.name}</span>
-             <span>Huruf {activeCharIndex + 1} dari {currentLevel.chars.length}</span>
-          </div>
-
-          {/* CANVAS CONTAINER */}
-          <div className="relative bg-white p-4 rounded-3xl shadow-xl shadow-slate-200 border-4 border-slate-100">
+        {/* CENTER: CANVAS WORKSPACE */}
+        <main className="flex-1 flex flex-col items-center justify-start p-4 lg:p-6 relative overflow-y-auto">
              {showConfetti && (
-               <div className="absolute inset-0 flex items-center justify-center z-50 pointer-events-none">
-                 <div className="text-6xl animate-bounce">🎉⭐</div>
+               <div className="absolute inset-0 flex items-center justify-center z-50 pointer-events-none animate-bounce">
+                 <span className="text-8xl filter drop-shadow-lg">🌟</span>
                </div>
              )}
-             
-             <div className="absolute top-4 right-4 text-slate-300 font-bold text-xl select-none">
-               {strokeIndex}/{currentChar.strokes.length}
+
+             <div className="mb-4 text-center canvas-tools">
+                <span className="bg-[#D5F5E3] px-4 py-1.5 rounded-full text-emerald-800 text-xs uppercase tracking-widest font-bold border border-[#58D68D] shadow-sm">
+                   Level {activeStageId}: {currentTaskChar.read}
+                </span>
              </div>
 
-             <canvas
-               ref={canvasRef}
-               width={300}
-               height={300}
-               className="bg-white rounded-xl cursor-crosshair touch-none"
-             />
-             
-             {/* Character Preview (Small) */}
-             <div className="absolute top-4 left-4 bg-slate-100 p-2 rounded-lg">
-               <span className="text-2xl font-bold font-serif">{currentChar.symbol}</span>
+             {/* THE CANVAS */}
+             <div className="relative group touch-none canvas-container select-none">
+                <div className="bg-white p-2 rounded-[2rem] shadow-2xl shadow-emerald-100 border-4 border-white ring-2 ring-[#D5F5E3] mb-6 transition-transform duration-300">
+                  <canvas
+                    ref={canvasRef}
+                    width={320} 
+                    height={320}
+                    className="bg-white rounded-[1.8rem] cursor-crosshair touch-none w-[300px] h-[300px] sm:w-[380px] sm:h-[380px]"
+                    onMouseDown={startDrawing}
+                    onMouseMove={draw}
+                    onMouseUp={endDrawing}
+                    onMouseLeave={endDrawing}
+                    onTouchStart={startDrawing}
+                    onTouchMove={draw}
+                    onTouchEnd={endDrawing}
+                  />
+                  
+                  {/* Spelling / Reading Overlay */}
+                  <div className="absolute top-4 left-6 pointer-events-none">
+                     <span className="bg-white/90 backdrop-blur px-3 py-1 rounded-lg text-lg font-bold text-slate-700 shadow-sm border border-slate-200">
+                       {currentTaskChar.read}
+                     </span>
+                  </div>
+
+                  {/* Audio Button */}
+                  <div className="absolute top-4 right-4 pointer-events-auto audio-btn">
+                     <button 
+                        onClick={() => speak(currentTaskChar.read)}
+                        className="p-2 bg-emerald-100 hover:bg-emerald-200 text-emerald-700 rounded-full shadow-sm transition-colors"
+                        title="Dengar Suara"
+                     >
+                        <Volume2 size={24} />
+                     </button>
+                  </div>
+                </div>
+                
+                {/* Floating Clear Button */}
+                <div className="absolute bottom-10 right-6 flex flex-col gap-2 pointer-events-auto">
+                   <button 
+                     onClick={handleClear}
+                     className="p-3 bg-white text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full shadow-md border border-slate-100 transition-all active:scale-90"
+                     title="Hapus"
+                   >
+                     <Eraser size={22} />
+                   </button>
+                </div>
              </div>
-          </div>
 
-          {/* HINT TEXT */}
-          <div className="mt-6 text-center max-w-md">
-            <h2 className="text-3xl font-bold text-slate-800 mb-2">{currentChar.char}</h2>
-            <p className="text-slate-500 min-h-[1.5em]">{feedback || currentChar.hint}</p>
-          </div>
+             {/* Action Buttons */}
+             <div className="flex flex-col sm:flex-row gap-3 w-full max-w-sm action-buttons">
+                 <button
+                    onClick={handleClear}
+                    className="flex-1 py-3.5 rounded-2xl font-bold border-2 border-[#D5F5E3] text-emerald-700 hover:bg-[#E9F7EF] transition-colors flex items-center justify-center gap-2"
+                 >
+                    <RotateCcw size={20} /> Ulang
+                 </button>
 
-          {/* CONTROLS */}
-          <div className="mt-8 w-full max-w-md space-y-4">
-            
-            {/* Primary Action Button (Click to Stroke) */}
-            <button
-              onClick={handleNextStroke}
-              disabled={strokeIndex >= currentChar.strokes.length}
-              className={`w-full py-4 rounded-2xl text-lg font-bold shadow-lg transition-transform active:scale-95 flex items-center justify-center gap-2
-                ${strokeIndex >= currentChar.strokes.length 
-                  ? 'bg-green-500 text-white shadow-green-200' 
-                  : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-200'}`}
-            >
-              {strokeIndex >= currentChar.strokes.length ? (
-                <>
-                   <CheckCircle /> Selesai
-                </>
-              ) : (
-                <>
-                   <Play size={20} fill="currentColor" /> Tulis Garis (Klik)
-                </>
-              )}
-            </button>
+                 <button
+                    onClick={handleNext}
+                    disabled={currentDrillIndex >= drillQueue.length}
+                    className={`
+                      flex-[2] py-3.5 rounded-2xl text-lg font-bold shadow-lg shadow-emerald-200 transition-all active:scale-95 flex items-center justify-center gap-2
+                      ${currentDrillIndex >= drillQueue.length
+                        ? 'bg-slate-400 text-white cursor-default'
+                        : 'bg-[#58D68D] hover:bg-[#4ac77d] text-white'
+                      }
+                    `}
+                 >
+                    {currentDrillIndex >= drillQueue.length ? (
+                      <>Selesai! <CheckCircle className="ml-1"/></>
+                    ) : (
+                      <>Selesai & Lanjut <ChevronRight size={22} /></>
+                    )}
+                 </button>
+             </div>
 
-            {/* Secondary Controls */}
-            <div className="grid grid-cols-3 gap-3">
-               <button 
-                 onClick={handlePrevChar}
-                 disabled={activeCharIndex === 0}
-                 className="p-3 bg-white border border-slate-200 rounded-xl text-slate-600 hover:bg-slate-50 flex justify-center disabled:opacity-50">
-                 Sebelumnya
-               </button>
-               
-               <button 
-                 onClick={handleReset}
-                 className="p-3 bg-white border border-slate-200 rounded-xl text-slate-600 hover:bg-slate-50 flex justify-center items-center gap-1">
-                 <RotateCcw size={18} /> Ulang
-               </button>
-               
-               <button 
-                 onClick={handleNextChar}
-                 disabled={activeCharIndex === currentLevel.chars.length - 1}
-                 className="p-3 bg-white border border-slate-200 rounded-xl text-slate-600 hover:bg-slate-50 flex justify-center items-center gap-1 disabled:opacity-50">
-                 Lanjut <ChevronRight size={18} />
-               </button>
-            </div>
-          </div>
-
+             <p className="mt-6 text-emerald-600/70 text-sm font-medium text-center max-w-xs leading-relaxed min-h-[1.5rem]">
+               Tips: {feedback}
+             </p>
         </main>
+
+        {/* RIGHT SIDEBAR (NOTEBOOK) */}
+        <aside className={`
+          notebook-section absolute lg:relative z-40 top-0 right-0 h-full w-80 bg-white border-l border-[#D5F5E3] flex flex-col transition-transform duration-300 shadow-2xl lg:shadow-none
+          ${rightSidebarOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'}
+        `}>
+             <div className="print-header">
+               <h1 className="text-2xl font-bold text-emerald-800">Laporan Belajar</h1>
+               <p className="text-slate-500">{new Date().toLocaleDateString()} - {currentLangData.name} - Level {activeStageId}</p>
+             </div>
+
+             <div className="p-5 bg-[#E9F7EF] border-b border-[#D5F5E3] shadow-sm z-10 flex justify-between items-start notebook-title">
+               <div>
+                 <h2 className="font-bold text-emerald-800 flex items-center gap-2 text-sm uppercase tracking-wide">
+                   <Book size={18} className="text-[#58D68D]"/>
+                   Buku Latihan
+                 </h2>
+                 <p className="text-xs text-emerald-600 mt-1">
+                   {currentDrillIndex} dari {drillQueue.length} halaman
+                 </p>
+               </div>
+               <button onClick={() => setRightSidebarOpen(false)} className="lg:hidden text-emerald-500">
+                  <X size={24}/>
+               </button>
+             </div>
+
+             <div className="flex-1 overflow-y-auto p-4 custom-scrollbar bg-slate-50/50">
+               <div className="grid grid-cols-2 gap-3 pb-20 notebook-grid">
+                 {drillQueue.map((item, idx) => {
+                   const status = idx < currentDrillIndex ? 'done' : idx === currentDrillIndex ? 'active' : 'pending';
+                   
+                   return (
+                     <div 
+                       key={item.uniqueId}
+                       className={`
+                         notebook-item aspect-square rounded-2xl flex items-center justify-center relative transition-all duration-500 overflow-hidden bg-white
+                         ${status === 'done' ? 'border-2 border-[#58D68D] shadow-sm' : ''}
+                         ${status === 'active' ? 'border-2 border-emerald-300 ring-4 ring-emerald-50 z-10' : ''}
+                         ${status === 'pending' ? 'border-2 border-slate-100 opacity-60' : ''}
+                       `}
+                     >
+                        {item.userImage ? (
+                          <img 
+                            src={item.userImage} 
+                            alt="Hasil Anak" 
+                            className="w-full h-full object-contain p-1"
+                          />
+                        ) : (
+                          <span className={`text-5xl font-bold ${
+                              status === 'pending' ? 'text-slate-200' : 'text-emerald-200'
+                            }`}
+                            style={{ fontFamily: currentLangData.fontFamily || 'sans-serif' }}
+                          >
+                            {item.symbol}
+                          </span>
+                        )}
+                        
+                        <span className={`absolute top-2 left-2 text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
+                          status==='active' ? 'bg-[#58D68D] text-white' : 'bg-slate-100 text-slate-400'
+                        }`}>
+                          {idx + 1}
+                        </span>
+                     </div>
+                   );
+                 })}
+               </div>
+             </div>
+
+             {/* Footer Button for Print */}
+             <div className="p-4 border-t border-[#D5F5E3] bg-white notebook-title">
+               <button 
+                 onClick={handlePrint}
+                 className="w-full py-3 rounded-xl border-2 border-[#58D68D] text-[#58D68D] font-bold hover:bg-[#E9F7EF] flex items-center justify-center gap-2 transition-colors"
+               >
+                 <Printer size={20} />
+                 Cetak / Simpan PDF
+               </button>
+             </div>
+        </aside>
+
       </div>
     </div>
   );
