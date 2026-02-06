@@ -15,7 +15,7 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Google Fonts: Noto Sans (Universal), Noto Sans Arabic, Thai, Javanese, JP, KR -->
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;700&family=Noto+Sans+Arabic:wght@400;700&family=Noto+Sans+Thai:wght@400;700&family=Noto+Sans+Javanese&family=Noto+Sans+JP:wght@400;700&family=Noto+Sans+KR:wght@400;700&family=Noto+Serif+TC:wght@400;700&display=swap" rel="stylesheet">
 
     <style>
@@ -67,88 +67,26 @@
 
         /* =========================================
            0. ICONS (MANUAL SVG DEFINITIONS)
-           Untuk menghindari error Lucide CDN di React
            ========================================= */
         const IconBase = ({ children, size = 24, className = "" }) => (
-            <svg 
-                xmlns="http://www.w3.org/2000/svg" 
-                width={size} 
-                height={size} 
-                viewBox="0 0 24 24" 
-                fill="none" 
-                stroke="currentColor" 
-                strokeWidth="2" 
-                strokeLinecap="round" 
-                strokeLinejoin="round" 
-                className={className}
-            >
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
                 {children}
             </svg>
         );
-
-        const Globe = (props) => (
-            <IconBase {...props}>
-                <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-            </IconBase>
-        );
-        const Menu = (props) => (
-            <IconBase {...props}>
-                <line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="18" x2="20" y2="18"/>
-            </IconBase>
-        );
-        const X = (props) => (
-            <IconBase {...props}>
-                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-            </IconBase>
-        );
-        const Book = (props) => (
-            <IconBase {...props}>
-                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-            </IconBase>
-        );
-        const CheckCircle = (props) => (
-            <IconBase {...props}>
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
-            </IconBase>
-        );
-        const ChevronDown = (props) => (
-            <IconBase {...props}>
-                <polyline points="6 9 12 15 18 9"/>
-            </IconBase>
-        );
-        const ChevronRight = (props) => (
-            <IconBase {...props}>
-                <polyline points="9 18 15 12 9 6"/>
-            </IconBase>
-        );
-        const RotateCcw = (props) => (
-            <IconBase {...props}>
-                <path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
-            </IconBase>
-        );
-        const Eraser = (props) => (
-            <IconBase {...props}>
-                <path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"/><path d="M22 21H7"/><path d="m5 11 9 9"/>
-            </IconBase>
-        );
-        const Printer = (props) => (
-            <IconBase {...props}>
-                <polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>
-            </IconBase>
-        );
-        const Volume2 = (props) => (
-            <IconBase {...props}>
-                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
-            </IconBase>
-        );
-        const Star = (props) => (
-            <IconBase {...props}>
-                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-            </IconBase>
-        );
+        const Globe = (props) => (<IconBase {...props}><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></IconBase>);
+        const Menu = (props) => (<IconBase {...props}><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="18" x2="20" y2="18"/></IconBase>);
+        const X = (props) => (<IconBase {...props}><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></IconBase>);
+        const Book = (props) => (<IconBase {...props}><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></IconBase>);
+        const CheckCircle = (props) => (<IconBase {...props}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></IconBase>);
+        const ChevronDown = (props) => (<IconBase {...props}><polyline points="6 9 12 15 18 9"/></IconBase>);
+        const ChevronRight = (props) => (<IconBase {...props}><polyline points="9 18 15 12 9 6"/></IconBase>);
+        const RotateCcw = (props) => (<IconBase {...props}><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></IconBase>);
+        const Eraser = (props) => (<IconBase {...props}><path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"/><path d="M22 21H7"/><path d="m5 11 9 9"/></IconBase>);
+        const Printer = (props) => (<IconBase {...props}><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></IconBase>);
+        const Volume2 = (props) => (<IconBase {...props}><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></IconBase>);
 
         /* =========================================
-           1. LOCALIZATION (BAHASA ANTARMUKA)
+           1. LOCALIZATION
            ========================================= */
         const UI_STRINGS = {
             id: {
@@ -157,7 +95,6 @@
                 menuTitle: "Pengaturan Belajar",
                 subjectLabel: "Mata Pelajaran",
                 stageLabel: "Pilih Tingkat (Jilid)",
-                stagePlaceholder: "Pilih Jilid...",
                 canvasInstruction: "Tebalkan huruf bercahaya",
                 clear: "Hapus",
                 repeat: "Ulang",
@@ -169,7 +106,7 @@
                 reportTitle: "Laporan Belajar",
                 tips: "Tips:",
                 loading: "Memuat...",
-                selectLang: "Bahasa Aplikasi",
+                selectLang: "Bahasa",
                 levelPrefix: "Jilid"
             },
             en: {
@@ -178,7 +115,6 @@
                 menuTitle: "Learning Settings",
                 subjectLabel: "Subject",
                 stageLabel: "Select Level (Stage)",
-                stagePlaceholder: "Select Level...",
                 canvasInstruction: "Trace the glowing letter",
                 clear: "Clear",
                 repeat: "Retry",
@@ -190,7 +126,7 @@
                 reportTitle: "Learning Report",
                 tips: "Hint:",
                 loading: "Loading...",
-                selectLang: "App Language",
+                selectLang: "Language",
                 levelPrefix: "Level"
             }
         };
@@ -198,7 +134,6 @@
         /* =========================================
            2. DATA HURUF (LIBRARY)
            ========================================= */
-        
         const createStages = (chars) => {
             return chars.map((char, index) => ({
                 id: index + 1,
@@ -207,147 +142,49 @@
             }));
         };
 
-        // --- RAW DATA ---
+        // DATA: ALPHABET
         const CHARS_ALPHABET = [
-            { id: 'A', symbol: "A", read: "A", hint: "Gunung dengan sabuk." },
-            { id: 'B', symbol: "B", read: "B", hint: "Tiang lurus dua perut." },
-            { id: 'C', symbol: "C", read: "C", hint: "Bulan sabit." },
-            { id: 'D', symbol: "D", read: "D", hint: "Perut besar." },
-            { id: 'E', symbol: "E", read: "E", hint: "Sisir tiga gigi." },
-            { id: 'F', symbol: "F", read: "F", hint: "Bendera." },
-            { id: 'G', symbol: "G", read: "G", hint: "C ada kursinya." },
-            { id: 'H', symbol: "H", read: "H", hint: "Tangga." },
-            { id: 'I', symbol: "I", read: "I", hint: "Tiang listrik." },
-            { id: 'J', symbol: "J", read: "J", hint: "Kail pancing." },
-            { id: 'K', symbol: "K", read: "K", hint: "Tangan ke atas, kaki ke bawah." },
-            { id: 'L', symbol: "L", read: "L", hint: "Siku-siku." },
-            { id: 'M', symbol: "M", read: "M", hint: "Dua gunung." },
-            { id: 'N', symbol: "N", read: "N", hint: "Petir/Zigzag." },
-            { id: 'O', symbol: "O", read: "O", hint: "Donat." },
-            { id: 'P', symbol: "P", read: "P", hint: "Kepala di atas." },
-            { id: 'Q', symbol: "Q", read: "Q", hint: "O punya ekor." },
-            { id: 'R', symbol: "R", read: "R", hint: "P punya kaki." },
-            { id: 'S', symbol: "S", read: "S", hint: "Ular meliuk." },
-            { id: 'T', symbol: "T", read: "T", hint: "Palu." },
-            { id: 'U', symbol: "U", read: "U", hint: "Gelas." },
-            { id: 'V', symbol: "V", read: "V", hint: "Burung terbang." },
-            { id: 'W', symbol: "W", read: "W", hint: "M terbalik." },
-            { id: 'X', symbol: "X", read: "X", hint: "Silang." },
-            { id: 'Y', symbol: "Y", read: "Y", hint: "Ketapel." },
-            { id: 'Z', symbol: "Z", read: "Z", hint: "Zigzag tajam." }
+            { id: 'A', symbol: "A", read: "A", hint: "Gunung dengan sabuk." }, { id: 'B', symbol: "B", read: "B", hint: "Tiang lurus dua perut." }, { id: 'C', symbol: "C", read: "C", hint: "Bulan sabit." }, { id: 'D', symbol: "D", read: "D", hint: "Perut besar." }, { id: 'E', symbol: "E", read: "E", hint: "Sisir tiga gigi." }, { id: 'F', symbol: "F", read: "F", hint: "Bendera." }, { id: 'G', symbol: "G", read: "G", hint: "C ada kursinya." }, { id: 'H', symbol: "H", read: "H", hint: "Tangga." }, { id: 'I', symbol: "I", read: "I", hint: "Tiang listrik." }, { id: 'J', symbol: "J", read: "J", hint: "Kail pancing." }, { id: 'K', symbol: "K", read: "K", hint: "Tangan ke atas, kaki ke bawah." }, { id: 'L', symbol: "L", read: "L", hint: "Siku-siku." }, { id: 'M', symbol: "M", read: "M", hint: "Dua gunung." }, { id: 'N', symbol: "N", read: "N", hint: "Petir/Zigzag." }, { id: 'O', symbol: "O", read: "O", hint: "Donat." }, { id: 'P', symbol: "P", read: "P", hint: "Kepala di atas." }, { id: 'Q', symbol: "Q", read: "Q", hint: "O punya ekor." }, { id: 'R', symbol: "R", read: "R", hint: "P punya kaki." }, { id: 'S', symbol: "S", read: "S", hint: "Ular meliuk." }, { id: 'T', symbol: "T", read: "T", hint: "Palu." }, { id: 'U', symbol: "U", read: "U", hint: "Gelas." }, { id: 'V', symbol: "V", read: "V", hint: "Burung terbang." }, { id: 'W', symbol: "W", read: "W", hint: "M terbalik." }, { id: 'X', symbol: "X", read: "X", hint: "Silang." }, { id: 'Y', symbol: "Y", read: "Y", hint: "Ketapel." }, { id: 'Z', symbol: "Z", read: "Z", hint: "Zigzag tajam." }
         ];
 
+        // DATA: ARABIC (HIJAIYAH)
         const CHARS_ARABIC = [
-            { id: 'alif', symbol: "ا", read: "Alif", hint: "Tongkat lurus." },
-            { id: 'ba', symbol: "ب", read: "Ba", hint: "Perahu titik satu di bawah." },
-            { id: 'ta', symbol: "ت", read: "Ta", hint: "Perahu titik dua di atas." },
-            { id: 'tsa', symbol: "ث", read: "Tsa", hint: "Perahu titik tiga." },
-            { id: 'jim', symbol: "ج", read: "Jim", hint: "Perut buncit titik di dalam." },
-            { id: 'ha', symbol: "ح", read: "Ha", hint: "Perut buncit kosong." },
-            { id: 'kha', symbol: "خ", read: "Kha", hint: "Perut buncit titik di atas." },
-            { id: 'dal', symbol: "د", read: "Dal", hint: "Mulut terbuka." },
-            { id: 'dzal', symbol: "ذ", read: "Dzal", hint: "Dzal" },
-            { id: 'ra', symbol: "ر", read: "Ra", hint: "Perosotan." },
-            { id: 'zai', symbol: "ز", read: "Zai", hint: "Perosotan titik satu." },
-            { id: 'sin', symbol: "س", read: "Sin", hint: "Gigi tiga perut besar." },
-            { id: 'syin', symbol: "ش", read: "Syin", hint: "Sin titik tiga." },
-            { id: 'shad', symbol: "ص", read: "Shad", hint: "Kepala lonjong." },
-            { id: 'dhad', symbol: "ض", read: "Dhad", hint: "Shad titik satu." },
-            { id: 'tha', symbol: "ط", read: "Tha", hint: "Kepala lonjong bertiang." },
-            { id: 'zha', symbol: "ظ", read: "Zha", hint: "Tha titik satu." },
-            { id: 'ain', symbol: "ع", read: "'Ain", hint: "C kecil dan C besar." },
-            { id: 'ghain', symbol: "غ", read: "Ghain", hint: "Ain titik satu." },
-            { id: 'fa', symbol: "ف", read: "Fa", hint: "Kepala bulat leher pendek." },
-            { id: 'qof', symbol: "ق", read: "Qof", hint: "Kepala bulat perut dalam." },
-            { id: 'kaf', symbol: "ك", read: "Kaf", hint: "S kecil di atas kursi." },
-            { id: 'lam', symbol: "ل", read: "Lam", hint: "Kail pancing." },
-            { id: 'mim', symbol: "م", read: "Mim", hint: "Kepala bulat ekor bawah." },
-            { id: 'nun', symbol: "ن", read: "Nun", hint: "Mangkuk titik satu." },
-            { id: 'waw', symbol: "و", read: "Waw", hint: "Kepala bulat meluncur." },
-            { id: 'ha_besar', symbol: "ه", read: "Ha", hint: "Bulatan simpul." },
-            { id: 'ya', symbol: "ي", read: "Ya", hint: "Angsa titik dua." }
+            { id: 'alif', symbol: "ا", read: "Alif", hint: "Tongkat lurus." }, { id: 'ba', symbol: "ب", read: "Ba", hint: "Perahu titik satu di bawah." }, { id: 'ta', symbol: "ت", read: "Ta", hint: "Perahu titik dua di atas." }, { id: 'tsa', symbol: "ث", read: "Tsa", hint: "Perahu titik tiga." }, { id: 'jim', symbol: "ج", read: "Jim", hint: "Perut buncit titik di dalam." }, { id: 'ha', symbol: "ح", read: "Ha", hint: "Perut buncit kosong." }, { id: 'kha', symbol: "خ", read: "Kha", hint: "Perut buncit titik di atas." }, { id: 'dal', symbol: "د", read: "Dal", hint: "Mulut terbuka." }, { id: 'dzal', symbol: "ذ", read: "Dzal", hint: "Dzal" }, { id: 'ra', symbol: "ر", read: "Ra", hint: "Perosotan." }, { id: 'zai', symbol: "ز", read: "Zai", hint: "Perosotan titik satu." }, { id: 'sin', symbol: "س", read: "Sin", hint: "Gigi tiga perut besar." }, { id: 'syin', symbol: "ش", read: "Syin", hint: "Sin titik tiga." }, { id: 'shad', symbol: "ص", read: "Shad", hint: "Kepala lonjong." }, { id: 'dhad', symbol: "ض", read: "Dhad", hint: "Shad titik satu." }, { id: 'tha', symbol: "ط", read: "Tha", hint: "Kepala lonjong bertiang." }, { id: 'zha', symbol: "ظ", read: "Zha", hint: "Tha titik satu." }, { id: 'ain', symbol: "ع", read: "'Ain", hint: "C kecil dan C besar." }, { id: 'ghain', symbol: "غ", read: "Ghain", hint: "Ain titik satu." }, { id: 'fa', symbol: "ف", read: "Fa", hint: "Kepala bulat leher pendek." }, { id: 'qof', symbol: "ق", read: "Qof", hint: "Kepala bulat perut dalam." }, { id: 'kaf', symbol: "ك", read: "Kaf", hint: "S kecil di atas kursi." }, { id: 'lam', symbol: "ل", read: "Lam", hint: "Kail pancing." }, { id: 'mim', symbol: "م", read: "Mim", hint: "Kepala bulat ekor bawah." }, { id: 'nun', symbol: "ن", read: "Nun", hint: "Mangkuk titik satu." }, { id: 'waw', symbol: "و", read: "Waw", hint: "Kepala bulat meluncur." }, { id: 'ha_besar', symbol: "ه", read: "Ha", hint: "Bulatan simpul." }, { id: 'ya', symbol: "ي", read: "Ya", hint: "Angsa titik dua." }
         ];
 
+        // DATA: HANGUL
         const CHARS_HANGUL = [
-            { id: 'g', symbol: "ㄱ", read: "Giyok (G)", hint: "Pistol." },
-            { id: 'n', symbol: "ㄴ", read: "Nieun (N)", hint: "Duduk." },
-            { id: 'd', symbol: "ㄷ", read: "Digeut (D)", hint: "Kotak terbuka." },
-            { id: 'r', symbol: "ㄹ", read: "Rieul (R/L)", hint: "Ular." },
-            { id: 'm', symbol: "ㅁ", read: "Mieum (M)", hint: "Kotak." },
-            { id: 'b', symbol: "ㅂ", read: "Bieup (B)", hint: "Ember." },
-            { id: 's', symbol: "ㅅ", read: "Siot (S)", hint: "Orang berdiri." },
-            { id: 'ng', symbol: "ㅇ", read: "Ieung (Ng)", hint: "Bulatan." },
-            { id: 'j', symbol: "ㅈ", read: "Jieut (J)", hint: "Siot pakai topi." },
-            { id: 'ch', symbol: "ㅊ", read: "Chieut (Ch)", hint: "Jieut pakai topi." },
-            { id: 'k', symbol: "ㅋ", read: "Kieuk (K)", hint: "Pistol ada pelatuk." },
-            { id: 't', symbol: "ㅌ", read: "Tieut (T)", hint: "Sisir E." },
-            { id: 'p', symbol: "ㅍ", read: "Pieup (P)", hint: "Pilar Romawi." },
-            { id: 'h', symbol: "ㅎ", read: "Hieut (H)", hint: "Orang pakai topi." },
-            { id: 'a', symbol: "ㅏ", read: "A", hint: "Tongkat tangan kanan." },
-            { id: 'ya', symbol: "ㅑ", read: "Ya", hint: "Tongkat dua tangan kanan." },
-            { id: 'eo', symbol: "ㅓ", read: "Eo", hint: "Tongkat tangan kiri." },
-            { id: 'yeo', symbol: "ㅕ", read: "Yeo", hint: "Tongkat dua tangan kiri." },
-            { id: 'o', symbol: "ㅗ", read: "O", hint: "Tangan ke atas." },
-            { id: 'yo', symbol: "ㅛ", read: "Yo", hint: "Dua tangan ke atas." },
-            { id: 'u', symbol: "ㅜ", read: "U", hint: "Tangan ke bawah." },
-            { id: 'yu', symbol: "ㅠ", read: "Yu", hint: "Dua tangan ke bawah." },
-            { id: 'eu', symbol: "ㅡ", read: "Eu", hint: "Garis datar." },
-            { id: 'i', symbol: "ㅣ", read: "I", hint: "Garis tegak." }
+            { id: 'g', symbol: "ㄱ", read: "Giyok (G)", hint: "Pistol." }, { id: 'n', symbol: "ㄴ", read: "Nieun (N)", hint: "Duduk." }, { id: 'd', symbol: "ㄷ", read: "Digeut (D)", hint: "Kotak terbuka." }, { id: 'r', symbol: "ㄹ", read: "Rieul (R/L)", hint: "Ular." }, { id: 'm', symbol: "ㅁ", read: "Mieum (M)", hint: "Kotak." }, { id: 'b', symbol: "ㅂ", read: "Bieup (B)", hint: "Ember." }, { id: 's', symbol: "ㅅ", read: "Siot (S)", hint: "Orang berdiri." }, { id: 'ng', symbol: "ㅇ", read: "Ieung (Ng)", hint: "Bulatan." }, { id: 'j', symbol: "ㅈ", read: "Jieut (J)", hint: "Siot pakai topi." }, { id: 'ch', symbol: "ㅊ", read: "Chieut (Ch)", hint: "Jieut pakai topi." }, { id: 'k', symbol: "ㅋ", read: "Kieuk (K)", hint: "Pistol ada pelatuk." }, { id: 't', symbol: "ㅌ", read: "Tieut (T)", hint: "Sisir E." }, { id: 'p', symbol: "ㅍ", read: "Pieup (P)", hint: "Pilar Romawi." }, { id: 'h', symbol: "ㅎ", read: "Hieut (H)", hint: "Orang pakai topi." }, { id: 'a', symbol: "ㅏ", read: "A", hint: "Tongkat tangan kanan." }, { id: 'ya', symbol: "ㅑ", read: "Ya", hint: "Tongkat dua tangan kanan." }, { id: 'eo', symbol: "ㅓ", read: "Eo", hint: "Tongkat tangan kiri." }, { id: 'yeo', symbol: "ㅕ", read: "Yeo", hint: "Tongkat dua tangan kiri." }, { id: 'o', symbol: "ㅗ", read: "O", hint: "Tangan ke atas." }, { id: 'yo', symbol: "ㅛ", read: "Yo", hint: "Dua tangan ke atas." }, { id: 'u', symbol: "ㅜ", read: "U", hint: "Tangan ke bawah." }, { id: 'yu', symbol: "ㅠ", read: "Yu", hint: "Dua tangan ke bawah." }, { id: 'eu', symbol: "ㅡ", read: "Eu", hint: "Garis datar." }, { id: 'i', symbol: "ㅣ", read: "I", hint: "Garis tegak." }
         ];
 
+        // DATA: HIRAGANA
         const CHARS_HIRAGANA = [
-            { symbol: "あ", read: "A", hint: "Ikan." }, { symbol: "い", read: "I", hint: "Dua garis." }, { symbol: "う", read: "U", hint: "Bungkuk." }, { symbol: "え", read: "E", hint: "Burung." }, { symbol: "お", read: "O", hint: "A + titik." },
-            { symbol: "か", read: "Ka", hint: "Kekuatan." }, { symbol: "き", read: "Ki", hint: "Kunci." }, { symbol: "く", read: "Ku", hint: "Mulut." }, { symbol: "け", read: "Ke", hint: "Pedang." }, { symbol: "こ", read: "Ko", hint: "Cacing." },
-            { symbol: "さ", read: "Sa", hint: "Senyum." }, { symbol: "し", read: "Shi", hint: "Kail." }, { symbol: "す", read: "Su", hint: "Simpul." }, { symbol: "せ", read: "Se", hint: "Pangkuan." }, { symbol: "そ", read: "So", hint: "Zigzag." },
-            { symbol: "た", read: "Ta", hint: "Ta + Ko." }, { symbol: "ち", read: "Chi", hint: "Lima." }, { symbol: "つ", read: "Tsu", hint: "Ombak." }, { symbol: "て", read: "Te", hint: "Tangan." }, { symbol: "と", read: "To", hint: "Duri." },
-            { symbol: "な", read: "Na", hint: "Salib." }, { symbol: "に", read: "Ni", hint: "Garis + Ko." }, { symbol: "ぬ", read: "Nu", hint: "Mie." }, { symbol: "ね", read: "Ne", hint: "Kucing." }, { symbol: "の", read: "No", hint: "Larangan." },
-            { symbol: "は", read: "Ha", hint: "Ha + Simpul." }, { symbol: "ひ", read: "Hi", hint: "Senyum V." }, { symbol: "ふ", read: "Fu", hint: "Gunung Fuji." }, { symbol: "へ", read: "He", hint: "Gunung." }, { symbol: "ほ", read: "Ho", hint: "Ha + Topi." },
-            { symbol: "ま", read: "Ma", hint: "Dua garis simpul." }, { symbol: "み", read: "Mi", hint: "21." }, { symbol: "む", read: "Mu", hint: "Sapi (Moo)." }, { symbol: "め", read: "Me", hint: "Mie (Nu) tanpa ekor." }, { symbol: "も", read: "Mo", hint: "Kail dua umpan." },
-            { symbol: "や", read: "Ya", hint: "Yakitori." }, { symbol: "ゆ", read: "Yu", hint: "Ikan melintas." }, { symbol: "よ", read: "Yo", hint: "Yo-yo." },
-            { symbol: "ら", read: "Ra", hint: "Angka 5." }, { symbol: "り", read: "Ri", hint: "Dua garis." }, { symbol: "る", read: "Ru", hint: "Tiga simpul." }, { symbol: "れ", read: "Re", hint: "Z melengkung." }, { symbol: "ろ", read: "Ro", hint: "Tiga (Ru) tanpa simpul." },
-            { symbol: "わ", read: "Wa", hint: "Re gemuk." }, { symbol: "を", read: "Wo", hint: "Huruf C dan h." }, { symbol: "ん", read: "N", hint: "Huruf h miring." }
+            { symbol: "あ", read: "A", hint: "Ikan." }, { symbol: "い", read: "I", hint: "Dua garis." }, { symbol: "う", read: "U", hint: "Bungkuk." }, { symbol: "え", read: "E", hint: "Burung." }, { symbol: "お", read: "O", hint: "A + titik." }, { symbol: "か", read: "Ka", hint: "Kekuatan." }, { symbol: "き", read: "Ki", hint: "Kunci." }, { symbol: "く", read: "Ku", hint: "Mulut." }, { symbol: "け", read: "Ke", hint: "Pedang." }, { symbol: "こ", read: "Ko", hint: "Cacing." }, { symbol: "さ", read: "Sa", hint: "Senyum." }, { symbol: "し", read: "Shi", hint: "Kail." }, { symbol: "す", read: "Su", hint: "Simpul." }, { symbol: "せ", read: "Se", hint: "Pangkuan." }, { symbol: "そ", read: "So", hint: "Zigzag." }, { symbol: "た", read: "Ta", hint: "Ta + Ko." }, { symbol: "ち", read: "Chi", hint: "Lima." }, { symbol: "つ", read: "Tsu", hint: "Ombak." }, { symbol: "て", read: "Te", hint: "Tangan." }, { symbol: "と", read: "To", hint: "Duri." }, { symbol: "な", read: "Na", hint: "Salib." }, { symbol: "に", read: "Ni", hint: "Garis + Ko." }, { symbol: "ぬ", read: "Nu", hint: "Mie." }, { symbol: "ね", read: "Ne", hint: "Kucing." }, { symbol: "の", read: "No", hint: "Larangan." }, { symbol: "は", read: "Ha", hint: "Ha + Simpul." }, { symbol: "ひ", read: "Hi", hint: "Senyum V." }, { symbol: "ふ", read: "Fu", hint: "Gunung Fuji." }, { symbol: "へ", read: "He", hint: "Gunung." }, { symbol: "ほ", read: "Ho", hint: "Ha + Topi." }, { symbol: "ま", read: "Ma", hint: "Dua garis simpul." }, { symbol: "み", read: "Mi", hint: "21." }, { symbol: "む", read: "Mu", hint: "Sapi (Moo)." }, { symbol: "め", read: "Me", hint: "Mie (Nu) tanpa ekor." }, { symbol: "も", read: "Mo", hint: "Kail dua umpan." }, { symbol: "や", read: "Ya", hint: "Yakitori." }, { symbol: "ゆ", read: "Yu", hint: "Ikan melintas." }, { symbol: "よ", read: "Yo", hint: "Yo-yo." }, { symbol: "ら", read: "Ra", hint: "Angka 5." }, { symbol: "り", read: "Ri", hint: "Dua garis." }, { symbol: "る", read: "Ru", hint: "Tiga simpul." }, { symbol: "れ", read: "Re", hint: "Z melengkung." }, { symbol: "ろ", read: "Ro", hint: "Tiga (Ru) tanpa simpul." }, { symbol: "わ", read: "Wa", hint: "Re gemuk." }, { symbol: "を", read: "Wo", hint: "Huruf C dan h." }, { symbol: "ん", read: "N", hint: "Huruf h miring." }
         ].map((c, i) => ({ ...c, id: `hira_${i}` }));
 
+        // DATA: KATAKANA
         const CHARS_KATAKANA = [
-            { symbol: "ア", read: "A", hint: "T miring." }, { symbol: "イ", read: "I", hint: "Orang." }, { symbol: "ウ", read: "U", hint: "Atap." }, { symbol: "エ", read: "E", hint: "I Romawi." }, { symbol: "オ", read: "O", hint: "Orang menari." },
-            { symbol: "カ", read: "Ka", hint: "Ka tanpa titik." }, { symbol: "キ", read: "Ki", hint: "Dua garis." }, { symbol: "ク", read: "Ku", hint: "Tujuh." }, { symbol: "ケ", read: "Ke", hint: "K melengkung." }, { symbol: "コ", read: "Ko", hint: "Siku." },
-            { symbol: "サ", read: "Sa", hint: "Tiang." }, { symbol: "シ", read: "Shi", hint: "Air ciprat." }, { symbol: "ス", read: "Su", hint: "Gantungan." }, { symbol: "セ", read: "Se", hint: "Siku miring." }, { symbol: "ソ", read: "So", hint: "Jarum." },
-            { symbol: "タ", read: "Ta", hint: "Sore (Yu)." }, { symbol: "チ", read: "Chi", hint: "Seribu." }, { symbol: "ツ", read: "Tsu", hint: "Senyum." }, { symbol: "テ", read: "Te", hint: "Dua garis." }, { symbol: "ト", read: "To", hint: "Totem." },
-            { symbol: "ナ", read: "Na", hint: "Pedang." }, { symbol: "ニ", read: "Ni", hint: "Dua." }, { symbol: "ヌ", read: "Nu", hint: "Tujuh." }, { symbol: "ネ", read: "Ne", hint: "Pohon." }, { symbol: "ノ", read: "No", hint: "Coretan." },
-            { symbol: "ハ", read: "Ha", hint: "Kumis." }, { symbol: "ヒ", read: "Hi", hint: "Kursi." }, { symbol: "フ", read: "Fu", hint: "Tujuh bengkok." }, { symbol: "ヘ", read: "He", hint: "Gunung." }, { symbol: "ホ", read: "Ho", hint: "Pohon salib." },
-            { symbol: "マ", read: "Ma", hint: "Siku 7." }, { symbol: "ミ", read: "Mi", hint: "Tiga garis." }, { symbol: "ム", read: "Mu", hint: "Segitiga." }, { symbol: "メ", read: "Me", hint: "Silang." }, { symbol: "モ", read: "Mo", hint: "Dua garis E." },
-            { symbol: "ヤ", read: "Ya", hint: "Tujuh miring." }, { symbol: "ユ", read: "Yu", hint: "Nomor 1." }, { symbol: "ヨ", read: "Yo", hint: "E terbalik." },
-            { symbol: "ラ", read: "Ra", hint: "Topi." }, { symbol: "リ", read: "Ri", hint: "Dua garis." }, { symbol: "ル", read: "Ru", hint: "Kaki." }, { symbol: "レ", read: "Re", hint: "L." }, { symbol: "ロ", read: "Ro", hint: "Kotak." },
-            { symbol: "ワ", read: "Wa", hint: "Tanya." }, { symbol: "ヲ", read: "Wo", hint: "F." }, { symbol: "ン", read: "N", hint: "Senyum satu mata." }
+            { symbol: "ア", read: "A", hint: "T miring." }, { symbol: "イ", read: "I", hint: "Orang." }, { symbol: "ウ", read: "U", hint: "Atap." }, { symbol: "エ", read: "E", hint: "I Romawi." }, { symbol: "オ", read: "O", hint: "Orang menari." }, { symbol: "カ", read: "Ka", hint: "Ka tanpa titik." }, { symbol: "キ", read: "Ki", hint: "Dua garis." }, { symbol: "ク", read: "Ku", hint: "Tujuh." }, { symbol: "ケ", read: "Ke", hint: "K melengkung." }, { symbol: "コ", read: "Ko", hint: "Siku." }, { symbol: "サ", read: "Sa", hint: "Tiang." }, { symbol: "シ", read: "Shi", hint: "Air ciprat." }, { symbol: "ス", read: "Su", hint: "Gantungan." }, { symbol: "セ", read: "Se", hint: "Siku miring." }, { symbol: "ソ", read: "So", hint: "Jarum." }, { symbol: "タ", read: "Ta", hint: "Sore (Yu)." }, { symbol: "チ", read: "Chi", hint: "Seribu." }, { symbol: "ツ", read: "Tsu", hint: "Senyum." }, { symbol: "テ", read: "Te", hint: "Dua garis." }, { symbol: "ト", read: "To", hint: "Totem." }, { symbol: "ナ", read: "Na", hint: "Pedang." }, { symbol: "ニ", read: "Ni", hint: "Dua." }, { symbol: "ヌ", read: "Nu", hint: "Tujuh." }, { symbol: "ネ", read: "Ne", hint: "Pohon." }, { symbol: "ノ", read: "No", hint: "Coretan." }, { symbol: "ハ", read: "Ha", hint: "Kumis." }, { symbol: "ヒ", read: "Hi", hint: "Kursi." }, { symbol: "フ", read: "Fu", hint: "Tujuh bengkok." }, { symbol: "ヘ", read: "He", hint: "Gunung." }, { symbol: "ホ", read: "Ho", hint: "Pohon salib." }, { symbol: "マ", read: "Ma", hint: "Siku 7." }, { symbol: "ミ", read: "Mi", hint: "Tiga garis." }, { symbol: "ム", read: "Mu", hint: "Segitiga." }, { symbol: "メ", read: "Me", hint: "Silang." }, { symbol: "モ", read: "Mo", hint: "Dua garis E." }, { symbol: "ヤ", read: "Ya", hint: "Tujuh miring." }, { symbol: "ユ", read: "Yu", hint: "Nomor 1." }, { symbol: "ヨ", read: "Yo", hint: "E terbalik." }, { symbol: "ラ", read: "Ra", hint: "Topi." }, { symbol: "リ", read: "Ri", hint: "Dua garis." }, { symbol: "ル", read: "Ru", hint: "Kaki." }, { symbol: "レ", read: "Re", hint: "L." }, { symbol: "ロ", read: "Ro", hint: "Kotak." }, { symbol: "ワ", read: "Wa", hint: "Tanya." }, { symbol: "ヲ", read: "Wo", hint: "F." }, { symbol: "ン", read: "N", hint: "Senyum satu mata." }
         ].map((c, i) => ({ ...c, id: `kata_${i}` }));
 
+        // DATA: JAVANESE
         const CHARS_JAVANESE = [
-            { symbol: "ꦲ", read: "Ha", hint: "Ha" }, { symbol: "ꦤ", read: "Na", hint: "Na" }, { symbol: "ꦕ", read: "Ca", hint: "Ca" }, { symbol: "ꦫ", read: "Ra", hint: "Ra" }, { symbol: "ꦏ", read: "Ka", hint: "Ka" },
-            { symbol: "ꦢ", read: "Da", hint: "Da" }, { symbol: "ꦠ", read: "Ta", hint: "Ta" }, { symbol: "ꦱ", read: "Sa", hint: "Sa" }, { symbol: "ꦮ", read: "Wa", hint: "Wa" }, { symbol: "ꦭ", read: "La", hint: "La" },
-            { symbol: "ꦥ", read: "Pa", hint: "Pa" }, { symbol: "ꦝ", read: "Dha", hint: "Dha" }, { symbol: "ꦗ", read: "Ja", hint: "Ja" }, { symbol: "ꦪ", read: "Ya", hint: "Ya" }, { symbol: "ꦚ", read: "Nya", hint: "Nya" },
-            { symbol: "ꦩ", read: "Ma", hint: "Ma" }, { symbol: "ꦒ", read: "Ga", hint: "Ga" }, { symbol: "ꦧ", read: "Ba", hint: "Ba" }, { symbol: "ꦛ", read: "Tha", hint: "Tha" }, { symbol: "ꦔ", read: "Nga", hint: "Nga" }
+            { symbol: "ꦲ", read: "Ha", hint: "Ha" }, { symbol: "ꦤ", read: "Na", hint: "Na" }, { symbol: "ꦕ", read: "Ca", hint: "Ca" }, { symbol: "ꦫ", read: "Ra", hint: "Ra" }, { symbol: "ꦏ", read: "Ka", hint: "Ka" }, { symbol: "ꦢ", read: "Da", hint: "Da" }, { symbol: "ꦠ", read: "Ta", hint: "Ta" }, { symbol: "ꦱ", read: "Sa", hint: "Sa" }, { symbol: "ꦮ", read: "Wa", hint: "Wa" }, { symbol: "ꦭ", read: "La", hint: "La" }, { symbol: "ꦥ", read: "Pa", hint: "Pa" }, { symbol: "ꦝ", read: "Dha", hint: "Dha" }, { symbol: "ꦗ", read: "Ja", hint: "Ja" }, { symbol: "ꦪ", read: "Ya", hint: "Ya" }, { symbol: "ꦚ", read: "Nya", hint: "Nya" }, { symbol: "ꦩ", read: "Ma", hint: "Ma" }, { symbol: "ꦒ", read: "Ga", hint: "Ga" }, { symbol: "ꦧ", read: "Ba", hint: "Ba" }, { symbol: "ꦛ", read: "Tha", hint: "Tha" }, { symbol: "ꦔ", read: "Nga", hint: "Nga" }
         ].map((c, i) => ({ ...c, id: `java_${i}` }));
 
+        // DATA: THAI
         const CHARS_THAI = [
-            { symbol: "ก", read: "Ko Kai", hint: "Ayam." }, { symbol: "ข", read: "Kho Khai", hint: "Telur." }, { symbol: "ฃ", read: "Kho Khuad", hint: "Botol." }, { symbol: "ค", read: "Kho Khwai", hint: "Kerbau." }, { symbol: "ฅ", read: "Kho Khon", hint: "Orang." },
-            { symbol: "ฆ", read: "Kho Rakhang", hint: "Lonceng." }, { symbol: "ง", read: "Ngo Ngu", hint: "Ular." }, { symbol: "จ", read: "Cho Chan", hint: "Piring." }, { symbol: "ฉ", read: "Cho Ching", hint: "Simbal." }, { symbol: "ช", read: "Cho Chang", hint: "Gajah." },
-            { symbol: "ซ", read: "So So", hint: "Rantai." }, { symbol: "ฌ", read: "Cho Choe", hint: "Pohon." }, { symbol: "ญ", read: "Yo Ying", hint: "Wanita." }, { symbol: "ฎ", read: "Do Chada", hint: "Mahkota." }, { symbol: "ฏ", read: "To Patak", hint: "Tombak." },
-            { symbol: "ฐ", read: "Tho Than", hint: "Peralatan." }, { symbol: "ฑ", read: "Tho Montho", hint: "Raksasa." }, { symbol: "ฒ", read: "Tho Phuthao", hint: "Orang Tua." }, { symbol: "ณ", read: "No Nen", hint: "Biksuni." }, { symbol: "ด", read: "Do Dek", hint: "Anak." },
-            { symbol: "ต", read: "To Tao", hint: "Kura-kura." }, { symbol: "ถ", read: "Tho Thung", hint: "Tas." }, { symbol: "ท", read: "Tho Thahan", hint: "Tentara." }, { symbol: "ธ", read: "Tho Thong", hint: "Bendera." }, { symbol: "น", read: "No Nu", hint: "Tikus." },
-            { symbol: "บ", read: "Bo Baimai", hint: "Daun." }, { symbol: "ป", read: "Po Pla", hint: "Ikan." }, { symbol: "ผ", read: "Pho Phueng", hint: "Lebah." }, { symbol: "ฝ", read: "Fo Fa", hint: "Tutup." }, { symbol: "พ", read: "Pho Phan", hint: "Nampan." },
-            { symbol: "ฟ", read: "Fo Fan", hint: "Gigi." }, { symbol: "ภ", read: "Pho Samphao", hint: "Perahu Layar." }, { symbol: "ม", read: "Mo Ma", hint: "Kuda." }, { symbol: "ย", read: "Yo Yak", hint: "Raksasa." }, { symbol: "ร", read: "Ro Ruea", hint: "Perahu." },
-            { symbol: "ล", read: "Lo Ling", hint: "Monyet." }, { symbol: "ว", read: "Wo Waen", hint: "Cincin." }, { symbol: "ศ", read: "So Sala", hint: "Paviliun." }, { symbol: "ษ", read: "So Ruesi", hint: "Pertapa." }, { symbol: "ส", read: "So Suea", hint: "Harimau." },
-            { symbol: "ห", read: "Ho Hip", hint: "Kotak." }, { symbol: "ฬ", read: "Lo Chula", hint: "Layang-layang." }, { symbol: "อ", read: "O Ang", hint: "Baskom." }, { symbol: "ฮ", read: "Ho Nokhuk", hint: "Burung Hantu." }
+            { symbol: "ก", read: "Ko Kai", hint: "Ayam." }, { symbol: "ข", read: "Kho Khai", hint: "Telur." }, { symbol: "ฃ", read: "Kho Khuad", hint: "Botol." }, { symbol: "ค", read: "Kho Khwai", hint: "Kerbau." }, { symbol: "ฅ", read: "Kho Khon", hint: "Orang." }, { symbol: "ฆ", read: "Kho Rakhang", hint: "Lonceng." }, { symbol: "ง", read: "Ngo Ngu", hint: "Ular." }, { symbol: "จ", read: "Cho Chan", hint: "Piring." }, { symbol: "ฉ", read: "Cho Ching", hint: "Simbal." }, { symbol: "ช", read: "Cho Chang", hint: "Gajah." }, { symbol: "ซ", read: "So So", hint: "Rantai." }, { symbol: "ฌ", read: "Cho Choe", hint: "Pohon." }, { symbol: "ญ", read: "Yo Ying", hint: "Wanita." }, { symbol: "ฎ", read: "Do Chada", hint: "Mahkota." }, { symbol: "ฏ", read: "To Patak", hint: "Tombak." }, { symbol: "ฐ", read: "Tho Than", hint: "Peralatan." }, { symbol: "ฑ", read: "Tho Montho", hint: "Raksasa." }, { symbol: "ฒ", read: "Tho Phuthao", hint: "Orang Tua." }, { symbol: "ณ", read: "No Nen", hint: "Biksuni." }, { symbol: "ด", read: "Do Dek", hint: "Anak." }, { symbol: "ต", read: "To Tao", hint: "Kura-kura." }, { symbol: "ถ", read: "Tho Thung", hint: "Tas." }, { symbol: "ท", read: "Tho Thahan", hint: "Tentara." }, { symbol: "ธ", read: "Tho Thong", hint: "Bendera." }, { symbol: "น", read: "No Nu", hint: "Tikus." }, { symbol: "บ", read: "Bo Baimai", hint: "Daun." }, { symbol: "ป", read: "Po Pla", hint: "Ikan." }, { symbol: "ผ", read: "Pho Phueng", hint: "Lebah." }, { symbol: "ฝ", read: "Fo Fa", hint: "Tutup." }, { symbol: "พ", read: "Pho Phan", hint: "Nampan." }, { symbol: "ฟ", read: "Fo Fan", hint: "Gigi." }, { symbol: "ภ", read: "Pho Samphao", hint: "Perahu Layar." }, { symbol: "ม", read: "Mo Ma", hint: "Kuda." }, { symbol: "ย", read: "Yo Yak", hint: "Raksasa." }, { symbol: "ร", read: "Ro Ruea", hint: "Perahu." }, { symbol: "ล", read: "Lo Ling", hint: "Monyet." }, { symbol: "ว", read: "Wo Waen", hint: "Cincin." }, { symbol: "ศ", read: "So Sala", hint: "Paviliun." }, { symbol: "ษ", read: "So Ruesi", hint: "Pertapa." }, { symbol: "ส", read: "So Suea", hint: "Harimau." }, { symbol: "ห", read: "Ho Hip", hint: "Kotak." }, { symbol: "ฬ", read: "Lo Chula", hint: "Layang-layang." }, { symbol: "อ", read: "O Ang", hint: "Baskom." }, { symbol: "ฮ", read: "Ho Nokhuk", hint: "Burung Hantu." }
         ].map((c, i) => ({ ...c, id: `thai_${i}` }));
 
         const SUBJECTS = {
             alphabet: { name: "Alphabet (26)", langCode: "en-US", fontFamily: "sans-serif", stages: createStages(CHARS_ALPHABET) },
-            arabic: { name: "Arab / Hijaiyah", langCode: "ar-SA", fontFamily: "Noto Sans Arabic, serif", stages: createStages(CHARS_ARABIC) },
-            javanese: { name: "Aksara Jawa", langCode: "jv-ID", fontFamily: "Noto Sans Javanese, serif", stages: createStages(CHARS_JAVANESE) },
-            hangul: { name: "Korea / Hangul", langCode: "ko-KR", fontFamily: "Noto Sans KR, sans-serif", stages: createStages(CHARS_HANGUL) },
-            hiragana: { name: "Jepang / Hiragana", langCode: "ja-JP", fontFamily: "Noto Sans JP, sans-serif", stages: createStages(CHARS_HIRAGANA) },
-            katakana: { name: "Jepang / Katakana", langCode: "ja-JP", fontFamily: "Noto Sans JP, sans-serif", stages: createStages(CHARS_KATAKANA) },
-            thai: { name: "Aksara Thai", langCode: "th-TH", fontFamily: "Noto Sans Thai, sans-serif", stages: createStages(CHARS_THAI) }
+            arabic: { name: "Arab (28)", langCode: "ar-SA", fontFamily: "Noto Sans Arabic, serif", stages: createStages(CHARS_ARABIC) },
+            javanese: { name: "Aksara Jawa (20)", langCode: "jv-ID", fontFamily: "Noto Sans Javanese, serif", stages: createStages(CHARS_JAVANESE) },
+            hangul: { name: "Korea Hangul (24)", langCode: "ko-KR", fontFamily: "Noto Sans KR, sans-serif", stages: createStages(CHARS_HANGUL) },
+            hiragana: { name: "Jepang Hiragana (46)", langCode: "ja-JP", fontFamily: "Noto Sans JP, sans-serif", stages: createStages(CHARS_HIRAGANA) },
+            katakana: { name: "Jepang Katakana (46)", langCode: "ja-JP", fontFamily: "Noto Sans JP, sans-serif", stages: createStages(CHARS_KATAKANA) },
+            thai: { name: "Aksara Thai (44)", langCode: "th-TH", fontFamily: "Noto Sans Thai, sans-serif", stages: createStages(CHARS_THAI) }
         };
 
         const generateDrillQueue = (langData, stageId) => {
@@ -361,7 +198,6 @@
 
             const targetChar = currentStage.newChars[0];
             
-            // Kumpulkan semua huruf lama
             let oldChars = [];
             prevStages.forEach(s => {
                 oldChars = [...oldChars, ...s.newChars];
@@ -372,7 +208,6 @@
                 if (stageId === 1) {
                     char = targetChar;
                 } else {
-                    // Stage > 1: Mix
                     const isReview = oldChars.length > 0 && ((i + 1) % 3 === 0);
                     if (isReview) {
                         char = oldChars[Math.floor(Math.random() * oldChars.length)];
@@ -390,7 +225,7 @@
         };
 
         const App = () => {
-            const [appLang, setAppLang] = useState('id'); // 'id' or 'en'
+            const [appLang, setAppLang] = useState('id'); 
             const [activeSubjectKey, setActiveSubjectKey] = useState('alphabet'); 
             const [activeStageId, setActiveStageId] = useState(1);
             
@@ -408,13 +243,11 @@
 
             const canvasRef = useRef(null);
             
-            // Strings based on app language
             const strings = UI_STRINGS[appLang];
             const currentSubjectData = SUBJECTS[activeSubjectKey];
             const currentStage = currentSubjectData.stages.find(s => s.id === activeStageId) || currentSubjectData.stages[0];
             const currentTaskChar = drillQueue[currentDrillIndex];
 
-            // Setup Responsive Sidebar
             useEffect(() => {
                 const handleResize = () => {
                     if (window.innerWidth < 1024) {
@@ -428,7 +261,6 @@
                 return () => window.removeEventListener('resize', handleResize);
             }, []);
 
-            // Generate Drill when Subject or Stage changes
             useEffect(() => {
                 const queue = generateDrillQueue(currentSubjectData, activeStageId);
                 setDrillQueue(queue);
@@ -436,34 +268,41 @@
                 setUserStrokes([]);
                 setCurrentStroke([]);
                 setFeedback(strings.canvasInstruction);
-            }, [activeSubjectKey, activeStageId, appLang]); // Re-generate if lang changes? No, but text might.
+            }, [activeSubjectKey, activeStageId, appLang]); 
 
-            // Reset stage when subject changes
             const changeSubject = (key) => {
                 setActiveSubjectKey(key);
-                setActiveStageId(1); // Always reset to level 1 for safety
+                setActiveStageId(1); 
                 setLeftSidebarOpen(false);
             };
 
-            // TTS
+            // LOGIC AUDIO:
+            // 1. Jika Alphabet & App Lang ID -> Pakai suara ID (A = A)
+            // 2. Jika Alphabet & App Lang EN -> Pakai suara EN (A = Ei)
+            // 3. Jika bahasa lain -> Pakai kode bahasa asli (misal Arab tetap Arab)
             const speak = (text) => {
                 if ('speechSynthesis' in window) {
                     const utterance = new SpeechSynthesisUtterance(text);
-                    utterance.lang = currentSubjectData.langCode;
+                    
+                    let voiceLang = currentSubjectData.langCode;
+                    
+                    if (activeSubjectKey === 'alphabet') {
+                        voiceLang = appLang === 'id' ? 'id-ID' : 'en-US';
+                    }
+
+                    utterance.lang = voiceLang;
                     utterance.rate = 0.8; 
                     window.speechSynthesis.cancel();
                     window.speechSynthesis.speak(utterance);
                 }
             };
 
-            // Auto-speak hint on new char
             useEffect(() => {
                 if (currentTaskChar) {
                     setFeedback(currentTaskChar.hint);
                 }
             }, [currentTaskChar]);
 
-            // --- CANVAS LOGIC ---
             useEffect(() => {
                 if (!currentTaskChar) return;
                 const canvas = canvasRef.current;
@@ -480,11 +319,8 @@
                 const h = canvas.height;
                 
                 ctx.clearRect(0, 0, w, h);
-                
-                // 1. Grid
                 drawGrid(ctx, w, h);
 
-                // 2. Ghost Char
                 ctx.save();
                 const fontSize = w * 0.60;
                 const fontFamily = currentSubjectData.fontFamily || "sans-serif";
@@ -492,7 +328,6 @@
                 ctx.textAlign = "center";
                 ctx.textBaseline = "middle";
                 
-                // Glow
                 ctx.shadowColor = "#58D68D"; 
                 ctx.shadowBlur = 20;
                 ctx.fillStyle = "rgba(88, 214, 141, 0.25)"; 
@@ -504,7 +339,6 @@
                 ctx.strokeText(currentTaskChar.symbol, w / 2, h / 2 + yOffset);
                 ctx.restore();
 
-                // 3. User Ink
                 ctx.lineCap = 'round';
                 ctx.lineJoin = 'round';
                 ctx.globalAlpha = 1.0;
@@ -606,7 +440,6 @@
                 if (currentDrillIndex < drillQueue.length - 1) {
                     setCurrentDrillIndex(prev => prev + 1);
                     setUserStrokes([]);
-                    // Mobile feedback
                     if(window.navigator.vibrate) window.navigator.vibrate(50);
                 } else {
                     setFeedback(strings.finish);
@@ -622,7 +455,7 @@
                 <div className="min-h-screen flex flex-col overflow-hidden text-slate-800">
                     
                     {/* --- HEADER --- */}
-                    <header className="bg-white border-b border-emerald-100 px-4 py-3 flex justify-between items-center z-20 shadow-sm h-16 shrink-0">
+                    <header className="bg-white border-b border-emerald-100 px-4 py-3 flex justify-between items-center z-20 shadow-sm h-16 shrink-0 relative">
                         <div className="flex items-center gap-3">
                             <button onClick={() => setLeftSidebarOpen(!leftSidebarOpen)} className="p-2 hover:bg-emerald-50 rounded-lg lg:hidden text-emerald-700 mobile-menu-btn">
                                 <Menu size={24} />
@@ -637,17 +470,20 @@
                         </div>
 
                         <div className="flex items-center gap-3">
-                            {/* App Language Selector (Header) */}
-                            <div className="relative group hidden sm:block lang-selector">
-                                <button className="flex items-center gap-2 px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 rounded-full text-xs font-bold text-emerald-700 transition-colors">
-                                    <Globe size={14} /> 
-                                    {appLang.toUpperCase()}
-                                    <ChevronDown size={14} />
+                            {/* SOLID TOGGLE SWITCH LANGUAGE */}
+                            <div className="hidden sm:flex bg-emerald-100 p-1 rounded-lg items-center shadow-inner">
+                                <button 
+                                    onClick={() => setAppLang('id')} 
+                                    className={`px-3 py-1 rounded-md text-xs font-bold transition-all ${appLang === 'id' ? 'bg-emerald-600 text-white shadow-sm' : 'text-emerald-700 hover:bg-emerald-200'}`}
+                                >
+                                    ID
                                 </button>
-                                <div className="absolute right-0 top-full mt-2 w-32 bg-white rounded-xl shadow-xl border border-emerald-100 overflow-hidden hidden group-hover:block">
-                                    <button onClick={() => setAppLang('id')} className={`w-full text-left px-4 py-2 text-sm hover:bg-emerald-50 ${appLang === 'id' ? 'font-bold text-emerald-600' : 'text-slate-600'}`}>🇮🇩 Indonesia</button>
-                                    <button onClick={() => setAppLang('en')} className={`w-full text-left px-4 py-2 text-sm hover:bg-emerald-50 ${appLang === 'en' ? 'font-bold text-emerald-600' : 'text-slate-600'}`}>🇬🇧 English</button>
-                                </div>
+                                <button 
+                                    onClick={() => setAppLang('en')} 
+                                    className={`px-3 py-1 rounded-md text-xs font-bold transition-all ${appLang === 'en' ? 'bg-emerald-600 text-white shadow-sm' : 'text-emerald-700 hover:bg-emerald-200'}`}
+                                >
+                                    EN
+                                </button>
                             </div>
                             
                             <button 
@@ -676,14 +512,13 @@
                             {/* Mobile Language Selector */}
                             <div className="p-4 border-b border-emerald-50 sm:hidden">
                                 <h3 className="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-2">{strings.selectLang}</h3>
-                                <div className="flex gap-2">
-                                    <button onClick={() => setAppLang('id')} className={`flex-1 py-2 rounded-lg text-sm border ${appLang === 'id' ? 'bg-emerald-100 border-emerald-300 text-emerald-800 font-bold' : 'bg-white border-slate-200'}`}>ID</button>
-                                    <button onClick={() => setAppLang('en')} className={`flex-1 py-2 rounded-lg text-sm border ${appLang === 'en' ? 'bg-emerald-100 border-emerald-300 text-emerald-800 font-bold' : 'bg-white border-slate-200'}`}>EN</button>
+                                <div className="flex bg-emerald-100 p-1 rounded-lg">
+                                    <button onClick={() => setAppLang('id')} className={`flex-1 py-2 rounded-md text-sm font-bold transition-all ${appLang === 'id' ? 'bg-emerald-600 text-white shadow-sm' : 'text-emerald-700'}`}>ID</button>
+                                    <button onClick={() => setAppLang('en')} className={`flex-1 py-2 rounded-md text-sm font-bold transition-all ${appLang === 'en' ? 'bg-emerald-600 text-white shadow-sm' : 'text-emerald-700'}`}>EN</button>
                                 </div>
                             </div>
                             
                             <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar">
-                                {/* Subject Selector */}
                                 <div>
                                     <h3 className="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-2">{strings.subjectLabel}</h3>
                                     <div className="grid grid-cols-1 gap-2">
@@ -704,7 +539,6 @@
                                     </div>
                                 </div>
 
-                                {/* SAFE DROPDOWN STAGE SELECTOR */}
                                 <div>
                                     <h3 className="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-2">{strings.stageLabel}</h3>
                                     <div className="relative">
@@ -712,7 +546,6 @@
                                             value={activeStageId}
                                             onChange={(e) => {
                                                 setActiveStageId(Number(e.target.value));
-                                                // Close sidebar only on mobile
                                                 if(window.innerWidth < 1024) setLeftSidebarOpen(false);
                                             }}
                                             className="w-full appearance-none bg-white border-2 border-slate-200 text-slate-700 py-3 pl-4 pr-10 rounded-xl focus:outline-none focus:border-emerald-400 focus:ring-4 focus:ring-emerald-50 font-medium cursor-pointer"
@@ -748,7 +581,6 @@
                                 </span>
                             </div>
 
-                            {/* THE CANVAS */}
                             <div className="relative group touch-none canvas-container select-none">
                                 <div className="bg-white p-2 rounded-[2rem] shadow-2xl shadow-emerald-100 border-4 border-white ring-2 ring-emerald-100 mb-6 transition-transform duration-300">
                                     <canvas
@@ -759,14 +591,12 @@
                                         onTouchStart={startDrawing} onTouchMove={draw} onTouchEnd={endDrawing}
                                     />
                                     
-                                    {/* Overlay Reading */}
                                     <div className="absolute top-4 left-6 pointer-events-none">
                                         <span className="bg-white/90 backdrop-blur px-3 py-1 rounded-lg text-lg font-bold text-slate-700 shadow-sm border border-slate-100">
                                             {currentTaskChar.read}
                                         </span>
                                     </div>
 
-                                    {/* Audio Button */}
                                     <div className="absolute top-4 right-4 pointer-events-auto audio-btn">
                                         <button 
                                             onClick={() => speak(currentTaskChar.read)}
@@ -777,7 +607,6 @@
                                     </div>
                                 </div>
                                 
-                                {/* Floating Clear */}
                                 <div className="absolute bottom-10 right-6 flex flex-col gap-2 pointer-events-auto">
                                     <button 
                                         onClick={handleClear}
@@ -789,7 +618,6 @@
                                 </div>
                             </div>
 
-                            {/* Action Buttons */}
                             <div className="flex flex-col sm:flex-row gap-3 w-full max-w-sm action-buttons">
                                 <button
                                     onClick={handleClear}
