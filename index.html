@@ -15,11 +15,11 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Google Fonts (Ditambahkan Noto Sans Sundanese) -->
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;700&family=Noto+Sans+Arabic:wght@400;700&family=Noto+Sans+Thai:wght@400;700&family=Noto+Sans+Javanese&family=Noto+Sans+JP:wght@400;700&family=Noto+Sans+KR:wght@400;700&family=Noto+Serif+TC:wght@400;700&family=Noto+Sans+Buginese&family=Noto+Sans+Batak&family=Noto+Serif+Balinese&family=Noto+Sans+Sundanese&display=swap" rel="stylesheet">
+    <!-- Google Fonts (Updated with Rejang & Kawi) -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;700&family=Noto+Sans+Arabic:wght@400;700&family=Noto+Sans+Thai:wght@400;700&family=Noto+Sans+Javanese&family=Noto+Sans+JP:wght@400;700&family=Noto+Sans+KR:wght@400;700&family=Noto+Serif+TC:wght@400;700&family=Noto+Sans+Buginese&family=Noto+Sans+Batak&family=Noto+Serif+Balinese&family=Noto+Sans+Sundanese&family=Noto+Sans+Rejang&family=Noto+Sans+Kawi&display=swap" rel="stylesheet">
 
     <style>
-        body { font-family: 'Noto Sans', sans-serif; background-color: #E9F7EF; overflow: hidden; /* KUNCI AGAR BODY TIDAK SCROLL DI LAYAR */ }
+        body { font-family: 'Noto Sans', sans-serif; background-color: #E9F7EF; overflow: hidden; }
         
         /* Custom Scrollbar */
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
@@ -30,10 +30,9 @@
         @media print {
             @page { 
                 size: landscape; 
-                margin: 0.5cm; /* Margin sedikit diperkecil agar muat lebih banyak */
+                margin: 5mm; /* Margin diperkecil agar muat pas 2 halaman */
             }
 
-            /* 1. Reset Root & Body agar bisa scroll ke halaman berikutnya */
             html, body, #root { 
                 height: auto !important; 
                 overflow: visible !important; 
@@ -43,12 +42,10 @@
                 position: static !important;
             }
 
-            /* 2. Sembunyikan elemen UI aplikasi */
             header, aside:not(.notebook-section), .tools-panel, .action-buttons, .canvas-tools, .canvas-container, .audio-btn, .mobile-menu-btn, .lang-selector { display: none !important; }
             
-            /* 3. Atur Section Notebook Utama */
             .notebook-section { 
-                position: static !important; /* Ubah dari relative ke static */
+                position: static !important;
                 width: 100% !important; 
                 height: auto !important; 
                 overflow: visible !important;
@@ -61,24 +58,21 @@
                 padding: 0 !important;
             }
             
-            /* Sembunyikan tombol close dan elemen navigasi di header notebook saat print */
             .notebook-title button, 
             .notebook-title .print-btn-wrapper { display: none !important; }
 
-            /* 4. PERBAIKAN UTAMA: Target container scroll bar */
             .notebook-scroll-container {
                 overflow: visible !important;
                 height: auto !important;
                 display: block !important;
                 background: none !important;
-                flex: none !important; /* Matikan flexbox sizing */
+                flex: none !important;
             }
 
-            /* 5. Atur Grid agar mengalir ke bawah */
             .notebook-grid {
                 display: grid !important;
-                grid-template-columns: repeat(5, 1fr) !important; /* 5 Kolom */
-                gap: 15px !important;
+                grid-template-columns: repeat(5, 1fr) !important;
+                gap: 10px !important; /* Gap diperkecil */
                 overflow: visible !important;
                 padding-bottom: 0 !important;
                 height: auto !important;
@@ -86,19 +80,33 @@
             
             .notebook-item {
                 border: 1px solid #ccc !important;
-                break-inside: avoid; /* Mencegah kotak terpotong setengah */
+                break-inside: avoid;
                 page-break-inside: avoid;
                 background: white !important;
-                /* Pastikan aspek rasio tetap terjaga */
-                height: auto !important; 
-                aspect-ratio: 1 / 1;
+                /* Pengaturan tinggi agar pas 3 baris per halaman */
+                height: 5.2cm !important; 
+                aspect-ratio: auto !important; /* Override aspect ratio agar tidak terlalu tinggi */
+                width: 100% !important;
+                position: relative !important;
+            }
+
+            /* Logika Pemotong Halaman: Paksa pindah halaman setelah item ke-15 */
+            .notebook-item:nth-child(15) {
+                break-after: page !important;
+                page-break-after: always !important;
             }
             
-            .print-header { display: block !important; text-align: center; margin-bottom: 20px; color: black !important; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-            .print-header h1 { margin: 0; font-size: 24px; font-weight: bold; }
-            .print-header p { margin: 5px 0 0; font-size: 14px; color: #666; }
+            .print-header { 
+                display: block !important; 
+                text-align: center; 
+                margin-bottom: 10px; 
+                color: black !important; 
+                border-bottom: 1px solid #eee; 
+                padding-bottom: 5px; 
+            }
+            .print-header h1 { margin: 0; font-size: 20px; font-weight: bold; }
+            .print-header p { margin: 2px 0 0; font-size: 12px; color: #666; }
             
-            /* Hide scrollbars & backgrounds in print */
             .overflow-y-auto { overflow: visible !important; background: none !important; }
             .bg-slate-50\/30 { background: none !important; }
         }
@@ -191,18 +199,95 @@
         };
 
         // --- DATA ---
+        
         const CHARS_ALPHABET = [
-            { id: 'A', symbol: "A", read: "A", hint: "Gunung dengan sabuk." }, { id: 'B', symbol: "B", read: "B", hint: "Tiang lurus dua perut." }, { id: 'C', symbol: "C", read: "C", hint: "Bulan sabit." }, { id: 'D', symbol: "D", read: "D", hint: "Perut besar." }, { id: 'E', symbol: "E", read: "E", hint: "Sisir tiga gigi." }, { id: 'F', symbol: "F", read: "F", hint: "Bendera." }, { id: 'G', symbol: "G", read: "G", hint: "C ada kursinya." }, { id: 'H', symbol: "H", read: "H", hint: "Tangga." }, { id: 'I', symbol: "I", read: "I", hint: "Tiang listrik." }, { id: 'J', symbol: "J", read: "J", hint: "Kail pancing." }, { id: 'K', symbol: "K", read: "K", hint: "Tangan ke atas, kaki ke bawah." }, { id: 'L', symbol: "L", read: "L", hint: "Siku-siku." }, { id: 'M', symbol: "M", read: "M", hint: "Dua gunung." }, { id: 'N', symbol: "N", read: "N", hint: "Petir/Zigzag." }, { id: 'O', symbol: "O", read: "O", hint: "Donat." }, { id: 'P', symbol: "P", read: "P", hint: "Kepala di atas." }, { id: 'Q', symbol: "Q", read: "Q", hint: "O punya ekor." }, { id: 'R', symbol: "R", read: "R", hint: "P punya kaki." }, { id: 'S', symbol: "S", read: "S", hint: "Ular meliuk." }, { id: 'T', symbol: "T", read: "T", hint: "Palu." }, { id: 'U', symbol: "U", read: "U", hint: "Gelas." }, { id: 'V', symbol: "V", read: "V", hint: "Burung terbang." }, { id: 'W', symbol: "W", read: "W", hint: "M terbalik." }, { id: 'X', symbol: "X", read: "X", hint: "Silang." }, { id: 'Y', symbol: "Y", read: "Y", hint: "Ketapel." }, { id: 'Z', symbol: "Z", read: "Z", hint: "Zigzag tajam." }
+            { id: 'A', symbol: "A", read: "A", hint: { id: "Gunung dengan sabuk.", en: "Mountain with a belt." } },
+            { id: 'B', symbol: "B", read: "B", hint: { id: "Tiang lurus dua perut.", en: "Straight pole, two bellies." } },
+            { id: 'C', symbol: "C", read: "C", hint: { id: "Bulan sabit.", en: "Crescent moon." } },
+            { id: 'D', symbol: "D", read: "D", hint: { id: "Perut besar.", en: "Big belly." } },
+            { id: 'E', symbol: "E", read: "E", hint: { id: "Sisir tiga gigi.", en: "Comb with three teeth." } },
+            { id: 'F', symbol: "F", read: "F", hint: { id: "Bendera.", en: "A flag." } },
+            { id: 'G', symbol: "G", read: "G", hint: { id: "Huruf C ada kursinya.", en: "Letter C with a seat." } },
+            { id: 'H', symbol: "H", read: "H", hint: { id: "Tangga.", en: "Ladder." } },
+            { id: 'I', symbol: "I", read: "I", hint: { id: "Tiang listrik.", en: "Utility pole / I." } },
+            { id: 'J', symbol: "J", read: "J", hint: { id: "Kail pancing.", en: "Fish hook." } },
+            { id: 'K', symbol: "K", read: "K", hint: { id: "Tangan ke atas, kaki ke bawah.", en: "Hand up, leg down." } },
+            { id: 'L', symbol: "L", read: "L", hint: { id: "Siku-siku.", en: "Right angle." } },
+            { id: 'M', symbol: "M", read: "M", hint: { id: "Dua gunung.", en: "Two mountains." } },
+            { id: 'N', symbol: "N", read: "N", hint: { id: "Petir/Zigzag.", en: "Lightning/Zigzag." } },
+            { id: 'O', symbol: "O", read: "O", hint: { id: "Donat.", en: "Doughnut." } },
+            { id: 'P', symbol: "P", read: "P", hint: { id: "Kepala di atas.", en: "Head on top." } },
+            { id: 'Q', symbol: "Q", read: "Q", hint: { id: "O punya ekor.", en: "O with a tail." } },
+            { id: 'R', symbol: "R", read: "R", hint: { id: "P punya kaki.", en: "P with a leg." } },
+            { id: 'S', symbol: "S", read: "S", hint: { id: "Ular meliuk.", en: "Slithering snake." } },
+            { id: 'T', symbol: "T", read: "T", hint: { id: "Palu.", en: "Hammer." } },
+            { id: 'U', symbol: "U", read: "U", hint: { id: "Gelas.", en: "Glass/Cup." } },
+            { id: 'V', symbol: "V", read: "V", hint: { id: "Burung terbang.", en: "Flying bird." } },
+            { id: 'W', symbol: "W", read: "W", hint: { id: "M terbalik.", en: "Upside down M." } },
+            { id: 'X', symbol: "X", read: "X", hint: { id: "Silang.", en: "Cross." } },
+            { id: 'Y', symbol: "Y", read: "Y", hint: { id: "Ketapel.", en: "Slingshot." } },
+            { id: 'Z', symbol: "Z", read: "Z", hint: { id: "Zigzag tajam.", en: "Sharp zigzag." } }
         ];
 
         const CHARS_ARABIC = [
-            { id: 'alif', symbol: "ا", read: "Alif", hint: "Tongkat lurus." }, { id: 'ba', symbol: "ب", read: "Ba", hint: "Perahu titik satu di bawah." }, { id: 'ta', symbol: "ت", read: "Ta", hint: "Perahu titik dua di atas." }, { id: 'tsa', symbol: "ث", read: "Tsa", hint: "Perahu titik tiga." }, { id: 'jim', symbol: "ج", read: "Jim", hint: "Perut buncit titik di dalam." }, { id: 'ha', symbol: "ح", read: "Ha", hint: "Perut buncit kosong." }, { id: 'kha', symbol: "خ", read: "Kha", hint: "Perut buncit titik di atas." }, { id: 'dal', symbol: "د", read: "Dal", hint: "Mulut terbuka." }, { id: 'dzal', symbol: "ذ", read: "Dzal", hint: "Dzal" }, { id: 'ra', symbol: "ر", read: "Ra", hint: "Perosotan." }, { id: 'zai', symbol: "ز", read: "Zai", hint: "Perosotan titik satu." }, { id: 'sin', symbol: "س", read: "Sin", hint: "Gigi tiga perut besar." }, { id: 'syin', symbol: "ش", read: "Syin", hint: "Sin titik tiga." }, { id: 'shad', symbol: "ص", read: "Shad", hint: "Kepala lonjong." }, { id: 'dhad', symbol: "ض", read: "Dhad", hint: "Shad titik satu." }, { id: 'tha', symbol: "ط", read: "Tha", hint: "Kepala lonjong bertiang." }, { id: 'zha', symbol: "ظ", read: "Zha", hint: "Tha titik satu." }, { id: 'ain', symbol: "ع", read: "'Ain", hint: "C kecil dan C besar." }, { id: 'ghain', symbol: "غ", read: "Ghain", hint: "Ain titik satu." }, { id: 'fa', symbol: "ف", read: "Fa", hint: "Kepala bulat leher pendek." }, { id: 'qof', symbol: "ق", read: "Qof", hint: "Kepala bulat perut dalam." }, { id: 'kaf', symbol: "ك", read: "Kaf", hint: "S kecil di atas kursi." }, { id: 'lam', symbol: "ل", read: "Lam", hint: "Kail pancing." }, { id: 'mim', symbol: "م", read: "Mim", hint: "Kepala bulat ekor bawah." }, { id: 'nun', symbol: "ن", read: "Nun", hint: "Mangkuk titik satu." }, { id: 'waw', symbol: "و", read: "Waw", hint: "Kepala bulat meluncur." }, { id: 'ha_besar', symbol: "ه", read: "Ha", hint: "Bulatan simpul." }, { id: 'ya', symbol: "ي", read: "Ya", hint: "Angsa titik dua." }
+            { id: 'alif', symbol: "ا", read: "Alif", hint: { id: "Tongkat lurus.", en: "Straight stick." } },
+            { id: 'ba', symbol: "ب", read: "Ba", hint: { id: "Perahu titik satu di bawah.", en: "Boat, one dot below." } },
+            { id: 'ta', symbol: "ت", read: "Ta", hint: { id: "Perahu titik dua di atas.", en: "Boat, two dots above." } },
+            { id: 'tsa', symbol: "ث", read: "Tsa", hint: { id: "Perahu titik tiga.", en: "Boat, three dots." } },
+            { id: 'jim', symbol: "ج", read: "Jim", hint: { id: "Perut buncit titik di dalam.", en: "Belly with dot inside." } },
+            { id: 'ha', symbol: "ح", read: "Ha", hint: { id: "Perut buncit kosong.", en: "Empty belly." } },
+            { id: 'kha', symbol: "خ", read: "Kha", hint: { id: "Perut buncit titik di atas.", en: "Belly, dot on top." } },
+            { id: 'dal', symbol: "د", read: "Dal", hint: { id: "Mulut terbuka.", en: "Open mouth." } },
+            { id: 'dzal', symbol: "ذ", read: "Dzal", hint: { id: "Dal ada titiknya.", en: "Dal with a dot." } },
+            { id: 'ra', symbol: "ر", read: "Ra", hint: { id: "Perosotan.", en: "Slide." } },
+            { id: 'zai', symbol: "ز", read: "Zai", hint: { id: "Perosotan titik satu.", en: "Slide with a dot." } },
+            { id: 'sin', symbol: "س", read: "Sin", hint: { id: "Gigi tiga perut besar.", en: "Three teeth, big belly." } },
+            { id: 'syin', symbol: "ش", read: "Syin", hint: { id: "Sin titik tiga.", en: "Sin with three dots." } },
+            { id: 'shad', symbol: "ص", read: "Shad", hint: { id: "Kepala lonjong.", en: "Oval head." } },
+            { id: 'dhad', symbol: "ض", read: "Dhad", hint: { id: "Shad titik satu.", en: "Shad with a dot." } },
+            { id: 'tha', symbol: "ط", read: "Tha", hint: { id: "Kepala lonjong bertiang.", en: "Oval head with pole." } },
+            { id: 'zha', symbol: "ظ", read: "Zha", hint: { id: "Tha titik satu.", en: "Tha with a dot." } },
+            { id: 'ain', symbol: "ع", read: "'Ain", hint: { id: "C kecil dan C besar.", en: "Small C and Big C." } },
+            { id: 'ghain', symbol: "غ", read: "Ghain", hint: { id: "Ain titik satu.", en: "Ain with a dot." } },
+            { id: 'fa', symbol: "ف", read: "Fa", hint: { id: "Kepala bulat leher pendek.", en: "Round head, short neck." } },
+            { id: 'qof', symbol: "ق", read: "Qof", hint: { id: "Kepala bulat perut dalam.", en: "Round head, deep belly." } },
+            { id: 'kaf', symbol: "ك", read: "Kaf", hint: { id: "S kecil di atas kursi.", en: "Small S on a chair." } },
+            { id: 'lam', symbol: "ل", read: "Lam", hint: { id: "Kail pancing.", en: "Fish hook." } },
+            { id: 'mim', symbol: "م", read: "Mim", hint: { id: "Kepala bulat ekor bawah.", en: "Round head, tail down." } },
+            { id: 'nun', symbol: "ن", read: "Nun", hint: { id: "Mangkuk titik satu.", en: "Bowl with one dot." } },
+            { id: 'waw', symbol: "و", read: "Waw", hint: { id: "Kepala bulat meluncur.", en: "Gliding round head." } },
+            { id: 'ha_besar', symbol: "ه", read: "Ha", hint: { id: "Bulatan simpul.", en: "Knot circle." } },
+            { id: 'ya', symbol: "ي", read: "Ya", hint: { id: "Angsa titik dua.", en: "Goose with two dots." } }
         ];
 
         const CHARS_HANGUL = [
-            { id: 'g', symbol: "ㄱ", read: "Giyok (G)", hint: "Pistol." }, { id: 'n', symbol: "ㄴ", read: "Nieun (N)", hint: "Duduk." }, { id: 'd', symbol: "ㄷ", read: "Digeut (D)", hint: "Kotak terbuka." }, { id: 'r', symbol: "ㄹ", read: "Rieul (R/L)", hint: "Ular." }, { id: 'm', symbol: "ㅁ", read: "Mieum (M)", hint: "Kotak." }, { id: 'b', symbol: "ㅂ", read: "Bieup (B)", hint: "Ember." }, { id: 's', symbol: "ㅅ", read: "Siot (S)", hint: "Orang berdiri." }, { id: 'ng', symbol: "ㅇ", read: "Ieung (Ng)", hint: "Bulatan." }, { id: 'j', symbol: "ㅈ", read: "Jieut (J)", hint: "Siot pakai topi." }, { id: 'ch', symbol: "ㅊ", read: "Chieut (Ch)", hint: "Jieut pakai topi." }, { id: 'k', symbol: "ㅋ", read: "Kieuk (K)", hint: "Pistol ada pelatuk." }, { id: 't', symbol: "ㅌ", read: "Tieut (T)", hint: "Sisir E." }, { id: 'p', symbol: "ㅍ", read: "Pieup (P)", hint: "Pilar Romawi." }, { id: 'h', symbol: "ㅎ", read: "Hieut (H)", hint: "Orang pakai topi." }, { id: 'a', symbol: "ㅏ", read: "A", hint: "Tongkat tangan kanan." }, { id: 'ya', symbol: "ㅑ", read: "Ya", hint: "Tongkat dua tangan kanan." }, { id: 'eo', symbol: "ㅓ", read: "Eo", hint: "Tongkat tangan kiri." }, { id: 'yeo', symbol: "ㅕ", read: "Yeo", hint: "Tongkat dua tangan kiri." }, { id: 'o', symbol: "ㅗ", read: "O", hint: "Tangan ke atas." }, { id: 'yo', symbol: "ㅛ", read: "Yo", hint: "Dua tangan ke atas." }, { id: 'u', symbol: "ㅜ", read: "U", hint: "Tangan ke bawah." }, { id: 'yu', symbol: "ㅠ", read: "Yu", hint: "Dua tangan ke bawah." }, { id: 'eu', symbol: "ㅡ", read: "Eu", hint: "Garis datar." }, { id: 'i', symbol: "ㅣ", read: "I", hint: "Garis tegak." }
+            { id: 'g', symbol: "ㄱ", read: "Giyok (G)", hint: { id: "Pistol.", en: "Gun shape." } }, 
+            { id: 'n', symbol: "ㄴ", read: "Nieun (N)", hint: { id: "Duduk.", en: "Sitting." } }, 
+            { id: 'd', symbol: "ㄷ", read: "Digeut (D)", hint: { id: "Kotak terbuka.", en: "Open box." } }, 
+            { id: 'r', symbol: "ㄹ", read: "Rieul (R/L)", hint: { id: "Ular.", en: "Snake." } }, 
+            { id: 'm', symbol: "ㅁ", read: "Mieum (M)", hint: { id: "Kotak.", en: "Box / Square." } }, 
+            { id: 'b', symbol: "ㅂ", read: "Bieup (B)", hint: { id: "Ember.", en: "Bucket." } }, 
+            { id: 's', symbol: "ㅅ", read: "Siot (S)", hint: { id: "Orang berdiri.", en: "Standing person." } }, 
+            { id: 'ng', symbol: "ㅇ", read: "Ieung (Ng)", hint: { id: "Bulatan.", en: "Circle." } }, 
+            { id: 'j', symbol: "ㅈ", read: "Jieut (J)", hint: { id: "Siot pakai topi.", en: "Siot with hat." } }, 
+            { id: 'ch', symbol: "ㅊ", read: "Chieut (Ch)", hint: { id: "Jieut pakai topi.", en: "Jieut with hat." } }, 
+            { id: 'k', symbol: "ㅋ", read: "Kieuk (K)", hint: { id: "Pistol ada pelatuk.", en: "Gun with trigger." } }, 
+            { id: 't', symbol: "ㅌ", read: "Tieut (T)", hint: { id: "Sisir E.", en: "Comb / E." } }, 
+            { id: 'p', symbol: "ㅍ", read: "Pieup (P)", hint: { id: "Pilar Romawi.", en: "Roman pillar." } }, 
+            { id: 'h', symbol: "ㅎ", read: "Hieut (H)", hint: { id: "Orang pakai topi.", en: "Person with hat." } }, 
+            { id: 'a', symbol: "ㅏ", read: "A", hint: { id: "Tongkat tangan kanan.", en: "Stick, right hand." } }, 
+            { id: 'ya', symbol: "ㅑ", read: "Ya", hint: { id: "Tongkat dua tangan kanan.", en: "Stick, two right hands." } }, 
+            { id: 'eo', symbol: "ㅓ", read: "Eo", hint: { id: "Tongkat tangan kiri.", en: "Stick, left hand." } }, 
+            { id: 'yeo', symbol: "ㅕ", read: "Yeo", hint: { id: "Tongkat dua tangan kiri.", en: "Stick, two left hands." } }, 
+            { id: 'o', symbol: "ㅗ", read: "O", hint: { id: "Tangan ke atas.", en: "Hand up." } }, 
+            { id: 'yo', symbol: "ㅛ", read: "Yo", hint: { id: "Dua tangan ke atas.", en: "Two hands up." } }, 
+            { id: 'u', symbol: "ㅜ", read: "U", hint: { id: "Tangan ke bawah.", en: "Hand down." } }, 
+            { id: 'yu', symbol: "ㅠ", read: "Yu", hint: { id: "Dua tangan ke bawah.", en: "Two hands down." } }, 
+            { id: 'eu', symbol: "ㅡ", read: "Eu", hint: { id: "Garis datar.", en: "Flat line." } }, 
+            { id: 'i', symbol: "ㅣ", read: "I", hint: { id: "Garis tegak.", en: "Vertical line." } }
         ];
 
+        // Untuk yang lain, jika belum ditranslate, sistem akan fallback ke string yang ada (Indo)
         const CHARS_HIRAGANA = [
             { symbol: "あ", read: "A", hint: "Ikan." }, { symbol: "い", read: "I", hint: "Dua garis." }, { symbol: "う", read: "U", hint: "Bungkuk." }, { symbol: "え", read: "E", hint: "Burung." }, { symbol: "お", read: "O", hint: "A + titik." }, { symbol: "か", read: "Ka", hint: "Kekuatan." }, { symbol: "き", read: "Ki", hint: "Kunci." }, { symbol: "く", read: "Ku", hint: "Mulut." }, { symbol: "け", read: "Ke", hint: "Pedang." }, { symbol: "こ", read: "Ko", hint: "Cacing." }, { symbol: "さ", read: "Sa", hint: "Senyum." }, { symbol: "し", read: "Shi", hint: "Kail." }, { symbol: "す", read: "Su", hint: "Simpul." }, { symbol: "せ", read: "Se", hint: "Pangkuan." }, { symbol: "そ", read: "So", hint: "Zigzag." }, { symbol: "た", read: "Ta", hint: "Ta + Ko." }, { symbol: "ち", read: "Chi", hint: "Lima." }, { symbol: "つ", read: "Tsu", hint: "Ombak." }, { symbol: "て", read: "Te", hint: "Tangan." }, { symbol: "と", read: "To", hint: "Duri." }, { symbol: "な", read: "Na", hint: "Salib." }, { symbol: "に", read: "Ni", hint: "Garis + Ko." }, { symbol: "ぬ", read: "Nu", hint: "Mie." }, { symbol: "ね", read: "Ne", hint: "Kucing." }, { symbol: "の", read: "No", hint: "Larangan." }, { symbol: "は", read: "Ha", hint: "Ha + Simpul." }, { symbol: "ひ", read: "Hi", hint: "Senyum V." }, { symbol: "ふ", read: "Fu", hint: "Gunung Fuji." }, { symbol: "へ", read: "He", hint: "Gunung." }, { symbol: "ほ", read: "Ho", hint: "Ha + Topi." }, { symbol: "ま", read: "Ma", hint: "Dua garis simpul." }, { symbol: "み", read: "Mi", hint: "21." }, { symbol: "む", read: "Mu", hint: "Sapi (Moo)." }, { symbol: "め", read: "Me", hint: "Mie (Nu) tanpa ekor." }, { symbol: "も", read: "Mo", hint: "Kail dua umpan." }, { symbol: "や", read: "Ya", hint: "Yakitori." }, { symbol: "ゆ", read: "Yu", hint: "Ikan melintas." }, { symbol: "よ", read: "Yo", hint: "Yo-yo." }, { symbol: "ら", read: "Ra", hint: "Angka 5." }, { symbol: "り", read: "Ri", hint: "Dua garis." }, { symbol: "る", read: "Ru", hint: "Tiga simpul." }, { symbol: "れ", read: "Re", hint: "Z melengkung." }, { symbol: "ろ", read: "Ro", hint: "Tiga (Ru) tanpa simpul." }, { symbol: "わ", read: "Wa", hint: "Re gemuk." }, { symbol: "を", read: "Wo", hint: "Huruf C dan h." }, { symbol: "ん", read: "N", hint: "Huruf h miring." }
         ].map((c, i) => ({ ...c, id: `hira_${i}` }));
@@ -331,6 +416,146 @@
             { symbol: "ᮥ", read: "Sya", hint: "Konsonan Serapan Sya" }
         ].map((c, i) => ({ ...c, id: `sunda_${i}` }));
 
+        // 5. AKSARA REJANG (KaGaNga - Bengkulu/Sumatera)
+        // 23 Huruf Utama + 13 Tanda Baca + 1 Tanda Khusus
+        const CHARS_REJANG = [
+            // Konsonan Utama (23)
+            { symbol: "ꤰ", read: "Ka", hint: { id: "Huruf Ka", en: "Letter Ka" } },
+            { symbol: "ꤱ", read: "Ga", hint: { id: "Huruf Ga", en: "Letter Ga" } },
+            { symbol: "ꤲ", read: "Nga", hint: { id: "Huruf Nga", en: "Letter Nga" } },
+            { symbol: "ꤳ", read: "Ta", hint: { id: "Huruf Ta", en: "Letter Ta" } },
+            { symbol: "ꤴ", read: "Da", hint: { id: "Huruf Da", en: "Letter Da" } },
+            { symbol: "ꤵ", read: "Na", hint: { id: "Huruf Na", en: "Letter Na" } },
+            { symbol: "ꤶ", read: "Pa", hint: { id: "Huruf Pa", en: "Letter Pa" } },
+            { symbol: "ꤷ", read: "Ba", hint: { id: "Huruf Ba", en: "Letter Ba" } },
+            { symbol: "ꤸ", read: "Ma", hint: { id: "Huruf Ma", en: "Letter Ma" } },
+            { symbol: "ꤹ", read: "Ca", hint: { id: "Huruf Ca", en: "Letter Ca" } },
+            { symbol: "ꤺ", read: "Ja", hint: { id: "Huruf Ja", en: "Letter Ja" } },
+            { symbol: "ꤻ", read: "Nya", hint: { id: "Huruf Nya", en: "Letter Nya" } },
+            { symbol: "ꤼ", read: "Sa", hint: { id: "Huruf Sa", en: "Letter Sa" } },
+            { symbol: "ꤽ", read: "Ra", hint: { id: "Huruf Ra", en: "Letter Ra" } },
+            { symbol: "ꤾ", read: "La", hint: { id: "Huruf La", en: "Letter La" } },
+            { symbol: "ꤿ", read: "Wa", hint: { id: "Huruf Wa", en: "Letter Wa" } },
+            { symbol: "ꥀ", read: "Ya", hint: { id: "Huruf Ya", en: "Letter Ya" } },
+            { symbol: "ꥁ", read: "Ha", hint: { id: "Huruf Ha", en: "Letter Ha" } },
+            { symbol: "ꥂ", read: "Mba", hint: { id: "Huruf Mba", en: "Letter Mba" } },
+            { symbol: "ꥃ", read: "Ngg", hint: { id: "Huruf Ngg", en: "Letter Ngg" } },
+            { symbol: "ꥄ", read: "Nda", hint: { id: "Huruf Nda", en: "Letter Nda" } },
+            { symbol: "ꥅ", read: "Nyja", hint: { id: "Huruf Nyja", en: "Letter Nyja" } },
+            { symbol: "ꥆ", read: "A", hint: { id: "Huruf A", en: "Letter A" } },
+            // Tanda Baca/Diakritik (13)
+            { symbol: "ꥇ", read: "i", hint: { id: "Tanda Vokal i", en: "Vowel Sign i" } },
+            { symbol: "ꥈ", read: "u", hint: { id: "Tanda Vokal u", en: "Vowel Sign u" } },
+            { symbol: "ꥉ", read: "e", hint: { id: "Tanda Vokal e", en: "Vowel Sign e" } },
+            { symbol: "ꥊ", read: "ai", hint: { id: "Tanda Diftong ai", en: "Diphthong Sign ai" } },
+            { symbol: "ꥋ", read: "o", hint: { id: "Tanda Vokal o", en: "Vowel Sign o" } },
+            { symbol: "ꥌ", read: "au", hint: { id: "Tanda Diftong au", en: "Diphthong Sign au" } },
+            { symbol: "ꥍ", read: "eu", hint: { id: "Tanda Vokal eu", en: "Vowel Sign eu" } },
+            { symbol: "ꥎ", read: "ea", hint: { id: "Tanda Vokal ea", en: "Vowel Sign ea" } },
+            { symbol: "ꥏ", read: "ng", hint: { id: "Tanda Mati ng (Cecak)", en: "Final Consonant ng" } },
+            { symbol: "ꥐ", read: "n", hint: { id: "Tanda Mati n", en: "Final Consonant n" } },
+            { symbol: "ꥑ", read: "r", hint: { id: "Tanda Mati r", en: "Final Consonant r" } },
+            { symbol: "ꥒ", read: "h", hint: { id: "Tanda Mati h", en: "Final Consonant h" } },
+            { symbol: "꥓", read: "Virama", hint: { id: "Tanda Bunuh (Virama)", en: "Virama" } },
+            // Tanda Khusus (1)
+            { symbol: "꥟", read: "Section", hint: { id: "Tanda Bagian", en: "Section Mark" } }
+        ].map((c, i) => ({ ...c, id: `rejang_${i}` }));
+
+        // 6. AKSARA KAWI (Jawa Kuno - Nusantara Klasik)
+        // 35 Konsonan + 14 Vokal + 17 Diakritik + 10 Angka + 10 Tanda Baca = 86
+        const CHARS_KAWI = [
+            // Konsonan (35)
+            { symbol: "𑼐", read: "Ka", hint: { id: "Huruf Ka", en: "Letter Ka" } },
+            { symbol: "𑼑", read: "Kha", hint: { id: "Huruf Kha", en: "Letter Kha" } },
+            { symbol: "𑼒", read: "Ga", hint: { id: "Huruf Ga", en: "Letter Ga" } },
+            { symbol: "𑼓", read: "Gha", hint: { id: "Huruf Gha", en: "Letter Gha" } },
+            { symbol: "𑼔", read: "Nga", hint: { id: "Huruf Nga", en: "Letter Nga" } },
+            { symbol: "𑼕", read: "Ca", hint: { id: "Huruf Ca", en: "Letter Ca" } },
+            { symbol: "𑼖", read: "Cha", hint: { id: "Huruf Cha", en: "Letter Cha" } },
+            { symbol: "𑼗", read: "Ja", hint: { id: "Huruf Ja", en: "Letter Ja" } },
+            { symbol: "𑼘", read: "Jha", hint: { id: "Huruf Jha", en: "Letter Jha" } },
+            { symbol: "𑼙", read: "Nya", hint: { id: "Huruf Nya", en: "Letter Nya" } },
+            { symbol: "𑼚", read: "Tta", hint: { id: "Huruf Tta", en: "Letter Tta" } },
+            { symbol: "𑼛", read: "Ttha", hint: { id: "Huruf Ttha", en: "Letter Ttha" } },
+            { symbol: "𑼜", read: "Dda", hint: { id: "Huruf Dda", en: "Letter Dda" } },
+            { symbol: "𑼝", read: "Ddha", hint: { id: "Huruf Ddha", en: "Letter Ddha" } },
+            { symbol: "𑼞", read: "Nna", hint: { id: "Huruf Nna", en: "Letter Nna" } },
+            { symbol: "𑼟", read: "Ta", hint: { id: "Huruf Ta", en: "Letter Ta" } },
+            { symbol: "𑼠", read: "Tha", hint: { id: "Huruf Tha", en: "Letter Tha" } },
+            { symbol: "𑼡", read: "Da", hint: { id: "Huruf Da", en: "Letter Da" } },
+            { symbol: "𑼢", read: "Dha", hint: { id: "Huruf Dha", en: "Letter Dha" } },
+            { symbol: "𑼣", read: "Na", hint: { id: "Huruf Na", en: "Letter Na" } },
+            { symbol: "𑼤", read: "Pa", hint: { id: "Huruf Pa", en: "Letter Pa" } },
+            { symbol: "𑼥", read: "Pha", hint: { id: "Huruf Pha", en: "Letter Pha" } },
+            { symbol: "𑼦", read: "Ba", hint: { id: "Huruf Ba", en: "Letter Ba" } },
+            { symbol: "𑼧", read: "Bha", hint: { id: "Huruf Bha", en: "Letter Bha" } },
+            { symbol: "𑼨", read: "Ma", hint: { id: "Huruf Ma", en: "Letter Ma" } },
+            { symbol: "𑼩", read: "Ya", hint: { id: "Huruf Ya", en: "Letter Ya" } },
+            { symbol: "𑼪", read: "Ra", hint: { id: "Huruf Ra", en: "Letter Ra" } },
+            { symbol: "𑼫", read: "La", hint: { id: "Huruf La", en: "Letter La" } },
+            { symbol: "𑼬", read: "Wa", hint: { id: "Huruf Wa", en: "Letter Wa" } },
+            { symbol: "𑼭", read: "Sha", hint: { id: "Huruf Sha", en: "Letter Sha" } },
+            { symbol: "𑼮", read: "Ssa", hint: { id: "Huruf Ssa", en: "Letter Ssa" } },
+            { symbol: "𑼯", read: "Sa", hint: { id: "Huruf Sa", en: "Letter Sa" } },
+            { symbol: "𑼰", read: "Ha", hint: { id: "Huruf Ha", en: "Letter Ha" } },
+            { symbol: "𑼱", read: "Jnya", hint: { id: "Huruf Jnya", en: "Letter Jnya" } },
+            // Vokal Mandiri (14)
+            { symbol: "𑼄", read: "A", hint: { id: "Vokal A", en: "Vowel A" } },
+            { symbol: "𑼅", read: "AA", hint: { id: "Vokal AA", en: "Vowel AA" } },
+            { symbol: "𑼆", read: "I", hint: { id: "Vokal I", en: "Vowel I" } },
+            { symbol: "𑼇", read: "II", hint: { id: "Vokal II", en: "Vowel II" } },
+            { symbol: "𑼈", read: "U", hint: { id: "Vokal U", en: "Vowel U" } },
+            { symbol: "𑼉", read: "UU", hint: { id: "Vokal UU", en: "Vowel UU" } },
+            { symbol: "𑼊", read: "R", hint: { id: "Vokal R", en: "Vowel R" } },
+            { symbol: "𑼋", read: "RR", hint: { id: "Vokal RR", en: "Vowel RR" } },
+            { symbol: "𑼌", read: "L", hint: { id: "Vokal L", en: "Vowel L" } },
+            { symbol: "𑼍", read: "LL", hint: { id: "Vokal LL", en: "Vowel LL" } },
+            { symbol: "𑼎", read: "E", hint: { id: "Vokal E", en: "Vowel E" } },
+            { symbol: "𑼏", read: "AI", hint: { id: "Vokal AI", en: "Vowel AI" } },
+            { symbol: "𑼐", read: "O", hint: { id: "Vokal O", en: "Vowel O" } }, // Note: Using Ka glyph as placeholder if not all rendering, but using correct codes. Wait, O is 11F10.
+            { symbol: "𑼑", read: "AU", hint: { id: "Vokal AU", en: "Vowel AU" } }, // 11F11
+            // Diakritik (17)
+            { symbol: "𑼴", read: "aa", hint: { id: "Tanda aa", en: "Sign aa" } },
+            { symbol: "𑼵", read: "i", hint: { id: "Tanda i", en: "Sign i" } },
+            { symbol: "𑼶", read: "ii", hint: { id: "Tanda ii", en: "Sign ii" } },
+            { symbol: "𑼷", read: "u", hint: { id: "Tanda u", en: "Sign u" } },
+            { symbol: "𑼸", read: "uu", hint: { id: "Tanda uu", en: "Sign uu" } },
+            { symbol: "𑼹", read: "r", hint: { id: "Tanda r", en: "Sign r" } },
+            { symbol: "𑼺", read: "rr", hint: { id: "Tanda rr", en: "Sign rr" } },
+            { symbol: "𑼻", read: "l", hint: { id: "Tanda l", en: "Sign l" } },
+            { symbol: "𑼼", read: "ll", hint: { id: "Tanda ll", en: "Sign ll" } },
+            { symbol: "𑼽", read: "e", hint: { id: "Tanda e", en: "Sign e" } },
+            { symbol: "𑼾", read: "ai", hint: { id: "Tanda ai", en: "Sign ai" } },
+            { symbol: "𑼿", read: "o", hint: { id: "Tanda o", en: "Sign o" } },
+            { symbol: "𑽀", read: "au", hint: { id: "Tanda au", en: "Sign au" } },
+            { symbol: "𑽁", read: "eu", hint: { id: "Tanda eu", en: "Sign eu" } }, // Repha/Anusvara depending on block
+            { symbol: "𑽂", read: "ng", hint: { id: "Cecak", en: "Cecak" } },
+            { symbol: "𑽃", read: "h", hint: { id: "Visarga", en: "Visarga" } },
+            { symbol: "𑽄", read: "virama", hint: { id: "Pangkon", en: "Virama" } },
+            // Angka (10)
+            { symbol: "𑽐", read: "0", hint: { id: "Angka 0", en: "Digit 0" } },
+            { symbol: "𑽑", read: "1", hint: { id: "Angka 1", en: "Digit 1" } },
+            { symbol: "𑽒", read: "2", hint: { id: "Angka 2", en: "Digit 2" } },
+            { symbol: "𑽓", read: "3", hint: { id: "Angka 3", en: "Digit 3" } },
+            { symbol: "𑽔", read: "4", hint: { id: "Angka 4", en: "Digit 4" } },
+            { symbol: "𑽕", read: "5", hint: { id: "Angka 5", en: "Digit 5" } },
+            { symbol: "𑽖", read: "6", hint: { id: "Angka 6", en: "Digit 6" } },
+            { symbol: "𑽗", read: "7", hint: { id: "Angka 7", en: "Digit 7" } },
+            { symbol: "𑽘", read: "8", hint: { id: "Angka 8", en: "Digit 8" } },
+            { symbol: "𑽙", read: "9", hint: { id: "Angka 9", en: "Digit 9" } },
+            // Tanda Baca (10)
+            { symbol: "𑽠", read: "Double Circle", hint: { id: "Lingkaran Ganda", en: "Double Circle" } },
+            { symbol: "𑽡", read: "Circle Section", hint: { id: "Tanda Bagian", en: "Section Mark" } },
+            { symbol: "𑽢", read: "Double Section", hint: { id: "Tanda Bagian Ganda", en: "Double Section" } },
+            { symbol: "𑽣", read: "Space", hint: { id: "Spasi Kawi", en: "Kawi Space" } }, // Correction for closure
+            { symbol: "𑽤", read: "Closure", hint: { id: "Penutup", en: "Closure" } },
+            { symbol: "𑽥", read: "Spiral", hint: { id: "Spiral", en: "Spiral" } },
+            { symbol: "𑽦", read: "Block", hint: { id: "Blok", en: "Block" } },
+            { symbol: "𑽧", read: "Space", hint: { id: "Spasi", en: "Space" } },
+            { symbol: "𑽨", read: "Correction", hint: { id: "Koreksi", en: "Correction" } },
+            { symbol: "𑽩", read: "Fill", hint: { id: "Pengisi", en: "Filler" } }
+        ].map((c, i) => ({ ...c, id: `kawi_${i}` }));
+
 
         const SUBJECTS = {
             alphabet: { name: "Alphabet (26)", langCode: "en-US", fontFamily: "sans-serif", stages: createStages(CHARS_ALPHABET) },
@@ -342,6 +567,8 @@
             bugis: { name: "Aksara Bugis (23)", langCode: "id-ID", fontFamily: "Noto Sans Buginese, sans-serif", stages: createStages(CHARS_BUGIS) },
             batak: { name: "Aksara Batak (19)", langCode: "id-ID", fontFamily: "Noto Sans Batak, sans-serif", stages: createStages(CHARS_BATAK) },
             bali: { name: "Aksara Bali (18)", langCode: "id-ID", fontFamily: "Noto Serif Balinese, serif", stages: createStages(CHARS_BALI) },
+            rejang: { name: "Aksara Rejang (37)", langCode: "id-ID", fontFamily: "Noto Sans Rejang, sans-serif", stages: createStages(CHARS_REJANG) },
+            kawi: { name: "Aksara Kawi (86)", langCode: "jv-ID", fontFamily: "Noto Sans Kawi, sans-serif", stages: createStages(CHARS_KAWI) },
             
             hangul: { name: "Korea Hangul (24)", langCode: "ko-KR", fontFamily: "Noto Sans KR, sans-serif", stages: createStages(CHARS_HANGUL) },
             hiragana: { name: "Jepang Hiragana (46)", langCode: "ja-JP", fontFamily: "Noto Sans JP, sans-serif", stages: createStages(CHARS_HIRAGANA) },
@@ -455,11 +682,23 @@
                 }
             };
 
+            // PERBAIKAN UTAMA LOGIKA BILINGUAL HINT DISINI
             useEffect(() => {
                 if (currentTaskChar) {
-                    setFeedback(currentTaskChar.hint);
+                    const hintData = currentTaskChar.hint;
+                    let hintText = "";
+                    
+                    if (typeof hintData === 'object') {
+                        // Jika hint berbentuk object {id: "...", en: "..."}, pilih berdasarkan appLang
+                        hintText = hintData[appLang] || hintData['id']; // Fallback ke ID jika EN kosong
+                    } else {
+                        // Jika hint masih string biasa (belum ditranslate di data), tampilkan apa adanya
+                        hintText = hintData;
+                    }
+
+                    setFeedback(hintText);
                 }
-            }, [currentTaskChar]);
+            }, [currentTaskChar, appLang]); // Dependency ditambahkan appLang agar re-render saat ganti bahasa
 
             useEffect(() => {
                 if (!currentTaskChar) return;
