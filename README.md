@@ -1,4 +1,4 @@
-# [Nama Project/Aplikasi]
+# Global Script
 
 > **Open Source Tools for Community & Governance Reform**
 > *Built by Angga Conni Saputra*
