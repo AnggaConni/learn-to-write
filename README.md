@@ -6,7 +6,7 @@
 ---
 
 ## 🇬🇧 About This Project
-This application allows users to [Jelaskan fungsi singkat dalam B.Inggris]. 
+This application allows users to write a Traditional Script. 
 Built with the **"Open Kitchen"** philosophy, this project ensures zero "black-boxes." Everything is transparent, auditable, and ready for community collaboration.
 
 ## 🇮🇩 Tentang Project Ini
