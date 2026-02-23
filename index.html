@@ -16,8 +16,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     
     <!-- Google Fonts (Updated with Rejang & Kawi) -->
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;700&family=Noto+Sans+Arabic:wght@400;700&family=Noto+Sans+Thai:wght@400;700&family=Noto+Sans+Javanese&family=Noto+Sans+JP:wght@400;700&family=Noto+Sans+KR:wght@400;700&family=Noto+Serif+TC:wght@400;700&family=Noto+Sans+Buginese&family=Noto+Sans+Batak&family=Noto+Serif+Balinese&family=Noto+Sans+Sundanese&family=Noto+Sans+Rejang&family=Noto+Sans+Kawi&display=swap" rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;700&family=Noto+Sans+Arabic:wght@400;700&family=Noto+Sans+Thai:wght@400;700&family=Noto+Sans+Javanese&family=Noto+Sans+JP:wght@400;700&family=Noto+Sans+KR:wght@400;700&family=Noto+Serif+TC:wght@400;700&family=Noto+Sans+Buginese&family=Noto+Sans+Batak&family=Noto+Serif+Balinese&family=Noto+Sans+Sundanese&family=Noto+Sans+Rejang&family=Noto+Sans+Kawi&family=Noto+Sans+Makasar&display=swap" rel="stylesheet">
+    
     <style>
         body { font-family: 'Noto Sans', sans-serif; background-color: #E9F7EF; overflow: hidden; }
         
@@ -557,19 +557,80 @@
         ].map((c, i) => ({ ...c, id: `kawi_${i}` }));
 
 
+        // 7. AKSARA PEGON / JAWI (Arab Nusantara)
+        // Berisi huruf dasar Arab + 5 huruf modifikasi khas Nusantara (Ca, Nga, Pa, Ga, Nya)
+        const CHARS_PEGON = [
+            { symbol: "ا", read: "Alif / A", hint: { id: "Tongkat lurus.", en: "Straight stick." } },
+            { symbol: "ب", read: "Ba", hint: { id: "Perahu titik satu di bawah.", en: "Boat, one dot below." } },
+            { symbol: "ت", read: "Ta", hint: { id: "Perahu titik dua di atas.", en: "Boat, two dots above." } },
+            { symbol: "ث", read: "Tsa", hint: { id: "Perahu titik tiga.", en: "Boat, three dots." } },
+            { symbol: "ج", read: "Jim", hint: { id: "Perut buncit titik satu.", en: "Belly, one dot." } },
+            { symbol: "چ", read: "Ca", hint: { id: "Pegon: Jim titik tiga.", en: "Pegon: Jim with three dots." } }, // Khas Nusantara
+            { symbol: "ح", read: "Ha", hint: { id: "Perut buncit kosong.", en: "Empty belly." } },
+            { symbol: "خ", read: "Kha", hint: { id: "Perut buncit titik di atas.", en: "Belly, dot on top." } },
+            { symbol: "د", read: "Dal", hint: { id: "Mulut terbuka.", en: "Open mouth." } },
+            { symbol: "ذ", read: "Dzal", hint: { id: "Dal ada titiknya.", en: "Dal with a dot." } },
+            { symbol: "ر", read: "Ra", hint: "Perosotan." },
+            { symbol: "ز", read: "Zai", hint: "Perosotan titik satu." },
+            { symbol: "س", read: "Sin", hint: "Gigi tiga perut besar." },
+            { symbol: "ش", read: "Syin", hint: "Sin titik tiga." },
+            { symbol: "ص", read: "Shad", hint: "Kepala lonjong." },
+            { symbol: "ض", read: "Dhad", hint: "Shad titik satu." },
+            { symbol: "ط", read: "Tha", hint: "Kepala lonjong bertiang." },
+            { symbol: "ظ", read: "Zha", hint: "Tha titik satu." },
+            { symbol: "ع", read: "'Ain", hint: "C kecil dan C besar." },
+            { symbol: "غ", read: "Ghain", hint: "Ain titik satu." },
+            { symbol: "ڠ", read: "Nga", hint: { id: "Pegon: Ain titik tiga.", en: "Pegon: Ain with three dots." } }, // Khas Nusantara
+            { symbol: "ف", read: "Fa", hint: "Kepala bulat leher pendek." },
+            { symbol: "ڤ", read: "Pa", hint: { id: "Pegon: Fa titik tiga.", en: "Pegon: Fa with three dots." } }, // Khas Nusantara
+            { symbol: "ق", read: "Qof", hint: "Kepala bulat perut dalam." },
+            { symbol: "ك", read: "Kaf", hint: "S kecil di atas kursi." },
+            { symbol: "گ", read: "Ga", hint: { id: "Pegon: Kaf dengan garis/titik.", en: "Pegon: Kaf with line/dots." } }, // Khas Nusantara
+            { symbol: "ل", read: "Lam", hint: "Kail pancing." },
+            { symbol: "م", read: "Mim", hint: "Kepala bulat ekor bawah." },
+            { symbol: "ن", read: "Nun", hint: "Mangkuk titik satu." },
+            { symbol: "ڽ", read: "Nya", hint: { id: "Pegon: Nun titik tiga.", en: "Pegon: Nun with three dots." } }, // Khas Nusantara
+            { symbol: "و", read: "Waw", hint: "Kepala bulat meluncur." },
+            { symbol: "ه", read: "Ha", hint: "Bulatan simpul." },
+            { symbol: "ي", read: "Ya", hint: "Angsa titik dua." }
+        ].map((c, i) => ({ ...c, id: `pegon_${i}` }));
+
+        // 8. AKSARA MAKASAR (Jangang-Jangang - Sulawesi Selatan Klasik)
+        const CHARS_MAKASAR = [
+            { symbol: "𑻠", read: "Ka", hint: { id: "Huruf Ka", en: "Letter Ka" } },
+            { symbol: "𑻡", read: "Ga", hint: { id: "Huruf Ga", en: "Letter Ga" } },
+            { symbol: "𑻢", read: "Nga", hint: { id: "Huruf Nga", en: "Letter Nga" } },
+            { symbol: "𑻣", read: "Pa", hint: { id: "Huruf Pa", en: "Letter Pa" } },
+            { symbol: "𑻤", read: "Ba", hint: { id: "Huruf Ba", en: "Letter Ba" } },
+            { symbol: "𑻥", read: "Ma", hint: { id: "Huruf Ma", en: "Letter Ma" } },
+            { symbol: "𑻦", read: "Ta", hint: { id: "Huruf Ta", en: "Letter Ta" } },
+            { symbol: "𑻧", read: "Da", hint: { id: "Huruf Da", en: "Letter Da" } },
+            { symbol: "𑻨", read: "Na", hint: { id: "Huruf Na", en: "Letter Na" } },
+            { symbol: "𑻩", read: "Ca", hint: { id: "Huruf Ca", en: "Letter Ca" } },
+            { symbol: "𑻪", read: "Ja", hint: { id: "Huruf Ja", en: "Letter Ja" } },
+            { symbol: "𑻫", read: "Nya", hint: { id: "Huruf Nya", en: "Letter Nya" } },
+            { symbol: "𑻬", read: "Ya", hint: { id: "Huruf Ya", en: "Letter Ya" } },
+            { symbol: "𑻭", read: "Ra", hint: { id: "Huruf Ra", en: "Letter Ra" } },
+            { symbol: "𑻮", read: "La", hint: { id: "Huruf La", en: "Letter La" } },
+            { symbol: "𑻯", read: "Wa", hint: { id: "Huruf Wa", en: "Letter Wa" } },
+            { symbol: "𑻰", read: "Sa", hint: { id: "Huruf Sa", en: "Letter Sa" } },
+            { symbol: "𑻱", read: "A", hint: { id: "Huruf A", en: "Letter A" } }
+        ].map((c, i) => ({ ...c, id: `makasar_${i}` }));
+
+
         const SUBJECTS = {
             alphabet: { name: "Alphabet (26)", langCode: "en-US", fontFamily: "sans-serif", stages: createStages(CHARS_ALPHABET) },
             arabic: { name: "Arab (28)", langCode: "ar-SA", fontFamily: "Noto Sans Arabic, serif", stages: createStages(CHARS_ARABIC) },
+            pegon: { name: "Aksara Pegon/Jawi (33)", langCode: "id-ID", fontFamily: "Noto Sans Arabic, serif", stages: createStages(CHARS_PEGON) },
+            makasar: { name: "Aksara Makasar Kuno (18)", langCode: "id-ID", fontFamily: "Noto Sans Makasar, sans-serif", stages: createStages(CHARS_MAKASAR) },
             javanese: { name: "Aksara Jawa (20)", langCode: "jv-ID", fontFamily: "Noto Sans Javanese, serif", stages: createStages(CHARS_JAVANESE) },
-            
             sunda: { name: "Aksara Sunda (32)", langCode: "id-ID", fontFamily: "Noto Sans Sundanese, sans-serif", stages: createStages(CHARS_SUNDA) },
-
             bugis: { name: "Aksara Bugis (23)", langCode: "id-ID", fontFamily: "Noto Sans Buginese, sans-serif", stages: createStages(CHARS_BUGIS) },
             batak: { name: "Aksara Batak (19)", langCode: "id-ID", fontFamily: "Noto Sans Batak, sans-serif", stages: createStages(CHARS_BATAK) },
             bali: { name: "Aksara Bali (18)", langCode: "id-ID", fontFamily: "Noto Serif Balinese, serif", stages: createStages(CHARS_BALI) },
             rejang: { name: "Aksara Rejang (37)", langCode: "id-ID", fontFamily: "Noto Sans Rejang, sans-serif", stages: createStages(CHARS_REJANG) },
             kawi: { name: "Aksara Kawi (86)", langCode: "jv-ID", fontFamily: "Noto Sans Kawi, sans-serif", stages: createStages(CHARS_KAWI) },
-            
+            // AKSARA ASING
             hangul: { name: "Korea Hangul (24)", langCode: "ko-KR", fontFamily: "Noto Sans KR, sans-serif", stages: createStages(CHARS_HANGUL) },
             hiragana: { name: "Jepang Hiragana (46)", langCode: "ja-JP", fontFamily: "Noto Sans JP, sans-serif", stages: createStages(CHARS_HIRAGANA) },
             katakana: { name: "Jepang Katakana (46)", langCode: "ja-JP", fontFamily: "Noto Sans JP, sans-serif", stages: createStages(CHARS_KATAKANA) },
@@ -774,21 +835,40 @@
             };
 
             const drawUserPath = (ctx, points) => {
-                if(points.length < 2) {
-                    if(points.length === 1) {
-                        ctx.beginPath();
-                        ctx.arc(points[0].x, points[0].y, ctx.lineWidth/2, 0, Math.PI*2);
-                        ctx.fill();
-                    }
-                    return;
-                }
-                ctx.beginPath();
-                ctx.moveTo(points[0].x, points[0].y);
-                for(let i = 1; i < points.length; i++) {
-                    ctx.lineTo(points[i].x, points[i].y);
-                }
-                ctx.stroke();
-            };
+            // 1. Tangani jika titik kosong atau terlalu pendek
+            if (points.length === 0) return;
+            if (points.length < 3) {
+            ctx.beginPath();
+            // Buat titik bulat jika pengguna cuma tap/klik sekali
+            ctx.arc(points[0].x, points[0].y, ctx.lineWidth / 2, 0, Math.PI * 2);
+            ctx.fillStyle = ctx.strokeStyle; // Samakan warna fill dengan garis
+            ctx.fill();
+            return;
+        }
+
+            // 2. Mulai jalur dari titik pertama
+            ctx.beginPath();
+            ctx.moveTo(points[0].x, points[0].y);
+
+            // 3. Looping untuk membuat kurva Bézier Kuadratik
+            for (let i = 1; i < points.length - 1; i++) {
+            // Titik saat ini menjadi titik kontrol (magnet pelengkung)
+            const controlX = points[i].x;
+            const controlY = points[i].y;
+        
+            // Cari titik tengah antara titik saat ini dan titik berikutnya sebagai tujuan
+            const endX = (points[i].x + points[i + 1].x) / 2;
+            const endY = (points[i].y + points[i + 1].y) / 2;
+
+            // Tarik kurva melengkung
+            ctx.quadraticCurveTo(controlX, controlY, endX, endY);
+        }
+
+            // 4. Pastikan garis tersambung mulus ke titik paling akhir
+            const lastPoint = points[points.length - 1];
+            ctx.lineTo(lastPoint.x, lastPoint.y);
+            ctx.stroke();
+        };
 
             const getCoords = (e) => {
                 const canvas = canvasRef.current;
