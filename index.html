@@ -10,7 +10,7 @@
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
     
     <!-- Babel untuk JSX -->
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7/babel.min.js"></script>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -1195,24 +1195,22 @@
                                                         className="w-full h-full object-contain p-1"
                                                     />
                                                 ) : (
-                                                    <span className={`text-5xl font-bold ${
-                                                        status === 'pending' ? 'text-slate-200' : 'text-emerald-200'
-                                                        }`}
+                                                    <span 
+                                                        className={`text-5xl font-bold ${status === 'pending' ? 'text-slate-200' : 'text-emerald-200'}`}
                                                         style={{ fontFamily: currentSubjectData.fontFamily || 'sans-serif' }}
                                                     >
                                                         {item.symbol}
                                                     </span>
                                                 )}
                                                 
-                                                <span className={`absolute top-2 left-2 text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                                                    status==='active' ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-400'
-                                                }`}>
+                                                <span className={`absolute top-2 left-2 text-[10px] font-bold px-2 py-0.5 rounded-full ${status === 'active' ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-400'}`}>
                                                     {idx + 1}
                                                 </span>
                                             </div>
                                         );
                                     })}
                                 </div>
+
                             </div>
                             
                             {/* Footer kosong / disembunyikan tombol lamanya */}
