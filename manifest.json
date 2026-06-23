@@ -20,9 +20,9 @@
   ],
   "screenshots": [
     {
-      "src": "thumbnail.png",
-      "sizes": "1911x911",
-      "type": "image/png",
+      "src": "screenshot.jpg",
+      "sizes": "1911x915",
+      "type": "image/jpg",
       "form_factor": "wide",
       "label": "GlobalScript - Learning Dashboard"
     }
