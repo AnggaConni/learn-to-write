@@ -30,7 +30,7 @@
     {
       "src": "screenshot.jpeg",
       "sizes": "1911x915",
-      "type": "image/jpg",
+      "type": "image/jpeg",
       "form_factor": "wide",
       "label": "GlobalScript - Learning Dashboard"
     }
