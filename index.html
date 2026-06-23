@@ -5,7 +5,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>GlobalScript - Belajar Menulis Dunia & Nusantara</title>
     
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="tailwindcss.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        // Daftarkan nama font agar bisa dipanggil lewat class Tailwind
+                        // Contoh penggunaan nanti di HTML: class="font-javanese"
+                        sans: ['Noto Sans', 'sans-serif'],
+                        arabic: ['Noto Sans Arabic', 'serif'],
+                        javanese: ['Noto Sans Javanese', 'serif'],
+                        buginese: ['Noto Sans Buginese', 'sans-serif'],
+                        batak: ['Noto Sans Batak', 'sans-serif'],
+                        bali: ['Noto Serif Balinese', 'serif'],
+                        sunda: ['Noto Sans Sundanese', 'sans-serif'],
+                        rejang: ['Noto Sans Rejang', 'sans-serif'],
+                        kawi: ['Noto Sans Kawi', 'sans-serif'],
+                        makasar: ['Noto Sans Makasar', 'sans-serif'],
+                        thai: ['Noto Sans Thai', 'sans-serif'],
+                        jp: ['Noto Sans JP', 'sans-serif'],
+                        kr: ['Noto Sans KR', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
     
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;700;800&family=Noto+Sans+Arabic:wght@400;700&family=Noto+Sans+Thai:wght@400;700&family=Noto+Sans+Javanese&family=Noto+Sans+JP:wght@400;700&family=Noto+Sans+KR:wght@400;700&family=Noto+Serif+TC:wght@400;700&family=Noto+Sans+Buginese&family=Noto+Sans+Batak&family=Noto+Serif+Balinese&family=Noto+Sans+Sundanese&family=Noto+Sans+Rejang&family=Noto+Sans+Kawi&family=Noto+Sans+Makasar&display=swap" rel="stylesheet">
     
