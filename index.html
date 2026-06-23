@@ -2,112 +2,44 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>GlobalScript - Belajar Menulis Dunia & Nusantara</title>
     
-    <!-- React & ReactDOM -->
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-    
-    <!-- Babel untuk JSX -->
-    <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7/babel.min.js"></script>
-    
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Google Fonts (Updated with Rejang & Kawi) -->
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;700&family=Noto+Sans+Arabic:wght@400;700&family=Noto+Sans+Thai:wght@400;700&family=Noto+Sans+Javanese&family=Noto+Sans+JP:wght@400;700&family=Noto+Sans+KR:wght@400;700&family=Noto+Serif+TC:wght@400;700&family=Noto+Sans+Buginese&family=Noto+Sans+Batak&family=Noto+Serif+Balinese&family=Noto+Sans+Sundanese&family=Noto+Sans+Rejang&family=Noto+Sans+Kawi&family=Noto+Sans+Makasar&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;700;800&family=Noto+Sans+Arabic:wght@400;700&family=Noto+Sans+Thai:wght@400;700&family=Noto+Sans+Javanese&family=Noto+Sans+JP:wght@400;700&family=Noto+Sans+KR:wght@400;700&family=Noto+Serif+TC:wght@400;700&family=Noto+Sans+Buginese&family=Noto+Sans+Batak&family=Noto+Serif+Balinese&family=Noto+Sans+Sundanese&family=Noto+Sans+Rejang&family=Noto+Sans+Kawi&family=Noto+Sans+Makasar&display=swap" rel="stylesheet">
     
     <style>
-        body { font-family: 'Noto Sans', sans-serif; background-color: #E9F7EF; overflow: hidden; }
+        body { font-family: 'Noto Sans', sans-serif; background-color: #E9F7EF; overflow: hidden; -webkit-tap-highlight-color: transparent; }
         
-        /* Custom Scrollbar */
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 20px; }
-        
+
+        /* Animations */
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 60% { transform: scale(1.05); } 100% { transform: scale(1); opacity: 1; } }
+        @keyframes toastIn { from { opacity: 0; transform: translateX(-50%) translateY(-30px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+        @keyframes floatUp { 0% { transform: translateY(0) rotate(0deg); opacity: 1; } 100% { transform: translateY(-200px) rotate(360deg); opacity: 0; } }
+        .animate-slideUp { animation: slideUp 0.4s ease-out; }
+        .animate-popIn { animation: popIn 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28); }
+        .animate-toastIn { animation: toastIn 0.4s ease-out; }
+        .confetti-piece { position: absolute; font-size: 2rem; animation: floatUp 2s ease-out forwards; }
+
         /* Print Styles */
         @media print {
-            @page { 
-                size: landscape; 
-                margin: 5mm; /* Margin diperkecil agar muat pas 2 halaman */
-            }
-
-            html, body, #root { 
-                height: auto !important; 
-                overflow: visible !important; 
-                background: white !important;
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-                display: block !important;
-                position: static !important;
-            }
-
-            header, aside:not(.notebook-section), .tools-panel, .action-buttons, .canvas-tools, .canvas-container, .audio-btn, .mobile-menu-btn, .lang-selector { display: none !important; }
-            
-            .notebook-section { 
-                position: static !important;
-                width: 100% !important; 
-                height: auto !important; 
-                overflow: visible !important;
-                border: none !important;
-                background: white !important;
-                transform: none !important;
-                display: block !important;
-                box-shadow: none !important;
-                margin: 0 !important;
-                padding: 0 !important;
-            }
-            
-            .notebook-title button, 
-            .notebook-title .print-btn-wrapper { display: none !important; }
-
-            .notebook-scroll-container {
-                overflow: visible !important;
-                height: auto !important;
-                display: block !important;
-                background: none !important;
-                flex: none !important;
-            }
-
-            .notebook-grid {
-                display: grid !important;
-                grid-template-columns: repeat(5, 1fr) !important;
-                gap: 10px !important; /* Gap diperkecil */
-                overflow: visible !important;
-                padding-bottom: 0 !important;
-                height: auto !important;
-            }
-            
-            .notebook-item {
-                border: 1px solid #ccc !important;
-                break-inside: avoid;
-                page-break-inside: avoid;
-                background: white !important;
-                /* Pengaturan tinggi agar pas 3 baris per halaman */
-                height: 5.2cm !important; 
-                aspect-ratio: auto !important; /* Override aspect ratio agar tidak terlalu tinggi */
-                width: 100% !important;
-                position: relative !important;
-            }
-
-            /* Logika Pemotong Halaman: Paksa pindah halaman setelah item ke-15 */
-            .notebook-item:nth-child(15) {
-                break-after: page !important;
-                page-break-after: always !important;
-            }
-            
-            .print-header { 
-                display: block !important; 
-                text-align: center; 
-                margin-bottom: 10px; 
-                color: black !important; 
-                border-bottom: 1px solid #eee; 
-                padding-bottom: 5px; 
-            }
+            @page { size: landscape; margin: 5mm; }
+            html, body, #app { height: auto !important; overflow: visible !important; background: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; display: block !important; position: static !important; }
+            header, aside:not(.notebook-section), .tools-panel, .action-buttons, .canvas-tools, .canvas-container, .audio-btn, .mobile-menu-btn, .lang-selector, .progress-bar-wrap, .bottom-toolbar, #settingsModal, #achievementToast { display: none !important; }
+            .notebook-section { position: static !important; width: 100% !important; height: auto !important; overflow: visible !important; border: none !important; background: white !important; transform: none !important; display: block !important; box-shadow: none !important; margin: 0 !important; padding: 0 !important; }
+            .notebook-title button, .notebook-title .print-btn-wrapper { display: none !important; }
+            .notebook-scroll-container { overflow: visible !important; height: auto !important; display: block !important; background: none !important; flex: none !important; }
+            .notebook-grid { display: grid !important; grid-template-columns: repeat(5, 1fr) !important; gap: 10px !important; overflow: visible !important; padding-bottom: 0 !important; height: auto !important; }
+            .notebook-item { border: 1px solid #ccc !important; break-inside: avoid; page-break-inside: avoid; background: white !important; height: 5.2cm !important; aspect-ratio: auto !important; width: 100% !important; position: relative !important; }
+            .notebook-item:nth-child(15) { break-after: page !important; page-break-after: always !important; }
+            .print-header { display: block !important; text-align: center; margin-bottom: 10px; color: black !important; border-bottom: 1px solid #eee; padding-bottom: 5px; }
             .print-header h1 { margin: 0; font-size: 20px; font-weight: bold; }
             .print-header p { margin: 2px 0 0; font-size: 12px; color: #666; }
-            
             .overflow-y-auto { overflow: visible !important; background: none !important; }
             .bg-slate-50\/30 { background: none !important; }
         }
@@ -115,92 +47,314 @@
     </style>
 </head>
 <body>
-    <div id="root"></div>
+    <div id="app" class="h-screen flex flex-col overflow-hidden text-slate-800">
+        <!-- HEADER -->
+        <header class="bg-white border-b border-emerald-100 px-3 sm:px-4 py-3 flex justify-between items-center z-20 shadow-sm h-16 shrink-0 relative">
+            <div class="flex items-center gap-2 sm:gap-3">
+                <button id="btnToggleLeftSidebar" class="p-2 hover:bg-emerald-50 rounded-lg lg:hidden text-emerald-700 mobile-menu-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
+                </button>
+                <div class="w-10 h-10 bg-emerald-400 rounded-xl flex items-center justify-center text-white shadow-md shadow-emerald-200 shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                </div>
+                <div class="hidden xs:block sm:block">
+                    <h1 class="font-bold text-base sm:text-lg leading-none tracking-tight text-emerald-900" id="ui-appTitle">GlobalScript</h1>
+                    <p class="text-[10px] text-emerald-600 font-medium tracking-wider flex flex-col sm:flex-row sm:gap-1">
+                        <span id="ui-appSubtitle">METODE IQRO DIGITAL</span>
+                        <span class="font-bold text-emerald-500 hidden sm:inline" id="ui-creatorName">by Angga Conni Saputra</span>
+                    </p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 sm:gap-3">
+                <!-- Stats -->
+                <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-1 bg-amber-50 px-2.5 py-1.5 rounded-xl border border-amber-100" title="Bintang">
+                        <span class="text-base">⭐</span>
+                        <span id="statStars" class="font-bold text-amber-600 text-sm">0</span>
+                    </div>
+                    <div class="hidden xs:flex sm:flex items-center gap-1 bg-orange-50 px-2.5 py-1.5 rounded-xl border border-orange-100" title="Streak harian">
+                        <span class="text-base">🔥</span>
+                        <span id="statStreak" class="font-bold text-orange-600 text-sm">0</span>
+                    </div>
+                </div>
+                <div class="hidden md:flex bg-emerald-100 p-1 rounded-lg items-center shadow-inner lang-selector">
+                    <button id="btnLangId" class="px-3 py-1 rounded-md text-xs font-bold transition-all bg-emerald-600 text-white shadow-sm">ID</button>
+                    <button id="btnLangEn" class="px-3 py-1 rounded-md text-xs font-bold transition-all text-emerald-700 hover:bg-emerald-200">EN</button>
+                </div>
+                <button id="btnToggleRightSidebar" class="relative p-2 hover:bg-emerald-50 rounded-lg text-emerald-700 lg:hidden notebook-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                    <span class="absolute top-1 right-1 w-2.5 h-2.5 bg-emerald-400 rounded-full border border-white"></span>
+                </button>
+            </div>
+        </header>
 
-    <script type="text/babel">
-        const { useState, useEffect, useRef } = React;
+        <!-- BODY -->
+        <div class="flex flex-1 overflow-hidden relative">
+            
+            <!-- LEFT SIDEBAR -->
+            <aside id="leftSidebar" class="absolute lg:relative z-30 h-full w-72 bg-white border-r border-emerald-100 flex flex-col transition-transform duration-300 shadow-2xl lg:shadow-none -translate-x-full lg:translate-x-0">
+                <div class="p-4 border-b border-emerald-50 flex justify-between items-center lg:hidden">
+                    <span class="font-bold text-emerald-800" id="ui-menuTitle">Pengaturan Belajar</span>
+                    <button id="btnCloseLeftSidebar"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-500"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+                </div>
+                <div class="p-4 border-b border-emerald-50 md:hidden">
+                    <h3 class="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-2" id="ui-selectLang">Bahasa</h3>
+                    <div class="flex bg-emerald-100 p-1 rounded-lg lang-selector">
+                        <button id="btnLangIdMobile" class="flex-1 py-2 rounded-md text-sm font-bold transition-all bg-emerald-600 text-white shadow-sm">ID</button>
+                        <button id="btnLangEnMobile" class="flex-1 py-2 rounded-md text-sm font-bold transition-all text-emerald-700">EN</button>
+                    </div>
+                </div>
+                <div class="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar">
+                    <div>
+                        <h3 class="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-2" id="ui-subjectLabel">Mata Pelajaran</h3>
+                        <div class="relative">
+                            <select id="selectSubject" class="w-full appearance-none bg-white border-2 border-emerald-100 text-slate-700 py-3 pl-4 pr-10 rounded-xl focus:outline-none focus:border-emerald-400 focus:ring-4 focus:ring-emerald-50 font-medium cursor-pointer"></select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-emerald-500">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-2" id="ui-stageLabel">Pilih Tingkat (Jilid)</h3>
+                        <div class="relative">
+                            <select id="selectStage" class="w-full appearance-none bg-white border-2 border-slate-200 text-slate-700 py-3 pl-4 pr-10 rounded-xl focus:outline-none focus:border-emerald-400 focus:ring-4 focus:ring-emerald-50 font-medium cursor-pointer"></select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-500">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                            </div>
+                        </div>
+                        <p class="text-[10px] text-slate-400 mt-2 px-1" id="ui-stageDesc">* Pilih jilid di atas untuk mengganti materi.</p>
+                    </div>
 
-        /* =========================================
-           0. ICONS
-           ========================================= */
-        const IconBase = ({ children, size = 24, className = "" }) => (
-            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-                {children}
-            </svg>
-        );
-        const Globe = (props) => (<IconBase {...props}><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></IconBase>);
-        const Menu = (props) => (<IconBase {...props}><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="18" x2="20" y2="18"/></IconBase>);
-        const X = (props) => (<IconBase {...props}><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></IconBase>);
-        const Book = (props) => (<IconBase {...props}><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></IconBase>);
-        const CheckCircle = (props) => (<IconBase {...props}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></IconBase>);
-        const ChevronDown = (props) => (<IconBase {...props}><polyline points="6 9 12 15 18 9"/></IconBase>);
-        const ChevronRight = (props) => (<IconBase {...props}><polyline points="9 18 15 12 9 6"/></IconBase>);
-        const RotateCcw = (props) => (<IconBase {...props}><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></IconBase>);
-        const Eraser = (props) => (<IconBase {...props}><path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"/><path d="M22 21H7"/><path d="m5 11 9 9"/></IconBase>);
-        const Printer = (props) => (<IconBase {...props}><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></IconBase>);
-        const Volume2 = (props) => (<IconBase {...props}><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></IconBase>);
+                    <!-- DISPLAY SETTINGS -->
+                    <div>
+                        <h3 class="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-3" id="ui-displayLabel">Tampilan</h3>
+                        <div class="space-y-2">
+                            <label class="flex items-center justify-between p-3 bg-slate-50 rounded-xl cursor-pointer hover:bg-emerald-50 transition-colors">
+                                <span class="text-sm font-medium text-slate-700" id="ui-toggleGuide">Huruf Panduan</span>
+                                <input type="checkbox" id="toggleGuide" checked class="w-5 h-5 accent-emerald-500 cursor-pointer">
+                            </label>
+                            <label class="flex items-center justify-between p-3 bg-slate-50 rounded-xl cursor-pointer hover:bg-emerald-50 transition-colors">
+                                <span class="text-sm font-medium text-slate-700" id="ui-toggleGrid">Garis Bantu</span>
+                                <input type="checkbox" id="toggleGrid" checked class="w-5 h-5 accent-emerald-500 cursor-pointer">
+                            </label>
+                            <label class="flex items-center justify-between p-3 bg-slate-50 rounded-xl cursor-pointer hover:bg-emerald-50 transition-colors">
+                                <span class="text-sm font-medium text-slate-700" id="ui-toggleAudio">Suara Otomatis</span>
+                                <input type="checkbox" id="toggleAutoAudio" class="w-5 h-5 accent-emerald-500 cursor-pointer">
+                            </label>
+                        </div>
+                    </div>
 
-        /* =========================================
-           1. LOCALIZATION
-           ========================================= */
+                    <!-- STATS PANEL -->
+                    <div>
+                        <h3 class="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-3" id="ui-statsLabel">Statistik</h3>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div class="bg-gradient-to-br from-emerald-50 to-emerald-100 p-3 rounded-xl text-center">
+                                <div class="text-2xl font-extrabold text-emerald-600" id="statTotalDone">0</div>
+                                <div class="text-[10px] text-emerald-500 font-medium" id="ui-statTotal">Huruf Ditulis</div>
+                            </div>
+                            <div class="bg-gradient-to-br from-amber-50 to-amber-100 p-3 rounded-xl text-center">
+                                <div class="text-2xl font-extrabold text-amber-600" id="statTotalStars">0</div>
+                                <div class="text-[10px] text-amber-500 font-medium" id="ui-statStars">Total Bintang</div>
+                            </div>
+                        </div>
+                        <button id="btnResetProgress" class="w-full mt-3 py-2 text-xs font-medium text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                            🗑️ <span id="ui-resetProgress">Reset Progres</span>
+                        </button>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- MAIN CANVAS -->
+            <main class="flex-1 flex flex-col items-center justify-start p-3 sm:p-6 relative overflow-y-auto bg-[#F0FDF4]">
+                <div id="confetti" class="hidden absolute inset-0 z-50 pointer-events-none overflow-hidden"></div>
+                
+                <div id="loading" class="hidden p-10 flex justify-center text-emerald-600">Memuat...</div>
+
+                <div id="workspace" class="flex flex-col items-center w-full max-w-md">
+                    <!-- Progress Bar -->
+                    <div class="w-full mb-3 progress-bar-wrap">
+                        <div class="flex justify-between items-center mb-1.5 px-1">
+                            <span id="labelStageChar" class="inline-block bg-white px-3 py-1 rounded-full text-emerald-700 text-[11px] uppercase tracking-wide font-bold border border-emerald-200 shadow-sm">
+                                Jilid 1 &bull; A
+                            </span>
+                            <span id="labelProgressText" class="text-xs font-bold text-emerald-600">0 / 30</span>
+                        </div>
+                        <div class="w-full h-2.5 bg-emerald-100 rounded-full overflow-hidden">
+                            <div id="progressBar" class="h-full bg-gradient-to-r from-emerald-400 to-emerald-500 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <div class="relative group touch-none canvas-container select-none">
+                        <div class="bg-white p-2 rounded-[2rem] shadow-2xl shadow-emerald-100 border-4 border-white ring-2 ring-emerald-100 mb-4 transition-transform duration-300">
+                            <canvas id="drawingCanvas" width="320" height="320" class="bg-white rounded-[1.8rem] cursor-crosshair touch-none w-[300px] h-[300px] sm:w-[360px] sm:h-[360px]"></canvas>
+                            
+                            <div class="absolute top-4 left-6 pointer-events-none">
+                                <span id="labelCharRead" class="bg-white/90 backdrop-blur px-3 py-1 rounded-lg text-lg font-bold text-slate-700 shadow-sm border border-slate-100">A</span>
+                            </div>
+
+                            <div class="absolute top-4 right-4 pointer-events-auto audio-btn">
+                                <button id="btnAudio" class="p-2 bg-emerald-100 hover:bg-emerald-200 text-emerald-700 rounded-full shadow-sm transition-colors active:scale-90">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- DRAWING TOOLS BAR -->
+                    <div class="flex items-center justify-center gap-2 mb-4 bg-white px-3 py-2 rounded-2xl shadow-md shadow-emerald-50 border border-emerald-50 tools-panel">
+                        <!-- Colors -->
+                        <div class="flex items-center gap-1.5">
+                            <button data-color="#1e293b" class="penColor w-7 h-7 rounded-full bg-slate-800 ring-2 ring-offset-2 ring-emerald-400 transition-all active:scale-90"></button>
+                            <button data-color="#059669" class="penColor w-7 h-7 rounded-full bg-emerald-600 ring-0 ring-offset-2 ring-emerald-400 transition-all active:scale-90"></button>
+                            <button data-color="#2563eb" class="penColor w-7 h-7 rounded-full bg-blue-600 ring-0 ring-offset-2 ring-emerald-400 transition-all active:scale-90"></button>
+                            <button data-color="#dc2626" class="penColor w-7 h-7 rounded-full bg-red-600 ring-0 ring-offset-2 ring-emerald-400 transition-all active:scale-90"></button>
+                            <button data-color="#9333ea" class="penColor w-7 h-7 rounded-full bg-purple-600 ring-0 ring-offset-2 ring-emerald-400 transition-all active:scale-90"></button>
+                        </div>
+                        <div class="w-px h-7 bg-slate-200 mx-1"></div>
+                        <!-- Thickness -->
+                        <div class="flex items-center gap-1">
+                            <button data-width="10" class="penWidth w-8 h-8 rounded-lg flex items-center justify-center hover:bg-emerald-50 transition-colors"><span class="w-2 h-2 bg-slate-700 rounded-full"></span></button>
+                            <button data-width="16" class="penWidth w-8 h-8 rounded-lg flex items-center justify-center bg-emerald-100 transition-colors"><span class="w-3.5 h-3.5 bg-slate-700 rounded-full"></span></button>
+                            <button data-width="24" class="penWidth w-8 h-8 rounded-lg flex items-center justify-center hover:bg-emerald-50 transition-colors"><span class="w-5 h-5 bg-slate-700 rounded-full"></span></button>
+                        </div>
+                        <div class="w-px h-7 bg-slate-200 mx-1"></div>
+                        <!-- Undo -->
+                        <button id="btnUndo" class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-500 hover:bg-amber-50 hover:text-amber-600 transition-colors active:scale-90" title="Urungkan">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
+                        </button>
+                    </div>
+
+                    <div class="flex flex-row gap-3 w-full action-buttons">
+                        <button id="btnClear" class="flex-1 py-3.5 rounded-2xl font-bold border-2 border-emerald-200 text-emerald-700 hover:bg-emerald-50 transition-colors flex items-center justify-center gap-2 active:scale-95">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg> 
+                            <span id="ui-btnRepeat">Ulang</span>
+                        </button>
+                        <button id="btnNext" class="flex-[2] py-3.5 rounded-2xl text-lg font-bold shadow-lg shadow-emerald-200 transition-all active:scale-95 flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white">
+                            <span id="ui-btnNextText">Lanjut</span>
+                            <svg id="iconNext" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                            <svg id="iconFinish" class="hidden" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                        </button>
+                    </div>
+
+                    <p id="labelFeedback" class="mt-5 text-emerald-700/60 text-sm font-medium text-center leading-relaxed min-h-[1.5rem]"></p>
+                </div>
+            </main>
+
+            <!-- RIGHT SIDEBAR (NOTEBOOK) -->
+            <aside id="rightSidebar" class="notebook-section absolute lg:relative z-40 top-0 right-0 h-full w-80 bg-white border-l border-emerald-100 flex flex-col transition-transform duration-300 shadow-2xl lg:shadow-none translate-x-0">
+                <div class="print-header">
+                    <h1 id="printReportTitle" class="text-2xl font-bold">Laporan Belajar</h1>
+                    <p id="printReportSubtitle" class="text-slate-500"></p>
+                    <p id="printReportCreator" class="text-emerald-600 font-bold">by Angga Conni Saputra</p>
+                </div>
+
+                <div class="p-4 bg-emerald-50 border-b border-emerald-100 shadow-sm z-10 flex justify-between items-center notebook-title">
+                    <div>
+                        <h2 class="font-bold text-emerald-900 flex items-center gap-2 text-sm uppercase tracking-wide">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-500"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                            <span id="ui-notebookTitle">Buku Latihan</span>
+                        </h2>
+                        <p id="labelNotebookPage" class="text-xs text-emerald-600 mt-0.5">0 / 30 hal</p>
+                    </div>
+                    <div class="flex items-center gap-2 print-btn-wrapper">
+                        <button onclick="window.print()" class="p-2 bg-white text-emerald-600 border border-emerald-200 rounded-lg hover:bg-emerald-100 transition-colors" title="Cetak PDF">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                        </button>
+                        <button id="btnCloseRightSidebar" class="lg:hidden text-emerald-500 p-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex-1 overflow-y-auto p-4 custom-scrollbar bg-slate-50/30 min-h-0 notebook-scroll-container">
+                    <div id="notebookGrid" class="grid grid-cols-2 gap-3 pb-4 notebook-grid"></div>
+                </div>
+            </aside>
+        </div>
+
+        <!-- ACHIEVEMENT TOAST -->
+        <div id="achievementToast" class="hidden fixed top-20 left-1/2 -translate-x-1/2 z-[60] bg-white rounded-2xl shadow-2xl border-2 border-amber-200 px-5 py-3 flex items-center gap-3 max-w-[90vw]">
+            <span id="toastIcon" class="text-3xl">🏆</span>
+            <div>
+                <p class="font-bold text-amber-600 text-sm" id="toastTitle">Pencapaian Baru!</p>
+                <p class="text-xs text-slate-500" id="toastDesc"></p>
+            </div>
+        </div>
+
+        <!-- COMPLETION MODAL -->
+        <div id="completionModal" class="hidden fixed inset-0 z-[70] bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
+            <div class="bg-white rounded-3xl shadow-2xl max-w-sm w-full p-6 text-center animate-popIn">
+                <div class="text-6xl mb-2">🎉</div>
+                <h2 class="text-2xl font-extrabold text-emerald-700" id="ui-completeTitle">Hebat!</h2>
+                <p class="text-slate-500 text-sm mt-1 mb-4" id="completeSubtitle">Kamu menyelesaikan latihan!</p>
+                <div class="grid grid-cols-2 gap-3 mb-5">
+                    <div class="bg-emerald-50 rounded-2xl p-3">
+                        <div class="text-3xl font-extrabold text-emerald-600" id="completeStars">+30</div>
+                        <div class="text-[11px] text-emerald-500 font-bold">⭐ <span id="ui-completeStars">Bintang</span></div>
+                    </div>
+                    <div class="bg-orange-50 rounded-2xl p-3">
+                        <div class="text-3xl font-extrabold text-orange-500" id="completeStreak">1</div>
+                        <div class="text-[11px] text-orange-400 font-bold">🔥 <span id="ui-completeStreak">Streak</span></div>
+                    </div>
+                </div>
+                <div class="flex gap-2">
+                    <button id="btnRetryStage" class="flex-1 py-3 rounded-2xl font-bold border-2 border-emerald-200 text-emerald-700 hover:bg-emerald-50 transition-colors active:scale-95">
+                        <span id="ui-completeRetry">Ulangi</span>
+                    </button>
+                    <button id="btnNextStage" class="flex-[1.5] py-3 rounded-2xl font-bold bg-emerald-500 hover:bg-emerald-600 text-white shadow-lg shadow-emerald-200 transition-all active:scale-95">
+                        <span id="ui-completeNext">Jilid Berikutnya</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // 1. LOKALISASI
+        // ==========================================
         const UI_STRINGS = {
             id: {
-                appTitle: "GlobalScript",
-                appSubtitle: "METODE IQRO DIGITAL",
-                creatorName: "by Angga Conni Saputra",
-                menuTitle: "Pengaturan Belajar",
-                subjectLabel: "Mata Pelajaran",
-                stageLabel: "Pilih Tingkat (Jilid)",
-                canvasInstruction: "Tebalkan huruf bercahaya",
-                clear: "Hapus",
-                repeat: "Ulang",
-                next: "Lanjut",
-                finish: "Selesai!",
-                notebookTitle: "Buku Latihan",
-                notebookPage: "hal",
-                printBtn: "Cetak PDF",
-                reportTitle: "Laporan Belajar",
-                tips: "Tips:",
-                loading: "Memuat...",
-                selectLang: "Bahasa",
-                levelPrefix: "Jilid"
+                appTitle: "GlobalScript", appSubtitle: "METODE IQRO DIGITAL", creatorName: "by Angga Conni Saputra",
+                menuTitle: "Pengaturan Belajar", subjectLabel: "Mata Pelajaran", stageLabel: "Pilih Tingkat (Jilid)", stageDesc: "* Pilih jilid di atas untuk mengganti materi.",
+                canvasInstruction: "Tebalkan huruf bercahaya", clear: "Hapus", repeat: "Ulang", next: "Lanjut", finish: "Selesai!",
+                notebookTitle: "Buku Latihan", notebookPage: "hal", printBtn: "Cetak PDF", reportTitle: "Laporan Belajar",
+                tips: "Tips:", loading: "Memuat...", selectLang: "Bahasa", levelPrefix: "Jilid",
+                displayLabel: "Tampilan", toggleGuide: "Huruf Panduan", toggleGrid: "Garis Bantu", toggleAudio: "Suara Otomatis",
+                statsLabel: "Statistik", statTotal: "Huruf Ditulis", statStars: "Total Bintang", resetProgress: "Reset Progres",
+                completeTitle: "Hebat!", completeSub: "Kamu menyelesaikan latihan!", completeStars: "Bintang", completeStreak: "Streak",
+                completeRetry: "Ulangi", completeNext: "Jilid Berikutnya",
+                ach_first: "Langkah Pertama!", ach_first_d: "Selesaikan latihan pertamamu",
+                ach_stage: "Naik Tingkat!", ach_stage_d: "Selesaikan satu jilid penuh",
+                ach_streak: "Konsisten!", ach_streak_d: "Streak 3 hari berturut-turut",
+                ach_stars: "Kolektor Bintang!", ach_stars_d: "Kumpulkan 100 bintang",
+                ach_master: "Maestro Aksara!", ach_master_d: "Tulis 500 huruf",
+                resetConfirm: "Yakin ingin menghapus semua progres?"
             },
             en: {
-                appTitle: "GlobalScript",
-                appSubtitle: "DIGITAL IQRO METHOD",
-                creatorName: "by Angga Conni Saputra",
-                menuTitle: "Learning Settings",
-                subjectLabel: "Subject",
-                stageLabel: "Select Level (Stage)",
-                canvasInstruction: "Trace the glowing letter",
-                clear: "Clear",
-                repeat: "Retry",
-                next: "Next",
-                finish: "Done!",
-                notebookTitle: "Workbook",
-                notebookPage: "pg",
-                printBtn: "Print PDF",
-                reportTitle: "Learning Report",
-                tips: "Hint:",
-                loading: "Loading...",
-                selectLang: "Language",
-                levelPrefix: "Level"
+                appTitle: "GlobalScript", appSubtitle: "DIGITAL IQRO METHOD", creatorName: "by Angga Conni Saputra",
+                menuTitle: "Learning Settings", subjectLabel: "Subject", stageLabel: "Select Level (Stage)", stageDesc: "* Select a level above to change content.",
+                canvasInstruction: "Trace the glowing letter", clear: "Clear", repeat: "Retry", next: "Next", finish: "Done!",
+                notebookTitle: "Workbook", notebookPage: "pg", printBtn: "Print PDF", reportTitle: "Learning Report",
+                tips: "Hint:", loading: "Loading...", selectLang: "Language", levelPrefix: "Level",
+                displayLabel: "Display", toggleGuide: "Guide Letter", toggleGrid: "Helper Grid", toggleAudio: "Auto Sound",
+                statsLabel: "Statistics", statTotal: "Letters Written", statStars: "Total Stars", resetProgress: "Reset Progress",
+                completeTitle: "Great!", completeSub: "You completed the exercise!", completeStars: "Stars", completeStreak: "Streak",
+                completeRetry: "Retry", completeNext: "Next Level",
+                ach_first: "First Step!", ach_first_d: "Complete your first exercise",
+                ach_stage: "Level Up!", ach_stage_d: "Complete a full level",
+                ach_streak: "Consistent!", ach_streak_d: "3 day streak in a row",
+                ach_stars: "Star Collector!", ach_stars_d: "Collect 100 stars",
+                ach_master: "Script Master!", ach_master_d: "Write 500 letters",
+                resetConfirm: "Are you sure you want to clear all progress?"
             }
         };
 
-        /* =========================================
-           2. DATA HURUF (LIBRARY)
-           ========================================= */
-        const createStages = (chars) => {
-            return chars.map((char, index) => ({
-                id: index + 1,
-                title: `${char.symbol} - ${char.read}`,
-                newChars: [char]
-            }));
-        };
+        const createStages = (chars) => chars.map((char, index) => ({ id: index + 1, title: `${char.symbol} - ${char.read}`, newChars: [char] }));
 
-        // --- DATA ---
-        
+        // ==========================================
+        // 2. DATA HURUF
+        // ==========================================
         const CHARS_ALPHABET = [
             { id: 'A', symbol: "A", read: "A", hint: { id: "Gunung dengan sabuk.", en: "Mountain with a belt." } },
             { id: 'B', symbol: "B", read: "B", hint: { id: "Tiang lurus dua perut.", en: "Straight pole, two bellies." } },
@@ -288,7 +442,6 @@
             { id: 'i', symbol: "ㅣ", read: "I", hint: { id: "Garis tegak.", en: "Vertical line." } }
         ];
 
-        // Untuk yang lain, jika belum ditranslate, sistem akan fallback ke string yang ada (Indo)
         const CHARS_HIRAGANA = [
             { symbol: "あ", read: "A", hint: "Ikan." }, { symbol: "い", read: "I", hint: "Dua garis." }, { symbol: "う", read: "U", hint: "Bungkuk." }, { symbol: "え", read: "E", hint: "Burung." }, { symbol: "お", read: "O", hint: "A + titik." }, { symbol: "か", read: "Ka", hint: "Kekuatan." }, { symbol: "き", read: "Ki", hint: "Kunci." }, { symbol: "く", read: "Ku", hint: "Mulut." }, { symbol: "け", read: "Ke", hint: "Pedang." }, { symbol: "こ", read: "Ko", hint: "Cacing." }, { symbol: "さ", read: "Sa", hint: "Senyum." }, { symbol: "し", read: "Shi", hint: "Kail." }, { symbol: "す", read: "Su", hint: "Simpul." }, { symbol: "せ", read: "Se", hint: "Pangkuan." }, { symbol: "そ", read: "So", hint: "Zigzag." }, { symbol: "た", read: "Ta", hint: "Ta + Ko." }, { symbol: "ち", read: "Chi", hint: "Lima." }, { symbol: "つ", read: "Tsu", hint: "Ombak." }, { symbol: "て", read: "Te", hint: "Tangan." }, { symbol: "と", read: "To", hint: "Duri." }, { symbol: "な", read: "Na", hint: "Salib." }, { symbol: "に", read: "Ni", hint: "Garis + Ko." }, { symbol: "ぬ", read: "Nu", hint: "Mie." }, { symbol: "ね", read: "Ne", hint: "Kucing." }, { symbol: "の", read: "No", hint: "Larangan." }, { symbol: "は", read: "Ha", hint: "Ha + Simpul." }, { symbol: "ひ", read: "Hi", hint: "Senyum V." }, { symbol: "ふ", read: "Fu", hint: "Gunung Fuji." }, { symbol: "へ", read: "He", hint: "Gunung." }, { symbol: "ほ", read: "Ho", hint: "Ha + Topi." }, { symbol: "ま", read: "Ma", hint: "Dua garis simpul." }, { symbol: "み", read: "Mi", hint: "21." }, { symbol: "む", read: "Mu", hint: "Sapi (Moo)." }, { symbol: "め", read: "Me", hint: "Mie (Nu) tanpa ekor." }, { symbol: "も", read: "Mo", hint: "Kail dua umpan." }, { symbol: "や", read: "Ya", hint: "Yakitori." }, { symbol: "ゆ", read: "Yu", hint: "Ikan melintas." }, { symbol: "よ", read: "Yo", hint: "Yo-yo." }, { symbol: "ら", read: "Ra", hint: "Angka 5." }, { symbol: "り", read: "Ri", hint: "Dua garis." }, { symbol: "る", read: "Ru", hint: "Tiga simpul." }, { symbol: "れ", read: "Re", hint: "Z melengkung." }, { symbol: "ろ", read: "Ro", hint: "Tiga (Ru) tanpa simpul." }, { symbol: "わ", read: "Wa", hint: "Re gemuk." }, { symbol: "を", read: "Wo", hint: "Huruf C dan h." }, { symbol: "ん", read: "N", hint: "Huruf h miring." }
         ].map((c, i) => ({ ...c, id: `hira_${i}` }));
@@ -305,319 +458,37 @@
             { symbol: "ก", read: "Ko Kai", hint: "Ayam." }, { symbol: "ข", read: "Kho Khai", hint: "Telur." }, { symbol: "ฃ", read: "Kho Khuad", hint: "Botol." }, { symbol: "ค", read: "Kho Khwai", hint: "Kerbau." }, { symbol: "ฅ", read: "Kho Khon", hint: "Orang." }, { symbol: "ฆ", read: "Kho Rakhang", hint: "Lonceng." }, { symbol: "ง", read: "Ngo Ngu", hint: "Ular." }, { symbol: "จ", read: "Cho Chan", hint: "Piring." }, { symbol: "ฉ", read: "Cho Ching", hint: "Simbal." }, { symbol: "ช", read: "Cho Chang", hint: "Gajah." }, { symbol: "ซ", read: "So So", hint: "Rantai." }, { symbol: "ฌ", read: "Cho Choe", hint: "Pohon." }, { symbol: "ญ", read: "Yo Ying", hint: "Wanita." }, { symbol: "ฎ", read: "Do Chada", hint: "Mahkota." }, { symbol: "ฏ", read: "To Patak", hint: "Tombak." }, { symbol: "ฐ", read: "Tho Than", hint: "Peralatan." }, { symbol: "ฑ", read: "Tho Montho", hint: "Raksasa." }, { symbol: "ฒ", read: "Tho Phuthao", hint: "Orang Tua." }, { symbol: "ณ", read: "No Nen", hint: "Biksuni." }, { symbol: "ด", read: "Do Dek", hint: "Anak." }, { symbol: "ต", read: "To Tao", hint: "Kura-kura." }, { symbol: "ถ", read: "Tho Thung", hint: "Tas." }, { symbol: "ท", read: "Tho Thahan", hint: "Tentara." }, { symbol: "ธ", read: "Tho Thong", hint: "Bendera." }, { symbol: "น", read: "No Nu", hint: "Tikus." }, { symbol: "บ", read: "Bo Baimai", hint: "Daun." }, { symbol: "ป", read: "Po Pla", hint: "Ikan." }, { symbol: "ผ", read: "Pho Phueng", hint: "Lebah." }, { symbol: "ฝ", read: "Fo Fa", hint: "Tutup." }, { symbol: "พ", read: "Pho Phan", hint: "Nampan." }, { symbol: "ฟ", read: "Fo Fan", hint: "Gigi." }, { symbol: "ภ", read: "Pho Samphao", hint: "Perahu Layar." }, { symbol: "ม", read: "Mo Ma", hint: "Kuda." }, { symbol: "ย", read: "Yo Yak", hint: "Raksasa." }, { symbol: "ร", read: "Ro Ruea", hint: "Perahu." }, { symbol: "ล", read: "Lo Ling", hint: "Monyet." }, { symbol: "ว", read: "Wo Waen", hint: "Cincin." }, { symbol: "ศ", read: "So Sala", hint: "Paviliun." }, { symbol: "ษ", read: "So Ruesi", hint: "Pertapa." }, { symbol: "ส", read: "So Suea", hint: "Harimau." }, { symbol: "ห", read: "Ho Hip", hint: "Kotak." }, { symbol: "ฬ", read: "Lo Chula", hint: "Layang-layang." }, { symbol: "อ", read: "O Ang", hint: "Baskom." }, { symbol: "ฮ", read: "Ho Nokhuk", hint: "Burung Hantu." }
         ].map((c, i) => ({ ...c, id: `thai_${i}` }));
 
-        // 1. AKSARA BUGIS (LONTARA)
         const CHARS_BUGIS = [
-            { symbol: "ᨀ", read: "Ka", hint: "Seperti huruf k terbalik." },
-            { symbol: "ᨁ", read: "Ga", hint: "Seperti jembatan lengkung." },
-            { symbol: "ᨂ", read: "Nga", hint: "Seperti huruf v kecil." },
-            { symbol: "ᨃ", read: "Ngka", hint: "Kombinasi Nga dan Ka." },
-            { symbol: "ᨄ", read: "Pa", hint: "Seperti huruf v terbalik." },
-            { symbol: "ᨅ", read: "Ba", hint: "Lengkungan ganda ke atas." },
-            { symbol: "ᨆ", read: "Ma", hint: "Seperti cangkir." },
-            { symbol: "ᨇ", read: "Mpa", hint: "Kombinasi Ma dan Pa." },
-            { symbol: "ᨈ", read: "Ta", hint: "Garis bergelombang naik." },
-            { symbol: "ᨉ", read: "Da", hint: "Garis bergelombang turun." },
-            { symbol: "ᨊ", read: "Na", hint: "Bentuk zig-zag horisontal." },
-            { symbol: "ᨋ", read: "Nra", hint: "Kombinasi Na dan Ra." },
-            { symbol: "ᨌ", read: "Ca", hint: "Lengkungan menghadap kiri." },
-            { symbol: "ᨍ", read: "Ja", hint: "Lengkungan menghadap kanan." },
-            { symbol: "ᨎ", read: "Nya", hint: "Bentuk titik tiga." },
-            { symbol: "ᨏ", read: "Nca", hint: "Kombinasi Nya dan Ca." },
-            { symbol: "ᨐ", read: "Ya", hint: "Tiga titik vertikal." },
-            { symbol: "ᨑ", read: "Ra", hint: "Lengkungan sederhana." },
-            { symbol: "ᨒ", read: "La", hint: "Seperti ombak." },
-            { symbol: "ᨓ", read: "Wa", hint: "Ombak ganda." },
-            { symbol: "ᨔ", read: "Sa", hint: "Seperti huruf s miring." },
-            { symbol: "ᨕ", read: "A", hint: "Bentuk dasar lontara." },
-            { symbol: "ᨖ", read: "Ha", hint: "Bentuk simpul." }
+            { symbol: "ᨀ", read: "Ka", hint: "Seperti huruf k terbalik." }, { symbol: "ᨁ", read: "Ga", hint: "Seperti jembatan lengkung." }, { symbol: "ᨂ", read: "Nga", hint: "Seperti huruf v kecil." }, { symbol: "ᨃ", read: "Ngka", hint: "Kombinasi Nga dan Ka." }, { symbol: "ᨄ", read: "Pa", hint: "Seperti huruf v terbalik." }, { symbol: "ᨅ", read: "Ba", hint: "Lengkungan ganda ke atas." }, { symbol: "ᨆ", read: "Ma", hint: "Seperti cangkir." }, { symbol: "ᨇ", read: "Mpa", hint: "Kombinasi Ma dan Pa." }, { symbol: "ᨈ", read: "Ta", hint: "Garis bergelombang naik." }, { symbol: "ᨉ", read: "Da", hint: "Garis bergelombang turun." }, { symbol: "ᨊ", read: "Na", hint: "Bentuk zig-zag horisontal." }, { symbol: "ᨋ", read: "Nra", hint: "Kombinasi Na dan Ra." }, { symbol: "ᨌ", read: "Ca", hint: "Lengkungan menghadap kiri." }, { symbol: "ᨍ", read: "Ja", hint: "Lengkungan menghadap kanan." }, { symbol: "ᨎ", read: "Nya", hint: "Bentuk titik tiga." }, { symbol: "ᨏ", read: "Nca", hint: "Kombinasi Nya dan Ca." }, { symbol: "ᨐ", read: "Ya", hint: "Tiga titik vertikal." }, { symbol: "ᨑ", read: "Ra", hint: "Lengkungan sederhana." }, { symbol: "ᨒ", read: "La", hint: "Seperti ombak." }, { symbol: "ᨓ", read: "Wa", hint: "Ombak ganda." }, { symbol: "ᨔ", read: "Sa", hint: "Seperti huruf s miring." }, { symbol: "ᨕ", read: "A", hint: "Bentuk dasar lontara." }, { symbol: "ᨖ", read: "Ha", hint: "Bentuk simpul." }
         ].map((c, i) => ({ ...c, id: `bugis_${i}` }));
 
-        // 2. AKSARA BATAK
         const CHARS_BATAK = [
-            { symbol: "ᯀ", read: "A", hint: "Garis lengkung mendatar." },
-            { symbol: "ᯂ", read: "Ha", hint: "Garis tegak berbelok." },
-            { symbol: "ᯔ", read: "Ma", hint: "Silang dengan ekor." },
-            { symbol: "ᯉ", read: "Na", hint: "Garis mendatar dengan kaki." },
-            { symbol: "ᯒ", read: "Ra", hint: "Lengkungan tajam." },
-            { symbol: "ᯖ", read: "Ta", hint: "Dua garis silang." },
-            { symbol: "ᯘ", read: "Sa", hint: "Bentuk segitiga terbuka." },
-            { symbol: "ᯇ", read: "Pa", hint: "Garis dengan dua kaki." },
-            { symbol: "ᯞ", read: "La", hint: "Kail pancing." },
-            { symbol: "ᯎ", read: "Ga", hint: "Garis mendatar sederhana." },
-            { symbol: "ᯐ", read: "Ja", hint: "Bentuk seperti wajik." },
-            { symbol: "ᯑ", read: "Da", hint: "Kotak terbuka." },
-            { symbol: "ᯝ", read: "Nga", hint: "Garis lengkung berekor." },
-            { symbol: "ᯅ", read: "Ba", hint: "Seperti huruf E." },
-            { symbol: "ᯋ", read: "Wa", hint: "Lengkungan ganda." },
-            { symbol: "ᯛ", read: "Ya", hint: "Garis vertikal berekor." },
-            { symbol: "Њ", read: "Nya", hint: "Bentuk kompleks." },
-            { symbol: "ᯤ", read: "I", hint: "Garis tegak lurus." },
-            { symbol: "ᯥ", read: "U", hint: "Garis miring." }
+            { symbol: "ᯀ", read: "A", hint: "Garis lengkung mendatar." }, { symbol: "ᯂ", read: "Ha", hint: "Garis tegak berbelok." }, { symbol: "ᯔ", read: "Ma", hint: "Silang dengan ekor." }, { symbol: "ᯉ", read: "Na", hint: "Garis mendatar dengan kaki." }, { symbol: "ᯒ", read: "Ra", hint: "Lengkungan tajam." }, { symbol: "ᯖ", read: "Ta", hint: "Dua garis silang." }, { symbol: "ᯘ", read: "Sa", hint: "Bentuk segitiga terbuka." }, { symbol: "ᯇ", read: "Pa", hint: "Garis dengan dua kaki." }, { symbol: "ᯞ", read: "La", hint: "Kail pancing." }, { symbol: "ᯎ", read: "Ga", hint: "Garis mendatar sederhana." }, { symbol: "ᯐ", read: "Ja", hint: "Bentuk seperti wajik." }, { symbol: "ᯑ", read: "Da", hint: "Kotak terbuka." }, { symbol: "ᯝ", read: "Nga", hint: "Garis lengkung berekor." }, { symbol: "ᯅ", read: "Ba", hint: "Seperti huruf E." }, { symbol: "ᯋ", read: "Wa", hint: "Lengkungan ganda." }, { symbol: "ᯛ", read: "Ya", hint: "Garis vertikal berekor." }, { symbol: "Њ", read: "Nya", hint: "Bentuk kompleks." }, { symbol: "ᯤ", read: "I", hint: "Garis tegak lurus." }, { symbol: "ᯥ", read: "U", hint: "Garis miring." }
         ].map((c, i) => ({ ...c, id: `batak_${i}` }));
 
-        // 3. AKSARA BALI
         const CHARS_BALI = [
-            { symbol: "ᬳ", read: "Ha", hint: "Bentuk dasar bergelombang." },
-            { symbol: "ᬦ", read: "Na", hint: "Lengkungan ganda ke bawah." },
-            { symbol: "ᬘ", read: "Ca", hint: "Seperti angka 3 terbalik." },
-            { symbol: "ᬭ", read: "Ra", hint: "Lengkungan tajam." },
-            { symbol: "ᬓ", read: "Ka", hint: "Lengkungan dengan kaki." },
-            { symbol: "ᬤ", read: "Da", hint: "Bentuk membulat." },
-            { symbol: "ᬢ", read: "Ta", hint: "Lengkungan vertikal." },
-            { symbol: "ᬲ", read: "Sa", hint: "Bentuk kompleks simetris." },
-            { symbol: "ᬯ", read: "Wa", hint: "Lingkaran tak penuh." },
-            { symbol: "ᬮ", read: "La", hint: "Lengkungan tinggi." },
-            { symbol: "ᬗ", read: "Ma", hint: "Bentuk dasar kotak." },
-            { symbol: "ᬕ", read: "Ga", hint: "Seperti huruf M." },
-            { symbol: "ᬩ", read: "Ba", hint: "Lengkungan ganda." },
-            { symbol: "ᬗ", read: "Nga", hint: "Bentuk seperti naga." },
-            { symbol: "ᬧ", read: "Pa", hint: "Lengkungan sederhana." },
-            { symbol: "ᬚ", read: "Ja", hint: "Bentuk kompleks berekor." },
-            { symbol: "ᬬ", read: "Ya", hint: "Tiga lengkungan." },
-            { symbol: "ᬜ", read: "Nya", hint: "Bentuk rumit." }
+            { symbol: "ᬳ", read: "Ha", hint: "Bentuk dasar bergelombang." }, { symbol: "ᬦ", read: "Na", hint: "Lengkungan ganda ke bawah." }, { symbol: "ᬘ", read: "Ca", hint: "Seperti angka 3 terbalik." }, { symbol: "ᬭ", read: "Ra", hint: "Lengkungan tajam." }, { symbol: "ᬓ", read: "Ka", hint: "Lengkungan dengan kaki." }, { symbol: "ᬤ", read: "Da", hint: "Bentuk membulat." }, { symbol: "ᬢ", read: "Ta", hint: "Lengkungan vertikal." }, { symbol: "ᬲ", read: "Sa", hint: "Bentuk kompleks simetris." }, { symbol: "ᬯ", read: "Wa", hint: "Lingkaran tak penuh." }, { symbol: "ᬮ", read: "La", hint: "Lengkungan tinggi." }, { symbol: "ᬫ", read: "Ma", hint: "Bentuk dasar kotak." }, { symbol: "ᬕ", read: "Ga", hint: "Seperti huruf M." }, { symbol: "ᬩ", read: "Ba", hint: "Lengkungan ganda." }, { symbol: "ᬗ", read: "Nga", hint: "Bentuk seperti naga." }, { symbol: "ᬧ", read: "Pa", hint: "Lengkungan sederhana." }, { symbol: "ᬚ", read: "Ja", hint: "Bentuk kompleks berekor." }, { symbol: "ᬬ", read: "Ya", hint: "Tiga lengkungan." }, { symbol: "ᬜ", read: "Nya", hint: "Bentuk rumit." }
         ].map((c, i) => ({ ...c, id: `bali_${i}` }));
 
-        // 4. AKSARA SUNDA (Jawa Barat - 32 Aksara Dasar)
-        // 7 Swara (Vokal) + 18 Ngalagena (Konsonan) + 7 Konsonan Serapan
         const CHARS_SUNDA = [
-            // Swara
-            { symbol: "ᮃ", read: "A", hint: "Swara A" },
-            { symbol: "ᮄ", read: "I", hint: "Swara I" },
-            { symbol: "ᮅ", read: "U", hint: "Swara U" },
-            { symbol: "ᮆ", read: "É", hint: "Swara É (Taling)" },
-            { symbol: "ᮇ", read: "O", hint: "Swara O" },
-            { symbol: "ᮈ", read: "E", hint: "Swara E (Pepet)" },
-            { symbol: "ᮉ", read: "EU", hint: "Swara EU" },
-            // Ngalagena
-            { symbol: "ᮊ", read: "Ka", hint: "Konsonan Ka" },
-            { symbol: "ᮌ", read: "Ga", hint: "Konsonan Ga" },
-            { symbol: "ᮍ", read: "Nga", hint: "Konsonan Nga" },
-            { symbol: "ᮎ", read: "Ca", hint: "Konsonan Ca" },
-            { symbol: "ᮐ", read: "Ja", hint: "Konsonan Ja" },
-            { symbol: "ᮑ", read: "Nya", hint: "Konsonan Nya" },
-            { symbol: "ᮒ", read: "Ta", hint: "Konsonan Ta" },
-            { symbol: "ᮔ", read: "Da", hint: "Konsonan Da" },
-            { symbol: "ᮕ", read: "Na", hint: "Konsonan Na" },
-            { symbol: "ᮖ", read: "Pa", hint: "Konsonan Pa" },
-            { symbol: "ᮗ", read: "Ba", hint: "Konsonan Ba" },
-            { symbol: "ᮘ", read: "Ma", hint: "Konsonan Ma" },
-            { symbol: "ᮙ", read: "Ya", hint: "Konsonan Ya" },
-            { symbol: "ᮚ", read: "Ra", hint: "Konsonan Ra" },
-            { symbol: "ᮛ", read: "La", hint: "Konsonan La" },
-            { symbol: "ᮜ", read: "Wa", hint: "Konsonan Wa" },
-            { symbol: "ᮝ", read: "Sa", hint: "Konsonan Sa" },
-            { symbol: "ᮞ", read: "Ha", hint: "Konsonan Ha" },
-            // Serapan
-            { symbol: "ᮟ", read: "Fa", hint: "Konsonan Serapan Fa" },
-            { symbol: "ᮠ", read: "Qa", hint: "Konsonan Serapan Qa" },
-            { symbol: "ᮡ", read: "Va", hint: "Konsonan Serapan Va" },
-            { symbol: "ᮢ", read: "Xa", hint: "Konsonan Serapan Xa" },
-            { symbol: "ᮣ", read: "Za", hint: "Konsonan Serapan Za" },
-            { symbol: "ᮤ", read: "Kha", hint: "Konsonan Serapan Kha" },
-            { symbol: "ᮥ", read: "Sya", hint: "Konsonan Serapan Sya" }
+            { symbol: "ᮃ", read: "A", hint: "Swara A" }, { symbol: "ᮄ", read: "I", hint: "Swara I" }, { symbol: "ᮅ", read: "U", hint: "Swara U" }, { symbol: "ᮆ", read: "É", hint: "Swara É (Taling)" }, { symbol: "ᮇ", read: "O", hint: "Swara O" }, { symbol: "ᮈ", read: "E", hint: "Swara E (Pepet)" }, { symbol: "ᮉ", read: "EU", hint: "Swara EU" }, { symbol: "ᮊ", read: "Ka", hint: "Konsonan Ka" }, { symbol: "ᮌ", read: "Ga", hint: "Konsonan Ga" }, { symbol: "ᮍ", read: "Nga", hint: "Konsonan Nga" }, { symbol: "ᮎ", read: "Ca", hint: "Konsonan Ca" }, { symbol: "ᮐ", read: "Ja", hint: "Konsonan Ja" }, { symbol: "ᮑ", read: "Nya", hint: "Konsonan Nya" }, { symbol: "ᮒ", read: "Ta", hint: "Konsonan Ta" }, { symbol: "ᮔ", read: "Da", hint: "Konsonan Da" }, { symbol: "ᮕ", read: "Na", hint: "Konsonan Na" }, { symbol: "ᮖ", read: "Pa", hint: "Konsonan Pa" }, { symbol: "ᮗ", read: "Ba", hint: "Konsonan Ba" }, { symbol: "ᮙ", read: "Ma", hint: "Konsonan Ma" }, { symbol: "ᮚ", read: "Ya", hint: "Konsonan Ya" }, { symbol: "ᮛ", read: "Ra", hint: "Konsonan Ra" }, { symbol: "ᮜ", read: "La", hint: "Konsonan La" }, { symbol: "ᮝ", read: "Wa", hint: "Konsonan Wa" }, { symbol: "ᮞ", read: "Sa", hint: "Konsonan Sa" }, { symbol: "ᮠ", read: "Ha", hint: "Konsonan Ha" }, { symbol: "ᮖ", read: "Fa", hint: "Konsonan Serapan Fa" }, { symbol: "ᮋ", read: "Qa", hint: "Konsonan Serapan Qa" }, { symbol: "ᮗ", read: "Va", hint: "Konsonan Serapan Va" }, { symbol: "ᮟ", read: "Xa", hint: "Konsonan Serapan Xa" }, { symbol: "ᮏ", read: "Za", hint: "Konsonan Serapan Za" }, { symbol: "ᮊ", read: "Kha", hint: "Konsonan Serapan Kha" }, { symbol: "ᮞ", read: "Sya", hint: "Konsonan Serapan Sya" }
         ].map((c, i) => ({ ...c, id: `sunda_${i}` }));
 
-        // 5. AKSARA REJANG (KaGaNga - Bengkulu/Sumatera)
-        // 23 Huruf Utama + 13 Tanda Baca + 1 Tanda Khusus
         const CHARS_REJANG = [
-            // Konsonan Utama (23)
-            { symbol: "ꤰ", read: "Ka", hint: { id: "Huruf Ka", en: "Letter Ka" } },
-            { symbol: "ꤱ", read: "Ga", hint: { id: "Huruf Ga", en: "Letter Ga" } },
-            { symbol: "ꤲ", read: "Nga", hint: { id: "Huruf Nga", en: "Letter Nga" } },
-            { symbol: "ꤳ", read: "Ta", hint: { id: "Huruf Ta", en: "Letter Ta" } },
-            { symbol: "ꤴ", read: "Da", hint: { id: "Huruf Da", en: "Letter Da" } },
-            { symbol: "ꤵ", read: "Na", hint: { id: "Huruf Na", en: "Letter Na" } },
-            { symbol: "ꤶ", read: "Pa", hint: { id: "Huruf Pa", en: "Letter Pa" } },
-            { symbol: "ꤷ", read: "Ba", hint: { id: "Huruf Ba", en: "Letter Ba" } },
-            { symbol: "ꤸ", read: "Ma", hint: { id: "Huruf Ma", en: "Letter Ma" } },
-            { symbol: "ꤹ", read: "Ca", hint: { id: "Huruf Ca", en: "Letter Ca" } },
-            { symbol: "ꤺ", read: "Ja", hint: { id: "Huruf Ja", en: "Letter Ja" } },
-            { symbol: "ꤻ", read: "Nya", hint: { id: "Huruf Nya", en: "Letter Nya" } },
-            { symbol: "ꤼ", read: "Sa", hint: { id: "Huruf Sa", en: "Letter Sa" } },
-            { symbol: "ꤽ", read: "Ra", hint: { id: "Huruf Ra", en: "Letter Ra" } },
-            { symbol: "ꤾ", read: "La", hint: { id: "Huruf La", en: "Letter La" } },
-            { symbol: "ꤿ", read: "Wa", hint: { id: "Huruf Wa", en: "Letter Wa" } },
-            { symbol: "ꥀ", read: "Ya", hint: { id: "Huruf Ya", en: "Letter Ya" } },
-            { symbol: "ꥁ", read: "Ha", hint: { id: "Huruf Ha", en: "Letter Ha" } },
-            { symbol: "ꥂ", read: "Mba", hint: { id: "Huruf Mba", en: "Letter Mba" } },
-            { symbol: "ꥃ", read: "Ngg", hint: { id: "Huruf Ngg", en: "Letter Ngg" } },
-            { symbol: "ꥄ", read: "Nda", hint: { id: "Huruf Nda", en: "Letter Nda" } },
-            { symbol: "ꥅ", read: "Nyja", hint: { id: "Huruf Nyja", en: "Letter Nyja" } },
-            { symbol: "ꥆ", read: "A", hint: { id: "Huruf A", en: "Letter A" } },
-            // Tanda Baca/Diakritik (13)
-            { symbol: "ꥇ", read: "i", hint: { id: "Tanda Vokal i", en: "Vowel Sign i" } },
-            { symbol: "ꥈ", read: "u", hint: { id: "Tanda Vokal u", en: "Vowel Sign u" } },
-            { symbol: "ꥉ", read: "e", hint: { id: "Tanda Vokal e", en: "Vowel Sign e" } },
-            { symbol: "ꥊ", read: "ai", hint: { id: "Tanda Diftong ai", en: "Diphthong Sign ai" } },
-            { symbol: "ꥋ", read: "o", hint: { id: "Tanda Vokal o", en: "Vowel Sign o" } },
-            { symbol: "ꥌ", read: "au", hint: { id: "Tanda Diftong au", en: "Diphthong Sign au" } },
-            { symbol: "ꥍ", read: "eu", hint: { id: "Tanda Vokal eu", en: "Vowel Sign eu" } },
-            { symbol: "ꥎ", read: "ea", hint: { id: "Tanda Vokal ea", en: "Vowel Sign ea" } },
-            { symbol: "ꥏ", read: "ng", hint: { id: "Tanda Mati ng (Cecak)", en: "Final Consonant ng" } },
-            { symbol: "ꥐ", read: "n", hint: { id: "Tanda Mati n", en: "Final Consonant n" } },
-            { symbol: "ꥑ", read: "r", hint: { id: "Tanda Mati r", en: "Final Consonant r" } },
-            { symbol: "ꥒ", read: "h", hint: { id: "Tanda Mati h", en: "Final Consonant h" } },
-            { symbol: "꥓", read: "Virama", hint: { id: "Tanda Bunuh (Virama)", en: "Virama" } },
-            // Tanda Khusus (1)
-            { symbol: "꥟", read: "Section", hint: { id: "Tanda Bagian", en: "Section Mark" } }
+            { symbol: "ꤰ", read: "Ka", hint: { id: "Huruf Ka", en: "Letter Ka" } }, { symbol: "ꤱ", read: "Ga", hint: { id: "Huruf Ga", en: "Letter Ga" } }, { symbol: "ꤲ", read: "Nga", hint: { id: "Huruf Nga", en: "Letter Nga" } }, { symbol: "ꤳ", read: "Ta", hint: { id: "Huruf Ta", en: "Letter Ta" } }, { symbol: "ꤴ", read: "Da", hint: { id: "Huruf Da", en: "Letter Da" } }, { symbol: "ꤵ", read: "Na", hint: { id: "Huruf Na", en: "Letter Na" } }, { symbol: "ꤶ", read: "Pa", hint: { id: "Huruf Pa", en: "Letter Pa" } }, { symbol: "ꤷ", read: "Ba", hint: { id: "Huruf Ba", en: "Letter Ba" } }, { symbol: "ꤸ", read: "Ma", hint: { id: "Huruf Ma", en: "Letter Ma" } }, { symbol: "ꤹ", read: "Ca", hint: { id: "Huruf Ca", en: "Letter Ca" } }, { symbol: "ꤺ", read: "Ja", hint: { id: "Huruf Ja", en: "Letter Ja" } }, { symbol: "ꤻ", read: "Nya", hint: { id: "Huruf Nya", en: "Letter Nya" } }, { symbol: "ꤼ", read: "Sa", hint: { id: "Huruf Sa", en: "Letter Sa" } }, { symbol: "ꤽ", read: "Ra", hint: { id: "Huruf Ra", en: "Letter Ra" } }, { symbol: "ꤾ", read: "La", hint: { id: "Huruf La", en: "Letter La" } }, { symbol: "ꤿ", read: "Wa", hint: { id: "Huruf Wa", en: "Letter Wa" } }, { symbol: "ꥀ", read: "Ya", hint: { id: "Huruf Ya", en: "Letter Ya" } }, { symbol: "ꥁ", read: "Ha", hint: { id: "Huruf Ha", en: "Letter Ha" } }, { symbol: "ꥂ", read: "Mba", hint: { id: "Huruf Mba", en: "Letter Mba" } }, { symbol: "ꥃ", read: "Ngg", hint: { id: "Huruf Ngg", en: "Letter Ngg" } }, { symbol: "ꥄ", read: "Nda", hint: { id: "Huruf Nda", en: "Letter Nda" } }, { symbol: "ꥅ", read: "Nyja", hint: { id: "Huruf Nyja", en: "Letter Nyja" } }, { symbol: "ꥆ", read: "A", hint: { id: "Huruf A", en: "Letter A" } }
         ].map((c, i) => ({ ...c, id: `rejang_${i}` }));
 
-        // 6. AKSARA KAWI (Jawa Kuno - Nusantara Klasik)
-        // 35 Konsonan + 14 Vokal + 17 Diakritik + 10 Angka + 10 Tanda Baca = 86
         const CHARS_KAWI = [
-            // Konsonan (35)
-            { symbol: "𑼐", read: "Ka", hint: { id: "Huruf Ka", en: "Letter Ka" } },
-            { symbol: "𑼑", read: "Kha", hint: { id: "Huruf Kha", en: "Letter Kha" } },
-            { symbol: "𑼒", read: "Ga", hint: { id: "Huruf Ga", en: "Letter Ga" } },
-            { symbol: "𑼓", read: "Gha", hint: { id: "Huruf Gha", en: "Letter Gha" } },
-            { symbol: "𑼔", read: "Nga", hint: { id: "Huruf Nga", en: "Letter Nga" } },
-            { symbol: "𑼕", read: "Ca", hint: { id: "Huruf Ca", en: "Letter Ca" } },
-            { symbol: "𑼖", read: "Cha", hint: { id: "Huruf Cha", en: "Letter Cha" } },
-            { symbol: "𑼗", read: "Ja", hint: { id: "Huruf Ja", en: "Letter Ja" } },
-            { symbol: "𑼘", read: "Jha", hint: { id: "Huruf Jha", en: "Letter Jha" } },
-            { symbol: "𑼙", read: "Nya", hint: { id: "Huruf Nya", en: "Letter Nya" } },
-            { symbol: "𑼚", read: "Tta", hint: { id: "Huruf Tta", en: "Letter Tta" } },
-            { symbol: "𑼛", read: "Ttha", hint: { id: "Huruf Ttha", en: "Letter Ttha" } },
-            { symbol: "𑼜", read: "Dda", hint: { id: "Huruf Dda", en: "Letter Dda" } },
-            { symbol: "𑼝", read: "Ddha", hint: { id: "Huruf Ddha", en: "Letter Ddha" } },
-            { symbol: "𑼞", read: "Nna", hint: { id: "Huruf Nna", en: "Letter Nna" } },
-            { symbol: "𑼟", read: "Ta", hint: { id: "Huruf Ta", en: "Letter Ta" } },
-            { symbol: "𑼠", read: "Tha", hint: { id: "Huruf Tha", en: "Letter Tha" } },
-            { symbol: "𑼡", read: "Da", hint: { id: "Huruf Da", en: "Letter Da" } },
-            { symbol: "𑼢", read: "Dha", hint: { id: "Huruf Dha", en: "Letter Dha" } },
-            { symbol: "𑼣", read: "Na", hint: { id: "Huruf Na", en: "Letter Na" } },
-            { symbol: "𑼤", read: "Pa", hint: { id: "Huruf Pa", en: "Letter Pa" } },
-            { symbol: "𑼥", read: "Pha", hint: { id: "Huruf Pha", en: "Letter Pha" } },
-            { symbol: "𑼦", read: "Ba", hint: { id: "Huruf Ba", en: "Letter Ba" } },
-            { symbol: "𑼧", read: "Bha", hint: { id: "Huruf Bha", en: "Letter Bha" } },
-            { symbol: "𑼨", read: "Ma", hint: { id: "Huruf Ma", en: "Letter Ma" } },
-            { symbol: "𑼩", read: "Ya", hint: { id: "Huruf Ya", en: "Letter Ya" } },
-            { symbol: "𑼪", read: "Ra", hint: { id: "Huruf Ra", en: "Letter Ra" } },
-            { symbol: "𑼫", read: "La", hint: { id: "Huruf La", en: "Letter La" } },
-            { symbol: "𑼬", read: "Wa", hint: { id: "Huruf Wa", en: "Letter Wa" } },
-            { symbol: "𑼭", read: "Sha", hint: { id: "Huruf Sha", en: "Letter Sha" } },
-            { symbol: "𑼮", read: "Ssa", hint: { id: "Huruf Ssa", en: "Letter Ssa" } },
-            { symbol: "𑼯", read: "Sa", hint: { id: "Huruf Sa", en: "Letter Sa" } },
-            { symbol: "𑼰", read: "Ha", hint: { id: "Huruf Ha", en: "Letter Ha" } },
-            { symbol: "𑼱", read: "Jnya", hint: { id: "Huruf Jnya", en: "Letter Jnya" } },
-            // Vokal Mandiri (14)
-            { symbol: "𑼄", read: "A", hint: { id: "Vokal A", en: "Vowel A" } },
-            { symbol: "𑼅", read: "AA", hint: { id: "Vokal AA", en: "Vowel AA" } },
-            { symbol: "𑼆", read: "I", hint: { id: "Vokal I", en: "Vowel I" } },
-            { symbol: "𑼇", read: "II", hint: { id: "Vokal II", en: "Vowel II" } },
-            { symbol: "𑼈", read: "U", hint: { id: "Vokal U", en: "Vowel U" } },
-            { symbol: "𑼉", read: "UU", hint: { id: "Vokal UU", en: "Vowel UU" } },
-            { symbol: "𑼊", read: "R", hint: { id: "Vokal R", en: "Vowel R" } },
-            { symbol: "𑼋", read: "RR", hint: { id: "Vokal RR", en: "Vowel RR" } },
-            { symbol: "𑼌", read: "L", hint: { id: "Vokal L", en: "Vowel L" } },
-            { symbol: "𑼍", read: "LL", hint: { id: "Vokal LL", en: "Vowel LL" } },
-            { symbol: "𑼎", read: "E", hint: { id: "Vokal E", en: "Vowel E" } },
-            { symbol: "𑼏", read: "AI", hint: { id: "Vokal AI", en: "Vowel AI" } },
-            { symbol: "𑼐", read: "O", hint: { id: "Vokal O", en: "Vowel O" } }, // Note: Using Ka glyph as placeholder if not all rendering, but using correct codes. Wait, O is 11F10.
-            { symbol: "𑼑", read: "AU", hint: { id: "Vokal AU", en: "Vowel AU" } }, // 11F11
-            // Diakritik (17)
-            { symbol: "𑼴", read: "aa", hint: { id: "Tanda aa", en: "Sign aa" } },
-            { symbol: "𑼵", read: "i", hint: { id: "Tanda i", en: "Sign i" } },
-            { symbol: "𑼶", read: "ii", hint: { id: "Tanda ii", en: "Sign ii" } },
-            { symbol: "𑼷", read: "u", hint: { id: "Tanda u", en: "Sign u" } },
-            { symbol: "𑼸", read: "uu", hint: { id: "Tanda uu", en: "Sign uu" } },
-            { symbol: "𑼹", read: "r", hint: { id: "Tanda r", en: "Sign r" } },
-            { symbol: "𑼺", read: "rr", hint: { id: "Tanda rr", en: "Sign rr" } },
-            { symbol: "𑼻", read: "l", hint: { id: "Tanda l", en: "Sign l" } },
-            { symbol: "𑼼", read: "ll", hint: { id: "Tanda ll", en: "Sign ll" } },
-            { symbol: "𑼽", read: "e", hint: { id: "Tanda e", en: "Sign e" } },
-            { symbol: "𑼾", read: "ai", hint: { id: "Tanda ai", en: "Sign ai" } },
-            { symbol: "𑼿", read: "o", hint: { id: "Tanda o", en: "Sign o" } },
-            { symbol: "𑽀", read: "au", hint: { id: "Tanda au", en: "Sign au" } },
-            { symbol: "𑽁", read: "eu", hint: { id: "Tanda eu", en: "Sign eu" } }, // Repha/Anusvara depending on block
-            { symbol: "𑽂", read: "ng", hint: { id: "Cecak", en: "Cecak" } },
-            { symbol: "𑽃", read: "h", hint: { id: "Visarga", en: "Visarga" } },
-            { symbol: "𑽄", read: "virama", hint: { id: "Pangkon", en: "Virama" } },
-            // Angka (10)
-            { symbol: "𑽐", read: "0", hint: { id: "Angka 0", en: "Digit 0" } },
-            { symbol: "𑽑", read: "1", hint: { id: "Angka 1", en: "Digit 1" } },
-            { symbol: "𑽒", read: "2", hint: { id: "Angka 2", en: "Digit 2" } },
-            { symbol: "𑽓", read: "3", hint: { id: "Angka 3", en: "Digit 3" } },
-            { symbol: "𑽔", read: "4", hint: { id: "Angka 4", en: "Digit 4" } },
-            { symbol: "𑽕", read: "5", hint: { id: "Angka 5", en: "Digit 5" } },
-            { symbol: "𑽖", read: "6", hint: { id: "Angka 6", en: "Digit 6" } },
-            { symbol: "𑽗", read: "7", hint: { id: "Angka 7", en: "Digit 7" } },
-            { symbol: "𑽘", read: "8", hint: { id: "Angka 8", en: "Digit 8" } },
-            { symbol: "𑽙", read: "9", hint: { id: "Angka 9", en: "Digit 9" } },
-            // Tanda Baca (10)
-            { symbol: "𑽠", read: "Double Circle", hint: { id: "Lingkaran Ganda", en: "Double Circle" } },
-            { symbol: "𑽡", read: "Circle Section", hint: { id: "Tanda Bagian", en: "Section Mark" } },
-            { symbol: "𑽢", read: "Double Section", hint: { id: "Tanda Bagian Ganda", en: "Double Section" } },
-            { symbol: "𑽣", read: "Space", hint: { id: "Spasi Kawi", en: "Kawi Space" } }, // Correction for closure
-            { symbol: "𑽤", read: "Closure", hint: { id: "Penutup", en: "Closure" } },
-            { symbol: "𑽥", read: "Spiral", hint: { id: "Spiral", en: "Spiral" } },
-            { symbol: "𑽦", read: "Block", hint: { id: "Blok", en: "Block" } },
-            { symbol: "𑽧", read: "Space", hint: { id: "Spasi", en: "Space" } },
-            { symbol: "𑽨", read: "Correction", hint: { id: "Koreksi", en: "Correction" } },
-            { symbol: "𑽩", read: "Fill", hint: { id: "Pengisi", en: "Filler" } }
+            { symbol: "𑼐", read: "Ka", hint: { id: "Huruf Ka", en: "Letter Ka" } }, { symbol: "𑼑", read: "Kha", hint: { id: "Huruf Kha", en: "Letter Kha" } }, { symbol: "𑼒", read: "Ga", hint: { id: "Huruf Ga", en: "Letter Ga" } }, { symbol: "𑼓", read: "Gha", hint: { id: "Huruf Gha", en: "Letter Gha" } }, { symbol: "𑼔", read: "Nga", hint: { id: "Huruf Nga", en: "Letter Nga" } }, { symbol: "𑼕", read: "Ca", hint: { id: "Huruf Ca", en: "Letter Ca" } }, { symbol: "𑼗", read: "Ja", hint: { id: "Huruf Ja", en: "Letter Ja" } }, { symbol: "𑼙", read: "Nya", hint: { id: "Huruf Nya", en: "Letter Nya" } }, { symbol: "𑼟", read: "Ta", hint: { id: "Huruf Ta", en: "Letter Ta" } }, { symbol: "𑼡", read: "Da", hint: { id: "Huruf Da", en: "Letter Da" } }, { symbol: "𑼣", read: "Na", hint: { id: "Huruf Na", en: "Letter Na" } }, { symbol: "𑼤", read: "Pa", hint: { id: "Huruf Pa", en: "Letter Pa" } }, { symbol: "𑼦", read: "Ba", hint: { id: "Huruf Ba", en: "Letter Ba" } }, { symbol: "𑼨", read: "Ma", hint: { id: "Huruf Ma", en: "Letter Ma" } }, { symbol: "𑼩", read: "Ya", hint: { id: "Huruf Ya", en: "Letter Ya" } }, { symbol: "𑼪", read: "Ra", hint: { id: "Huruf Ra", en: "Letter Ra" } }, { symbol: "𑼫", read: "La", hint: { id: "Huruf La", en: "Letter La" } }, { symbol: "𑼬", read: "Wa", hint: { id: "Huruf Wa", en: "Letter Wa" } }, { symbol: "𑼯", read: "Sa", hint: { id: "Huruf Sa", en: "Letter Sa" } }, { symbol: "𑼰", read: "Ha", hint: { id: "Huruf Ha", en: "Letter Ha" } }
         ].map((c, i) => ({ ...c, id: `kawi_${i}` }));
 
-
-        // 7. AKSARA PEGON / JAWI (Arab Nusantara)
-        // Berisi huruf dasar Arab + 5 huruf modifikasi khas Nusantara (Ca, Nga, Pa, Ga, Nya)
         const CHARS_PEGON = [
-            { symbol: "ا", read: "Alif / A", hint: { id: "Tongkat lurus.", en: "Straight stick." } },
-            { symbol: "ب", read: "Ba", hint: { id: "Perahu titik satu di bawah.", en: "Boat, one dot below." } },
-            { symbol: "ت", read: "Ta", hint: { id: "Perahu titik dua di atas.", en: "Boat, two dots above." } },
-            { symbol: "ث", read: "Tsa", hint: { id: "Perahu titik tiga.", en: "Boat, three dots." } },
-            { symbol: "ج", read: "Jim", hint: { id: "Perut buncit titik satu.", en: "Belly, one dot." } },
-            { symbol: "چ", read: "Ca", hint: { id: "Pegon: Jim titik tiga.", en: "Pegon: Jim with three dots." } }, // Khas Nusantara
-            { symbol: "ح", read: "Ha", hint: { id: "Perut buncit kosong.", en: "Empty belly." } },
-            { symbol: "خ", read: "Kha", hint: { id: "Perut buncit titik di atas.", en: "Belly, dot on top." } },
-            { symbol: "د", read: "Dal", hint: { id: "Mulut terbuka.", en: "Open mouth." } },
-            { symbol: "ذ", read: "Dzal", hint: { id: "Dal ada titiknya.", en: "Dal with a dot." } },
-            { symbol: "ر", read: "Ra", hint: "Perosotan." },
-            { symbol: "ز", read: "Zai", hint: "Perosotan titik satu." },
-            { symbol: "س", read: "Sin", hint: "Gigi tiga perut besar." },
-            { symbol: "ش", read: "Syin", hint: "Sin titik tiga." },
-            { symbol: "ص", read: "Shad", hint: "Kepala lonjong." },
-            { symbol: "ض", read: "Dhad", hint: "Shad titik satu." },
-            { symbol: "ط", read: "Tha", hint: "Kepala lonjong bertiang." },
-            { symbol: "ظ", read: "Zha", hint: "Tha titik satu." },
-            { symbol: "ع", read: "'Ain", hint: "C kecil dan C besar." },
-            { symbol: "غ", read: "Ghain", hint: "Ain titik satu." },
-            { symbol: "ڠ", read: "Nga", hint: { id: "Pegon: Ain titik tiga.", en: "Pegon: Ain with three dots." } }, // Khas Nusantara
-            { symbol: "ف", read: "Fa", hint: "Kepala bulat leher pendek." },
-            { symbol: "ڤ", read: "Pa", hint: { id: "Pegon: Fa titik tiga.", en: "Pegon: Fa with three dots." } }, // Khas Nusantara
-            { symbol: "ق", read: "Qof", hint: "Kepala bulat perut dalam." },
-            { symbol: "ك", read: "Kaf", hint: "S kecil di atas kursi." },
-            { symbol: "گ", read: "Ga", hint: { id: "Pegon: Kaf dengan garis/titik.", en: "Pegon: Kaf with line/dots." } }, // Khas Nusantara
-            { symbol: "ل", read: "Lam", hint: "Kail pancing." },
-            { symbol: "م", read: "Mim", hint: "Kepala bulat ekor bawah." },
-            { symbol: "ن", read: "Nun", hint: "Mangkuk titik satu." },
-            { symbol: "ڽ", read: "Nya", hint: { id: "Pegon: Nun titik tiga.", en: "Pegon: Nun with three dots." } }, // Khas Nusantara
-            { symbol: "و", read: "Waw", hint: "Kepala bulat meluncur." },
-            { symbol: "ه", read: "Ha", hint: "Bulatan simpul." },
-            { symbol: "ي", read: "Ya", hint: "Angsa titik dua." }
+            { symbol: "ا", read: "Alif / A", hint: { id: "Tongkat lurus.", en: "Straight stick." } }, { symbol: "ب", read: "Ba", hint: { id: "Perahu titik satu di bawah.", en: "Boat, one dot below." } }, { symbol: "ت", read: "Ta", hint: { id: "Perahu titik dua di atas.", en: "Boat, two dots above." } }, { symbol: "ث", read: "Tsa", hint: { id: "Perahu titik tiga.", en: "Boat, three dots." } }, { symbol: "ج", read: "Jim", hint: { id: "Perut buncit titik satu.", en: "Belly, one dot." } }, { symbol: "چ", read: "Ca", hint: { id: "Pegon: Jim titik tiga.", en: "Pegon: Jim with three dots." } }, { symbol: "ح", read: "Ha", hint: { id: "Perut buncit kosong.", en: "Empty belly." } }, { symbol: "خ", read: "Kha", hint: { id: "Perut buncit titik di atas.", en: "Belly, dot on top." } }, { symbol: "د", read: "Dal", hint: { id: "Mulut terbuka.", en: "Open mouth." } }, { symbol: "ذ", read: "Dzal", hint: { id: "Dal ada titiknya.", en: "Dal with a dot." } }, { symbol: "ر", read: "Ra", hint: "Perosotan." }, { symbol: "ز", read: "Zai", hint: "Perosotan titik satu." }, { symbol: "س", read: "Sin", hint: "Gigi tiga perut besar." }, { symbol: "ش", read: "Syin", hint: "Sin titik tiga." }, { symbol: "ص", read: "Shad", hint: "Kepala lonjong." }, { symbol: "ض", read: "Dhad", hint: "Shad titik satu." }, { symbol: "ط", read: "Tha", hint: "Kepala lonjong bertiang." }, { symbol: "ظ", read: "Zha", hint: "Tha titik satu." }, { symbol: "ع", read: "'Ain", hint: "C kecil dan C besar." }, { symbol: "غ", read: "Ghain", hint: "Ain titik satu." }, { symbol: "ڠ", read: "Nga", hint: { id: "Pegon: Ain titik tiga.", en: "Pegon: Ain with three dots." } }, { symbol: "ف", read: "Fa", hint: "Kepala bulat leher pendek." }, { symbol: "ڤ", read: "Pa", hint: { id: "Pegon: Fa titik tiga.", en: "Pegon: Fa with three dots." } }, { symbol: "ق", read: "Qof", hint: "Kepala bulat perut dalam." }, { symbol: "ك", read: "Kaf", hint: "S kecil di atas kursi." }, { symbol: "گ", read: "Ga", hint: { id: "Pegon: Kaf dengan garis/titik.", en: "Pegon: Kaf with line/dots." } }, { symbol: "ل", read: "Lam", hint: "Kail pancing." }, { symbol: "م", read: "Mim", hint: "Kepala bulat ekor bawah." }, { symbol: "ن", read: "Nun", hint: "Mangkuk titik satu." }, { symbol: "ڽ", read: "Nya", hint: { id: "Pegon: Nun titik tiga.", en: "Pegon: Nun with three dots." } }, { symbol: "و", read: "Waw", hint: "Kepala bulat meluncur." }, { symbol: "ه", read: "Ha", hint: "Bulatan simpul." }, { symbol: "ي", read: "Ya", hint: "Angsa titik dua." }
         ].map((c, i) => ({ ...c, id: `pegon_${i}` }));
 
-        // 8. AKSARA MAKASAR (Jangang-Jangang - Sulawesi Selatan Klasik)
         const CHARS_MAKASAR = [
-            { symbol: "𑻠", read: "Ka", hint: { id: "Huruf Ka", en: "Letter Ka" } },
-            { symbol: "𑻡", read: "Ga", hint: { id: "Huruf Ga", en: "Letter Ga" } },
-            { symbol: "𑻢", read: "Nga", hint: { id: "Huruf Nga", en: "Letter Nga" } },
-            { symbol: "𑻣", read: "Pa", hint: { id: "Huruf Pa", en: "Letter Pa" } },
-            { symbol: "𑻤", read: "Ba", hint: { id: "Huruf Ba", en: "Letter Ba" } },
-            { symbol: "𑻥", read: "Ma", hint: { id: "Huruf Ma", en: "Letter Ma" } },
-            { symbol: "𑻦", read: "Ta", hint: { id: "Huruf Ta", en: "Letter Ta" } },
-            { symbol: "𑻧", read: "Da", hint: { id: "Huruf Da", en: "Letter Da" } },
-            { symbol: "𑻨", read: "Na", hint: { id: "Huruf Na", en: "Letter Na" } },
-            { symbol: "𑻩", read: "Ca", hint: { id: "Huruf Ca", en: "Letter Ca" } },
-            { symbol: "𑻪", read: "Ja", hint: { id: "Huruf Ja", en: "Letter Ja" } },
-            { symbol: "𑻫", read: "Nya", hint: { id: "Huruf Nya", en: "Letter Nya" } },
-            { symbol: "𑻬", read: "Ya", hint: { id: "Huruf Ya", en: "Letter Ya" } },
-            { symbol: "𑻭", read: "Ra", hint: { id: "Huruf Ra", en: "Letter Ra" } },
-            { symbol: "𑻮", read: "La", hint: { id: "Huruf La", en: "Letter La" } },
-            { symbol: "𑻯", read: "Wa", hint: { id: "Huruf Wa", en: "Letter Wa" } },
-            { symbol: "𑻰", read: "Sa", hint: { id: "Huruf Sa", en: "Letter Sa" } },
-            { symbol: "𑻱", read: "A", hint: { id: "Huruf A", en: "Letter A" } }
+            { symbol: "𑻠", read: "Ka", hint: { id: "Huruf Ka", en: "Letter Ka" } }, { symbol: "𑻡", read: "Ga", hint: { id: "Huruf Ga", en: "Letter Ga" } }, { symbol: "𑻢", read: "Nga", hint: { id: "Huruf Nga", en: "Letter Nga" } }, { symbol: "𑻣", read: "Pa", hint: { id: "Huruf Pa", en: "Letter Pa" } }, { symbol: "𑻤", read: "Ba", hint: { id: "Huruf Ba", en: "Letter Ba" } }, { symbol: "𑻥", read: "Ma", hint: { id: "Huruf Ma", en: "Letter Ma" } }, { symbol: "𑻦", read: "Ta", hint: { id: "Huruf Ta", en: "Letter Ta" } }, { symbol: "𑻧", read: "Da", hint: { id: "Huruf Da", en: "Letter Da" } }, { symbol: "𑻨", read: "Na", hint: { id: "Huruf Na", en: "Letter Na" } }, { symbol: "𑻩", read: "Ca", hint: { id: "Huruf Ca", en: "Letter Ca" } }, { symbol: "𑻪", read: "Ja", hint: { id: "Huruf Ja", en: "Letter Ja" } }, { symbol: "𑻫", read: "Nya", hint: { id: "Huruf Nya", en: "Letter Nya" } }, { symbol: "𑻬", read: "Ya", hint: { id: "Huruf Ya", en: "Letter Ya" } }, { symbol: "𑻭", read: "Ra", hint: { id: "Huruf Ra", en: "Letter Ra" } }, { symbol: "𑻮", read: "La", hint: { id: "Huruf La", en: "Letter La" } }, { symbol: "𑻯", read: "Wa", hint: { id: "Huruf Wa", en: "Letter Wa" } }, { symbol: "𑻰", read: "Sa", hint: { id: "Huruf Sa", en: "Letter Sa" } }, { symbol: "𑻱", read: "A", hint: { id: "Huruf A", en: "Letter A" } }
         ].map((c, i) => ({ ...c, id: `makasar_${i}` }));
-
 
         const SUBJECTS = {
             alphabet: { name: "Alphabet (26)", langCode: "en-US", fontFamily: "sans-serif", stages: createStages(CHARS_ALPHABET) },
@@ -629,601 +500,577 @@
             bugis: { name: "Aksara Bugis (23)", langCode: "id-ID", fontFamily: "Noto Sans Buginese, sans-serif", stages: createStages(CHARS_BUGIS) },
             batak: { name: "Aksara Batak (19)", langCode: "id-ID", fontFamily: "Noto Sans Batak, sans-serif", stages: createStages(CHARS_BATAK) },
             bali: { name: "Aksara Bali (18)", langCode: "id-ID", fontFamily: "Noto Serif Balinese, serif", stages: createStages(CHARS_BALI) },
-            rejang: { name: "Aksara Rejang (37)", langCode: "id-ID", fontFamily: "Noto Sans Rejang, sans-serif", stages: createStages(CHARS_REJANG) },
-            kawi: { name: "Aksara Kawi (86)", langCode: "jv-ID", fontFamily: "Noto Sans Kawi, sans-serif", stages: createStages(CHARS_KAWI) },
-            // AKSARA ASING
+            rejang: { name: "Aksara Rejang (23)", langCode: "id-ID", fontFamily: "Noto Sans Rejang, sans-serif", stages: createStages(CHARS_REJANG) },
+            kawi: { name: "Aksara Kawi (20)", langCode: "jv-ID", fontFamily: "Noto Sans Kawi, sans-serif", stages: createStages(CHARS_KAWI) },
             hangul: { name: "Korea Hangul (24)", langCode: "ko-KR", fontFamily: "Noto Sans KR, sans-serif", stages: createStages(CHARS_HANGUL) },
             hiragana: { name: "Jepang Hiragana (46)", langCode: "ja-JP", fontFamily: "Noto Sans JP, sans-serif", stages: createStages(CHARS_HIRAGANA) },
             katakana: { name: "Jepang Katakana (46)", langCode: "ja-JP", fontFamily: "Noto Sans JP, sans-serif", stages: createStages(CHARS_KATAKANA) },
             thai: { name: "Aksara Thai (44)", langCode: "th-TH", fontFamily: "Noto Sans Thai, sans-serif", stages: createStages(CHARS_THAI) }
         };
 
-        const generateDrillQueue = (langData, stageId) => {
+        // ==========================================
+        // 3. STATE
+        // ==========================================
+        let appLang = 'id'; 
+        let activeSubjectKey = 'alphabet'; 
+        let activeStageId = 1;
+        let drillQueue = [];
+        let currentDrillIndex = 0;
+        let userStrokes = []; 
+        let isDrawing = false;
+        let currentStroke = [];
+        let leftSidebarOpen = false;
+        let rightSidebarOpen = window.innerWidth >= 1024;
+
+        // Tools
+        let penColor = '#1e293b';
+        let penWidth = 16;
+        let showGuide = true;
+        let showGrid = true;
+        let autoPlayAudio = false;
+
+        // Progress
+        let progress = { totalCompleted: 0, totalStars: 0, streak: 0, lastDate: null, completedStages: {}, achievements: {} };
+
+        const canvas = document.getElementById('drawingCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // ==========================================
+        // 4. PERSISTENCE
+        // ==========================================
+        function loadProgress() {
+            try {
+                const saved = JSON.parse(localStorage.getItem('globalscript_progress'));
+                if (saved) progress = { ...progress, ...saved };
+                const settings = JSON.parse(localStorage.getItem('globalscript_settings'));
+                if (settings) {
+                    appLang = settings.appLang || 'id';
+                    showGuide = settings.showGuide !== undefined ? settings.showGuide : true;
+                    showGrid = settings.showGrid !== undefined ? settings.showGrid : true;
+                    autoPlayAudio = settings.autoPlayAudio || false;
+                    activeSubjectKey = settings.activeSubjectKey || 'alphabet';
+                }
+            } catch(e) { console.warn('Load failed', e); }
+        }
+        function saveProgress() {
+            try { localStorage.setItem('globalscript_progress', JSON.stringify(progress)); } catch(e){}
+        }
+        function saveSettings() {
+            try { localStorage.setItem('globalscript_settings', JSON.stringify({ appLang, showGuide, showGrid, autoPlayAudio, activeSubjectKey })); } catch(e){}
+        }
+
+        function updateStreak() {
+            const today = new Date().toDateString();
+            if (progress.lastDate === today) return;
+            const yesterday = new Date(Date.now() - 86400000).toDateString();
+            if (progress.lastDate === yesterday) progress.streak += 1;
+            else progress.streak = 1;
+            progress.lastDate = today;
+        }
+
+        // ==========================================
+        // 5. ACHIEVEMENTS
+        // ==========================================
+        function checkAchievements() {
+            const s = UI_STRINGS[appLang];
+            const list = [
+                { id: 'first', cond: progress.totalCompleted >= 1, icon: '🌟', title: s.ach_first, desc: s.ach_first_d },
+                { id: 'stage', cond: Object.keys(progress.completedStages).length >= 1, icon: '📚', title: s.ach_stage, desc: s.ach_stage_d },
+                { id: 'streak3', cond: progress.streak >= 3, icon: '🔥', title: s.ach_streak, desc: s.ach_streak_d },
+                { id: 'stars100', cond: progress.totalStars >= 100, icon: '⭐', title: s.ach_stars, desc: s.ach_stars_d },
+                { id: 'master500', cond: progress.totalCompleted >= 500, icon: '👑', title: s.ach_master, desc: s.ach_master_d },
+            ];
+            list.forEach(a => {
+                if (a.cond && !progress.achievements[a.id]) {
+                    progress.achievements[a.id] = true;
+                    showToast(a.icon, a.title, a.desc);
+                }
+            });
+            saveProgress();
+        }
+
+        let toastTimer = null;
+        function showToast(icon, title, desc) {
+            const toast = document.getElementById('achievementToast');
+            document.getElementById('toastIcon').innerText = icon;
+            document.getElementById('toastTitle').innerText = title;
+            document.getElementById('toastDesc').innerText = desc;
+            toast.classList.remove('hidden');
+            toast.classList.add('animate-toastIn');
+            if(window.navigator.vibrate) window.navigator.vibrate([50,50,50]);
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => { toast.classList.add('hidden'); toast.classList.remove('animate-toastIn'); }, 3500);
+        }
+
+        // ==========================================
+        // 6. DRILL GENERATION
+        // ==========================================
+        function generateDrillQueue(langData, stageId) {
             const currentStage = langData.stages.find(s => s.id === stageId);
             const prevStages = langData.stages.filter(s => s.id < stageId);
-            
             const DRILL_COUNT = 30;
             let queue = [];
-
             if (!currentStage) return [];
-
             const targetChar = currentStage.newChars[0];
-            
             let oldChars = [];
-            prevStages.forEach(s => {
-                oldChars = [...oldChars, ...s.newChars];
-            });
-
+            prevStages.forEach(s => { oldChars = [...oldChars, ...s.newChars]; });
             for (let i = 0; i < DRILL_COUNT; i++) {
                 let char;
-                if (stageId === 1) {
-                    char = targetChar;
-                } else {
+                if (stageId === 1) char = targetChar;
+                else {
                     const isReview = oldChars.length > 0 && ((i + 1) % 3 === 0);
-                    if (isReview) {
-                        char = oldChars[Math.floor(Math.random() * oldChars.length)];
-                    } else {
-                        char = targetChar;
-                    }
+                    char = isReview ? oldChars[Math.floor(Math.random() * oldChars.length)] : targetChar;
                 }
-                queue.push({ 
-                    ...char, 
-                    uniqueId: `drill-${stageId}-${i}-${Math.random().toString(36).substr(2, 9)}`, 
-                    userImage: null 
-                });
+                queue.push({ ...char, uniqueId: `drill-${stageId}-${i}-${Math.random().toString(36).substr(2,9)}`, userImage: null });
             }
             return queue;
-        };
+        }
 
-        const App = () => {
-            const [appLang, setAppLang] = useState('id'); 
-            const [activeSubjectKey, setActiveSubjectKey] = useState('alphabet'); 
-            const [activeStageId, setActiveStageId] = useState(1);
-            
-            const [drillQueue, setDrillQueue] = useState([]);
-            const [currentDrillIndex, setCurrentDrillIndex] = useState(0);
-            
-            const [userStrokes, setUserStrokes] = useState([]); 
-            const [isDrawing, setIsDrawing] = useState(false);
-            const [currentStroke, setCurrentStroke] = useState([]);
+        // ==========================================
+        // 7. UI UPDATES
+        // ==========================================
+        function updateUITexts() {
+            const s = UI_STRINGS[appLang];
+            const setT = (id, val) => { const el = document.getElementById(id); if(el) el.innerText = val; };
+            setT('ui-appTitle', s.appTitle); setT('ui-appSubtitle', s.appSubtitle); setT('ui-creatorName', s.creatorName);
+            setT('ui-menuTitle', s.menuTitle); setT('ui-subjectLabel', s.subjectLabel); setT('ui-stageLabel', s.stageLabel);
+            setT('ui-stageDesc', s.stageDesc); setT('ui-selectLang', s.selectLang); setT('ui-btnRepeat', s.repeat);
+            setT('ui-notebookTitle', s.notebookTitle); setT('printReportTitle', s.reportTitle);
+            setT('ui-displayLabel', s.displayLabel); setT('ui-toggleGuide', s.toggleGuide); setT('ui-toggleGrid', s.toggleGrid);
+            setT('ui-toggleAudio', s.toggleAudio); setT('ui-statsLabel', s.statsLabel); setT('ui-statTotal', s.statTotal);
+            setT('ui-statStars', s.statStars); setT('ui-resetProgress', s.resetProgress);
+            setT('ui-completeTitle', s.completeTitle); setT('completeSubtitle', s.completeSub);
+            setT('ui-completeStars', s.completeStars); setT('ui-completeStreak', s.completeStreak);
+            setT('ui-completeRetry', s.completeRetry); setT('ui-completeNext', s.completeNext);
 
-            const [feedback, setFeedback] = useState("");
-            const [leftSidebarOpen, setLeftSidebarOpen] = useState(false);
-            const [rightSidebarOpen, setRightSidebarOpen] = useState(true);
-            const [showConfetti, setShowConfetti] = useState(false);
+            document.querySelectorAll('#btnLangId, #btnLangIdMobile').forEach(el => {
+                el.className = appLang === 'id' ? "flex-1 px-3 py-2 sm:py-1 rounded-md text-xs sm:text-sm font-bold transition-all bg-emerald-600 text-white shadow-sm" : "flex-1 px-3 py-2 sm:py-1 rounded-md text-xs sm:text-sm font-bold transition-all text-emerald-700 hover:bg-emerald-200";
+            });
+            document.querySelectorAll('#btnLangEn, #btnLangEnMobile').forEach(el => {
+                el.className = appLang === 'en' ? "flex-1 px-3 py-2 sm:py-1 rounded-md text-xs sm:text-sm font-bold transition-all bg-emerald-600 text-white shadow-sm" : "flex-1 px-3 py-2 sm:py-1 rounded-md text-xs sm:text-sm font-bold transition-all text-emerald-700 hover:bg-emerald-200";
+            });
 
-            const canvasRef = useRef(null);
-            
-            const strings = UI_STRINGS[appLang];
-            const currentSubjectData = SUBJECTS[activeSubjectKey];
-            const currentStage = currentSubjectData.stages.find(s => s.id === activeStageId) || currentSubjectData.stages[0];
+            updateDropdowns();
+            updateStatsUI();
+            updateCurrentTaskUI();
+        }
+
+        function updateStatsUI() {
+            document.getElementById('statStars').innerText = progress.totalStars;
+            document.getElementById('statStreak').innerText = progress.streak;
+            document.getElementById('statTotalDone').innerText = progress.totalCompleted;
+            document.getElementById('statTotalStars').innerText = progress.totalStars;
+        }
+
+        function updateDropdowns() {
+            const subjectSelect = document.getElementById('selectSubject');
+            const stageSelect = document.getElementById('selectStage');
+            if(subjectSelect.options.length === 0) {
+                Object.keys(SUBJECTS).forEach(key => {
+                    const opt = document.createElement('option');
+                    opt.value = key; opt.text = SUBJECTS[key].name;
+                    subjectSelect.appendChild(opt);
+                });
+            }
+            subjectSelect.value = activeSubjectKey;
+            const currentData = SUBJECTS[activeSubjectKey];
+            stageSelect.innerHTML = '';
+            currentData.stages.forEach(stage => {
+                const opt = document.createElement('option');
+                opt.value = stage.id;
+                const done = progress.completedStages[`${activeSubjectKey}-${stage.id}`] ? ' ✓' : '';
+                opt.text = `${UI_STRINGS[appLang].levelPrefix} ${stage.id}: ${stage.title}${done}`;
+                stageSelect.appendChild(opt);
+            });
+            stageSelect.value = activeStageId;
+        }
+
+        function updateCurrentTaskUI() {
+            const s = UI_STRINGS[appLang];
             const currentTaskChar = drillQueue[currentDrillIndex];
+            const currentData = SUBJECTS[activeSubjectKey];
+            document.getElementById('printReportSubtitle').innerText = `${new Date().toLocaleDateString()} - ${currentData.name} - ${s.levelPrefix} ${activeStageId}`;
 
-            useEffect(() => {
-                const handleResize = () => {
-                    if (window.innerWidth < 1024) {
-                        setRightSidebarOpen(false); 
-                    } else {
-                        setRightSidebarOpen(true); 
-                    }
-                };
-                handleResize(); 
-                window.addEventListener('resize', handleResize);
-                return () => window.removeEventListener('resize', handleResize);
-            }, []);
+            // Progress bar
+            const pct = drillQueue.length ? Math.round((currentDrillIndex / drillQueue.length) * 100) : 0;
+            document.getElementById('progressBar').style.width = `${pct}%`;
+            document.getElementById('labelProgressText').innerText = `${currentDrillIndex} / ${drillQueue.length}`;
 
-            useEffect(() => {
-                const queue = generateDrillQueue(currentSubjectData, activeStageId);
-                setDrillQueue(queue);
-                setCurrentDrillIndex(0);
-                setUserStrokes([]);
-                setCurrentStroke([]);
-                setFeedback(strings.canvasInstruction);
-            }, [activeSubjectKey, activeStageId, appLang]); 
+            const btnNext = document.getElementById('btnNext');
+            if (currentDrillIndex >= drillQueue.length) {
+                btnNext.className = "flex-[2] py-3.5 rounded-2xl text-lg font-bold shadow-lg shadow-emerald-200 transition-all flex items-center justify-center gap-2 bg-slate-400 text-white cursor-default";
+                document.getElementById('ui-btnNextText').innerText = s.finish;
+                document.getElementById('iconNext').classList.add('hidden');
+                document.getElementById('iconFinish').classList.remove('hidden');
+            } else {
+                btnNext.className = "flex-[2] py-3.5 rounded-2xl text-lg font-bold shadow-lg shadow-emerald-200 transition-all active:scale-95 flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white";
+                document.getElementById('ui-btnNextText').innerText = s.next;
+                document.getElementById('iconNext').classList.remove('hidden');
+                document.getElementById('iconFinish').classList.add('hidden');
+            }
 
-            const changeSubject = (key) => {
-                setActiveSubjectKey(key);
-                setActiveStageId(1); 
-                if(window.innerWidth < 1024) setLeftSidebarOpen(false); // Auto hide mobile
-            };
+            if (!currentTaskChar) {
+                document.getElementById('workspace').classList.add('hidden');
+                document.getElementById('loading').classList.remove('hidden');
+                return;
+            }
+            document.getElementById('workspace').classList.remove('hidden');
+            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('labelStageChar').innerHTML = `${s.levelPrefix} ${activeStageId} &bull; ${currentTaskChar.read}`;
+            document.getElementById('labelCharRead').innerText = currentTaskChar.read;
+            document.getElementById('labelNotebookPage').innerText = `${currentDrillIndex} / ${drillQueue.length} ${s.notebookPage}`;
 
-            const speak = (text) => {
-                if ('speechSynthesis' in window) {
-                    const utterance = new SpeechSynthesisUtterance(text);
-                    
-                    let voiceLang = currentSubjectData.langCode;
-                    
-                    if (activeSubjectKey === 'alphabet') {
-                        voiceLang = appLang === 'id' ? 'id-ID' : 'en-US';
-                    }
+            let hintText = "";
+            if (typeof currentTaskChar.hint === 'object') hintText = currentTaskChar.hint[appLang] || currentTaskChar.hint['id'];
+            else hintText = currentTaskChar.hint || "";
+            document.getElementById('labelFeedback').innerText = hintText ? `${s.tips} ${hintText}` : s.canvasInstruction;
 
-                    utterance.lang = voiceLang;
-                    utterance.rate = 0.8; 
-                    window.speechSynthesis.cancel();
-                    window.speechSynthesis.speak(utterance);
-                }
-            };
+            updateCanvas();
+            renderNotebook();
+        }
 
-            // PERBAIKAN UTAMA LOGIKA BILINGUAL HINT DISINI
-            useEffect(() => {
-                if (currentTaskChar) {
-                    const hintData = currentTaskChar.hint;
-                    let hintText = "";
-                    
-                    if (typeof hintData === 'object') {
-                        // Jika hint berbentuk object {id: "...", en: "..."}, pilih berdasarkan appLang
-                        hintText = hintData[appLang] || hintData['id']; // Fallback ke ID jika EN kosong
-                    } else {
-                        // Jika hint masih string biasa (belum ditranslate di data), tampilkan apa adanya
-                        hintText = hintData;
-                    }
+        function updateSidebars() {
+            const leftSidebar = document.getElementById('leftSidebar');
+            if(leftSidebarOpen) leftSidebar.classList.remove('-translate-x-full');
+            else { leftSidebar.classList.add('-translate-x-full'); leftSidebar.classList.add('lg:translate-x-0'); }
+            const rightSidebar = document.getElementById('rightSidebar');
+            if(rightSidebarOpen) { rightSidebar.classList.remove('translate-x-full'); rightSidebar.classList.add('lg:translate-x-0'); }
+            else { rightSidebar.classList.add('translate-x-full'); rightSidebar.classList.remove('lg:translate-x-0'); }
+        }
 
-                    setFeedback(hintText);
-                }
-            }, [currentTaskChar, appLang]); // Dependency ditambahkan appLang agar re-render saat ganti bahasa
+        // ==========================================
+        // 8. CANVAS
+        // ==========================================
+        function drawGrid(w, h) {
+            if(!showGrid) return;
+            ctx.save();
+            ctx.beginPath();
+            ctx.strokeStyle = '#58D68D'; 
+            ctx.lineWidth = 1;
+            ctx.globalAlpha = 0.3; 
+            const padding = 15;
+            ctx.rect(padding, padding, w-(padding*2), h-(padding*2));
+            ctx.setLineDash([8, 8]);
+            ctx.moveTo(w/2, padding); ctx.lineTo(w/2, h-padding);
+            ctx.moveTo(padding, h/2); ctx.lineTo(w-padding, h/2);
+            const curSubj = SUBJECTS[activeSubjectKey];
+            if (curSubj.fontFamily.includes('serif') || activeSubjectKey !== 'alphabet') {
+                ctx.moveTo(padding, padding); ctx.lineTo(w-padding, h-padding);
+                ctx.moveTo(w-padding, padding); ctx.lineTo(padding, h-padding);
+            }
+            ctx.stroke();
+            ctx.restore();
+        }
 
-            useEffect(() => {
-                if (!currentTaskChar) return;
-                const canvas = canvasRef.current;
-                if (!canvas) return;
-                
-                const rect = canvas.getBoundingClientRect();
-                if (canvas.width !== rect.width || canvas.height !== rect.height) {
-                    canvas.width = rect.width;
-                    canvas.height = rect.height;
-                }
+        function drawUserPath(points) {
+            if (points.length === 0) return;
+            if (points.length < 3) {
+                ctx.beginPath();
+                ctx.arc(points[0].x, points[0].y, ctx.lineWidth / 2, 0, Math.PI * 2);
+                ctx.fillStyle = ctx.strokeStyle;
+                ctx.fill();
+                return;
+            }
+            ctx.beginPath();
+            ctx.moveTo(points[0].x, points[0].y);
+            for (let i = 1; i < points.length - 1; i++) {
+                const endX = (points[i].x + points[i + 1].x) / 2;
+                const endY = (points[i].y + points[i + 1].y) / 2;
+                ctx.quadraticCurveTo(points[i].x, points[i].y, endX, endY);
+            }
+            const lastPoint = points[points.length - 1];
+            ctx.lineTo(lastPoint.x, lastPoint.y);
+            ctx.stroke();
+        }
 
-                const ctx = canvas.getContext('2d');
-                const w = canvas.width;
-                const h = canvas.height;
-                
-                ctx.clearRect(0, 0, w, h);
-                drawGrid(ctx, w, h);
+        function updateCanvas() {
+            const currentTaskChar = drillQueue[currentDrillIndex];
+            if (!currentTaskChar) return;
+            const rect = canvas.getBoundingClientRect();
+            if (canvas.width !== rect.width || canvas.height !== rect.height) {
+                if(rect.width > 0) canvas.width = rect.width;
+                if(rect.height > 0) canvas.height = rect.height;
+            }
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            drawGrid(w, h);
 
+            if(showGuide) {
                 ctx.save();
                 let fontSizeScale = 0.60;
-                if(activeSubjectKey === 'batak') fontSizeScale = 0.50; 
-                if(activeSubjectKey === 'bali') fontSizeScale = 0.50; 
-
+                if(activeSubjectKey === 'batak' || activeSubjectKey === 'bali') fontSizeScale = 0.50; 
                 const fontSize = w * fontSizeScale;
-                const fontFamily = currentSubjectData.fontFamily || "sans-serif";
-                ctx.font = `bold ${fontSize}px ${fontFamily}, "Noto Sans", "Arial"`;
+                const curSubj = SUBJECTS[activeSubjectKey];
+                ctx.font = `bold ${fontSize}px ${curSubj.fontFamily}, "Noto Sans", "Arial"`;
                 ctx.textAlign = "center";
                 ctx.textBaseline = "middle";
-                
                 ctx.shadowColor = "#58D68D"; 
                 ctx.shadowBlur = 20;
                 ctx.fillStyle = "rgba(88, 214, 141, 0.25)"; 
-                
                 const yOffset = h * 0.05; 
                 ctx.fillText(currentTaskChar.symbol, w / 2, h / 2 + yOffset);
                 ctx.strokeStyle = "rgba(88, 214, 141, 0.4)";
                 ctx.lineWidth = 1;
                 ctx.strokeText(currentTaskChar.symbol, w / 2, h / 2 + yOffset);
                 ctx.restore();
+            }
 
-                ctx.lineCap = 'round';
-                ctx.lineJoin = 'round';
-                ctx.globalAlpha = 1.0;
-                ctx.strokeStyle = '#1e293b'; 
-                ctx.lineWidth = 16; 
-                
-                userStrokes.forEach(strokePoints => {
-                    drawUserPath(ctx, strokePoints);
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.globalAlpha = 1.0;
+            ctx.strokeStyle = penColor; 
+            ctx.lineWidth = penWidth; 
+            userStrokes.forEach(stroke => { ctx.strokeStyle = stroke.color || penColor; ctx.lineWidth = stroke.width || penWidth; drawUserPath(stroke.points); });
+            if (currentStroke.length > 0) { ctx.strokeStyle = penColor; ctx.lineWidth = penWidth; drawUserPath(currentStroke); }
+        }
+
+        function getCoords(e) {
+            const rect = canvas.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            return { x: clientX - rect.left, y: clientY - rect.top };
+        }
+
+        // ==========================================
+        // 9. ACTIONS
+        // ==========================================
+        function resetDrill() {
+            drillQueue = generateDrillQueue(SUBJECTS[activeSubjectKey], activeStageId);
+            currentDrillIndex = 0;
+            userStrokes = [];
+            currentStroke = [];
+            updateUITexts();
+        }
+        function handleClear() { userStrokes = []; currentStroke = []; updateCanvas(); }
+        function handleUndo() { if(userStrokes.length > 0){ userStrokes.pop(); updateCanvas(); } }
+
+        function spawnConfetti() {
+            const container = document.getElementById('confetti');
+            container.classList.remove('hidden');
+            container.innerHTML = '';
+            const emojis = ['🌟','🎉','⭐','✨','🏆','🎊'];
+            for(let i=0;i<24;i++){
+                const piece = document.createElement('span');
+                piece.className = 'confetti-piece';
+                piece.innerText = emojis[Math.floor(Math.random()*emojis.length)];
+                piece.style.left = Math.random()*100 + '%';
+                piece.style.top = (60 + Math.random()*30) + '%';
+                piece.style.animationDelay = (Math.random()*0.5) + 's';
+                piece.style.fontSize = (1.5 + Math.random()*1.5) + 'rem';
+                container.appendChild(piece);
+            }
+            setTimeout(() => { container.classList.add('hidden'); container.innerHTML=''; }, 2500);
+        }
+
+        function handleNext() {
+            if (currentDrillIndex < drillQueue.length) drillQueue[currentDrillIndex].userImage = canvas.toDataURL('image/png');
+
+            // Count as completed if user drew something
+            if (userStrokes.length > 0) {
+                progress.totalCompleted += 1;
+                progress.totalStars += 1;
+            }
+
+            if (currentDrillIndex < drillQueue.length - 1) {
+                currentDrillIndex++;
+                userStrokes = []; currentStroke = [];
+                if(window.navigator.vibrate) window.navigator.vibrate(40);
+                updateStatsUI();
+                saveProgress();
+                updateCurrentTaskUI();
+                if(autoPlayAudio) setTimeout(playAudio, 200);
+            } else {
+                finishStage();
+            }
+        }
+
+        function finishStage() {
+            const s = UI_STRINGS[appLang];
+            // Bonus for completing
+            const bonus = 5;
+            progress.totalStars += bonus;
+            progress.completedStages[`${activeSubjectKey}-${activeStageId}`] = true;
+            updateStreak();
+            updateStatsUI();
+            saveProgress();
+            checkAchievements();
+
+            document.getElementById('labelFeedback').innerText = s.finish;
+            spawnConfetti();
+            if(window.navigator.vibrate) window.navigator.vibrate([80,40,80]);
+
+            // Completion modal
+            document.getElementById('completeStars').innerText = `+${30 + bonus}`;
+            document.getElementById('completeStreak').innerText = progress.streak;
+            document.getElementById('completionModal').classList.remove('hidden');
+
+            rightSidebarOpen = window.innerWidth >= 1024;
+            updateSidebars();
+            updateDropdowns();
+            updateCurrentTaskUI();
+        }
+
+        function renderNotebook() {
+            const grid = document.getElementById('notebookGrid');
+            grid.innerHTML = '';
+            const curSubj = SUBJECTS[activeSubjectKey];
+            drillQueue.forEach((item, idx) => {
+                const status = idx < currentDrillIndex ? 'done' : idx === currentDrillIndex ? 'active' : 'pending';
+                const el = document.createElement('div');
+                let classes = "notebook-item aspect-square rounded-2xl flex items-center justify-center relative transition-all duration-500 overflow-hidden bg-white ";
+                if(status === 'done') classes += "border-2 border-emerald-400 shadow-sm ";
+                if(status === 'active') classes += "border-2 border-emerald-300 ring-4 ring-emerald-100 z-10 ";
+                if(status === 'pending') classes += "border-2 border-slate-100 opacity-60 ";
+                el.className = classes;
+                let contentHtml = '';
+                if (item.userImage) contentHtml = `<img src="${item.userImage}" alt="Hasil" class="w-full h-full object-contain p-1" />`;
+                else {
+                    const textClass = status === 'pending' ? 'text-slate-200' : 'text-emerald-200';
+                    contentHtml = `<span class="text-5xl font-bold ${textClass}" style="font-family: ${curSubj.fontFamily || 'sans-serif'}">${item.symbol}</span>`;
+                }
+                const badgeClass = status === 'active' ? 'bg-emerald-500 text-white' : status==='done' ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-100 text-slate-400';
+                el.innerHTML = contentHtml + `<span class="absolute top-2 left-2 text-[10px] font-bold px-2 py-0.5 rounded-full ${badgeClass}">${idx + 1}</span>`;
+                grid.appendChild(el);
+            });
+        }
+
+        function playAudio() {
+            const currentTaskChar = drillQueue[currentDrillIndex];
+            if (!currentTaskChar || !('speechSynthesis' in window)) return;
+            const curSubj = SUBJECTS[activeSubjectKey];
+            let voiceLang = curSubj.langCode;
+            if (activeSubjectKey === 'alphabet') voiceLang = appLang === 'id' ? 'id-ID' : 'en-US';
+            const utterance = new SpeechSynthesisUtterance(currentTaskChar.read);
+            utterance.lang = voiceLang;
+            utterance.rate = 0.8; 
+            window.speechSynthesis.cancel();
+            window.speechSynthesis.speak(utterance);
+        }
+
+        // ==========================================
+        // 10. INIT
+        // ==========================================
+        document.addEventListener('DOMContentLoaded', () => {
+            loadProgress();
+            // Apply settings to checkboxes
+            document.getElementById('toggleGuide').checked = showGuide;
+            document.getElementById('toggleGrid').checked = showGrid;
+            document.getElementById('toggleAutoAudio').checked = autoPlayAudio;
+
+            document.getElementById('selectSubject').addEventListener('change', (e) => {
+                activeSubjectKey = e.target.value;
+                activeStageId = 1;
+                if(window.innerWidth < 1024) leftSidebarOpen = false;
+                saveSettings();
+                updateSidebars(); updateDropdowns(); resetDrill();
+            });
+            document.getElementById('selectStage').addEventListener('change', (e) => {
+                activeStageId = Number(e.target.value);
+                if(window.innerWidth < 1024) leftSidebarOpen = false;
+                updateSidebars(); resetDrill();
+            });
+
+            const setLang = (lang) => { appLang = lang; saveSettings(); updateUITexts(); resetDrill(); };
+            document.getElementById('btnLangId').addEventListener('click', () => setLang('id'));
+            document.getElementById('btnLangEn').addEventListener('click', () => setLang('en'));
+            document.getElementById('btnLangIdMobile').addEventListener('click', () => setLang('id'));
+            document.getElementById('btnLangEnMobile').addEventListener('click', () => setLang('en'));
+
+            document.getElementById('btnToggleLeftSidebar').addEventListener('click', () => { leftSidebarOpen = !leftSidebarOpen; updateSidebars(); });
+            document.getElementById('btnCloseLeftSidebar').addEventListener('click', () => { leftSidebarOpen = false; updateSidebars(); });
+            document.getElementById('btnToggleRightSidebar').addEventListener('click', () => { rightSidebarOpen = !rightSidebarOpen; updateSidebars(); });
+            document.getElementById('btnCloseRightSidebar').addEventListener('click', () => { rightSidebarOpen = false; updateSidebars(); });
+
+            document.getElementById('btnClear').addEventListener('click', handleClear);
+            document.getElementById('btnUndo').addEventListener('click', handleUndo);
+            document.getElementById('btnNext').addEventListener('click', handleNext);
+            document.getElementById('btnAudio').addEventListener('click', playAudio);
+
+            // Pen color buttons
+            document.querySelectorAll('.penColor').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    penColor = btn.dataset.color;
+                    document.querySelectorAll('.penColor').forEach(b => b.classList.replace('ring-2','ring-0'));
+                    btn.classList.replace('ring-0','ring-2');
                 });
-                if (currentStroke.length > 0) {
-                    drawUserPath(ctx, currentStroke);
+            });
+            // Pen width buttons
+            document.querySelectorAll('.penWidth').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    penWidth = Number(btn.dataset.width);
+                    document.querySelectorAll('.penWidth').forEach(b => b.classList.remove('bg-emerald-100'));
+                    btn.classList.add('bg-emerald-100');
+                });
+            });
+
+            // Display toggles
+            document.getElementById('toggleGuide').addEventListener('change', (e) => { showGuide = e.target.checked; saveSettings(); updateCanvas(); });
+            document.getElementById('toggleGrid').addEventListener('change', (e) => { showGrid = e.target.checked; saveSettings(); updateCanvas(); });
+            document.getElementById('toggleAutoAudio').addEventListener('change', (e) => { autoPlayAudio = e.target.checked; saveSettings(); });
+
+            // Reset progress
+            document.getElementById('btnResetProgress').addEventListener('click', () => {
+                if(confirm(UI_STRINGS[appLang].resetConfirm)) {
+                    progress = { totalCompleted: 0, totalStars: 0, streak: 0, lastDate: null, completedStages: {}, achievements: {} };
+                    saveProgress();
+                    updateStatsUI();
+                    updateDropdowns();
                 }
-            }, [drillQueue, currentDrillIndex, userStrokes, currentStroke, activeSubjectKey, activeStageId]);
+            });
 
-            const drawGrid = (ctx, w, h) => {
-                ctx.save();
-                ctx.beginPath();
-                ctx.strokeStyle = '#58D68D'; 
-                ctx.lineWidth = 1;
-                ctx.globalAlpha = 0.3; 
-                const padding = 15;
-                ctx.rect(padding, padding, w-(padding*2), h-(padding*2));
-                ctx.setLineDash([8, 8]);
-                ctx.moveTo(w/2, padding); ctx.lineTo(w/2, h-padding);
-                ctx.moveTo(padding, h/2); ctx.lineTo(w-padding, h/2);
-                if (currentSubjectData.fontFamily.includes('serif') || activeSubjectKey !== 'alphabet') {
-                    ctx.moveTo(padding, padding); ctx.lineTo(w-padding, h-padding);
-                    ctx.moveTo(w-padding, padding); ctx.lineTo(padding, h-padding);
-                }
-                ctx.stroke();
-                ctx.restore();
-            };
+            // Completion modal buttons
+            document.getElementById('btnRetryStage').addEventListener('click', () => {
+                document.getElementById('completionModal').classList.add('hidden');
+                resetDrill();
+            });
+            document.getElementById('btnNextStage').addEventListener('click', () => {
+                document.getElementById('completionModal').classList.add('hidden');
+                const stages = SUBJECTS[activeSubjectKey].stages;
+                if(activeStageId < stages.length) activeStageId++;
+                else activeStageId = 1;
+                document.getElementById('selectStage').value = activeStageId;
+                resetDrill();
+            });
 
-            const drawUserPath = (ctx, points) => {
-            // 1. Tangani jika titik kosong atau terlalu pendek
-            if (points.length === 0) return;
-            if (points.length < 3) {
-            ctx.beginPath();
-            // Buat titik bulat jika pengguna cuma tap/klik sekali
-            ctx.arc(points[0].x, points[0].y, ctx.lineWidth / 2, 0, Math.PI * 2);
-            ctx.fillStyle = ctx.strokeStyle; // Samakan warna fill dengan garis
-            ctx.fill();
-            return;
-        }
-
-            // 2. Mulai jalur dari titik pertama
-            ctx.beginPath();
-            ctx.moveTo(points[0].x, points[0].y);
-
-            // 3. Looping untuk membuat kurva Bézier Kuadratik
-            for (let i = 1; i < points.length - 1; i++) {
-            // Titik saat ini menjadi titik kontrol (magnet pelengkung)
-            const controlX = points[i].x;
-            const controlY = points[i].y;
-        
-            // Cari titik tengah antara titik saat ini dan titik berikutnya sebagai tujuan
-            const endX = (points[i].x + points[i + 1].x) / 2;
-            const endY = (points[i].y + points[i + 1].y) / 2;
-
-            // Tarik kurva melengkung
-            ctx.quadraticCurveTo(controlX, controlY, endX, endY);
-        }
-
-            // 4. Pastikan garis tersambung mulus ke titik paling akhir
-            const lastPoint = points[points.length - 1];
-            ctx.lineTo(lastPoint.x, lastPoint.y);
-            ctx.stroke();
-        };
-
-            const getCoords = (e) => {
-                const canvas = canvasRef.current;
-                const rect = canvas.getBoundingClientRect();
-                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-                return { x: clientX - rect.left, y: clientY - rect.top };
-            };
-
-            const startDrawing = (e) => {
+            // Canvas events
+            const startDraw = (e) => {
                 if (currentDrillIndex >= drillQueue.length) return;
-                if (e.cancelable) e.preventDefault(); 
-                setIsDrawing(true);
-                const coords = getCoords(e);
-                setCurrentStroke([coords]);
+                if (e.cancelable) e.preventDefault();
+                isDrawing = true;
+                currentStroke = [getCoords(e)];
             };
-
-            const draw = (e) => {
+            const onDraw = (e) => {
                 if (!isDrawing) return;
                 if (e.cancelable) e.preventDefault();
-                const coords = getCoords(e);
-                setCurrentStroke(prev => [...prev, coords]);
+                currentStroke.push(getCoords(e));
+                updateCanvas();
             };
-
-            const endDrawing = () => {
+            const endDraw = () => {
                 if (!isDrawing) return;
-                setIsDrawing(false);
-                if (currentStroke.length > 0) {
-                    setUserStrokes(prev => [...prev, currentStroke]);
-                }
-                setCurrentStroke([]);
+                isDrawing = false;
+                if (currentStroke.length > 0) userStrokes.push({ points: [...currentStroke], color: penColor, width: penWidth });
+                currentStroke = [];
+                updateCanvas();
             };
+            canvas.addEventListener('mousedown', startDraw);
+            canvas.addEventListener('mousemove', onDraw);
+            canvas.addEventListener('mouseup', endDraw);
+            canvas.addEventListener('mouseleave', endDraw);
+            canvas.addEventListener('touchstart', startDraw, {passive: false});
+            canvas.addEventListener('touchmove', onDraw, {passive: false});
+            canvas.addEventListener('touchend', endDraw);
 
-            const handleClear = () => {
-                setUserStrokes([]);
-                setCurrentStroke([]);
-            };
+            window.addEventListener('resize', () => {
+                rightSidebarOpen = window.innerWidth >= 1024;
+                updateSidebars();
+                updateCanvas();
+            });
 
-            const saveToNotebook = () => {
-                const canvas = canvasRef.current;
-                if (!canvas) return;
-                const dataUrl = canvas.toDataURL('image/png');
-                const updatedQueue = [...drillQueue];
-                updatedQueue[currentDrillIndex].userImage = dataUrl;
-                setDrillQueue(updatedQueue);
-            };
-
-            const handleNext = () => {
-                saveToNotebook();
-                if (currentDrillIndex < drillQueue.length - 1) {
-                    setCurrentDrillIndex(prev => prev + 1);
-                    setUserStrokes([]);
-                    if(window.navigator.vibrate) window.navigator.vibrate(50);
-                } else {
-                    setFeedback(strings.finish);
-                    setShowConfetti(true);
-                    setTimeout(() => setShowConfetti(false), 3000);
-                    setRightSidebarOpen(true);
-                }
-            };
-
-            if (!currentTaskChar) return <div className="p-10 flex justify-center text-emerald-600">{strings.loading}</div>;
-
-            return (
-                <div className="h-screen flex flex-col overflow-hidden text-slate-800">
-                    
-                    {/* --- HEADER --- */}
-                    <header className="bg-white border-b border-emerald-100 px-4 py-3 flex justify-between items-center z-20 shadow-sm h-16 shrink-0 relative">
-                        <div className="flex items-center gap-3">
-                            <button onClick={() => setLeftSidebarOpen(!leftSidebarOpen)} className="p-2 hover:bg-emerald-50 rounded-lg lg:hidden text-emerald-700 mobile-menu-btn">
-                                <Menu size={24} />
-                            </button>
-                            <div className="w-10 h-10 bg-emerald-400 rounded-xl flex items-center justify-center text-white shadow-md shadow-emerald-200">
-                                <Globe size={22} />
-                            </div>
-                            <div>
-                                <h1 className="font-bold text-lg leading-none tracking-tight text-emerald-900">{strings.appTitle}</h1>
-                                <p className="text-[10px] text-emerald-600 font-medium tracking-wider flex flex-col sm:flex-row sm:gap-1">
-                                    <span>{strings.appSubtitle}</span>
-                                    <span className="font-bold text-emerald-500">{strings.creatorName}</span>
-                                </p>
-                            </div>
-                        </div>
-
-                        <div className="flex items-center gap-3">
-                            <div className="hidden sm:flex bg-emerald-100 p-1 rounded-lg items-center shadow-inner">
-                                <button 
-                                    onClick={() => setAppLang('id')} 
-                                    className={`px-3 py-1 rounded-md text-xs font-bold transition-all ${appLang === 'id' ? 'bg-emerald-600 text-white shadow-sm' : 'text-emerald-700 hover:bg-emerald-200'}`}
-                                >
-                                    ID
-                                </button>
-                                <button 
-                                    onClick={() => setAppLang('en')} 
-                                    className={`px-3 py-1 rounded-md text-xs font-bold transition-all ${appLang === 'en' ? 'bg-emerald-600 text-white shadow-sm' : 'text-emerald-700 hover:bg-emerald-200'}`}
-                                >
-                                    EN
-                                </button>
-                            </div>
-                            
-                            <button 
-                                onClick={() => setRightSidebarOpen(!rightSidebarOpen)}
-                                className="relative p-2 hover:bg-emerald-50 rounded-lg text-emerald-700 lg:hidden notebook-btn"
-                            >
-                                <Book size={24} />
-                                <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-emerald-400 rounded-full border border-white"></span>
-                            </button>
-                        </div>
-                    </header>
-
-                    {/* --- BODY --- */}
-                    <div className="flex flex-1 overflow-hidden relative">
-                        
-                        {/* LEFT SIDEBAR (SETTINGS) */}
-                        <aside className={`
-                            absolute lg:relative z-30 h-full w-72 bg-white border-r border-emerald-100 flex flex-col transition-transform duration-300 shadow-2xl lg:shadow-none
-                            ${leftSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-                        `}>
-                            <div className="p-4 border-b border-emerald-50 flex justify-between items-center lg:hidden">
-                                <span className="font-bold text-emerald-800">{strings.menuTitle}</span>
-                                <button onClick={() => setLeftSidebarOpen(false)}><X size={20} className="text-emerald-500"/></button>
-                            </div>
-
-                            <div className="p-4 border-b border-emerald-50 sm:hidden">
-                                <h3 className="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-2">{strings.selectLang}</h3>
-                                <div className="flex bg-emerald-100 p-1 rounded-lg">
-                                    <button onClick={() => setAppLang('id')} className={`flex-1 py-2 rounded-md text-sm font-bold transition-all ${appLang === 'id' ? 'bg-emerald-600 text-white shadow-sm' : 'text-emerald-700'}`}>ID</button>
-                                    <button onClick={() => setAppLang('en')} className={`flex-1 py-2 rounded-md text-sm font-bold transition-all ${appLang === 'en' ? 'bg-emerald-600 text-white shadow-sm' : 'text-emerald-700'}`}>EN</button>
-                                </div>
-                            </div>
-                            
-                            <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar">
-                                <div>
-                                    <h3 className="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-2">{strings.subjectLabel}</h3>
-                                    {/* DROPDOWN UNTUK MATA PELAJARAN (NEW UI) */}
-                                    <div className="relative">
-                                        <select 
-                                            value={activeSubjectKey}
-                                            onChange={(e) => changeSubject(e.target.value)}
-                                            className="w-full appearance-none bg-white border-2 border-emerald-100 text-slate-700 py-3 pl-4 pr-10 rounded-xl focus:outline-none focus:border-emerald-400 focus:ring-4 focus:ring-emerald-50 font-medium cursor-pointer"
-                                        >
-                                            {Object.keys(SUBJECTS).map(key => (
-                                                <option key={key} value={key}>
-                                                    {SUBJECTS[key].name}
-                                                </option>
-                                            ))}
-                                        </select>
-                                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-emerald-500">
-                                            <ChevronDown size={16} />
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <h3 className="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-2">{strings.stageLabel}</h3>
-                                    <div className="relative">
-                                        <select 
-                                            value={activeStageId}
-                                            onChange={(e) => {
-                                                setActiveStageId(Number(e.target.value));
-                                                if(window.innerWidth < 1024) setLeftSidebarOpen(false); // Auto hide mobile
-                                            }}
-                                            className="w-full appearance-none bg-white border-2 border-slate-200 text-slate-700 py-3 pl-4 pr-10 rounded-xl focus:outline-none focus:border-emerald-400 focus:ring-4 focus:ring-emerald-50 font-medium cursor-pointer"
-                                        >
-                                            {currentSubjectData.stages.map(stage => (
-                                                <option key={stage.id} value={stage.id}>
-                                                    {strings.levelPrefix} {stage.id}: {stage.title}
-                                                </option>
-                                            ))}
-                                        </select>
-                                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-500">
-                                            <ChevronDown size={16} />
-                                        </div>
-                                    </div>
-                                    <p className="text-[10px] text-slate-400 mt-2 px-1">
-                                        * {appLang === 'id' ? 'Pilih jilid di atas untuk mengganti materi.' : 'Select a level above to change content.'}
-                                    </p>
-                                </div>
-                            </div>
-                        </aside>
-
-                        {/* CENTER: CANVAS WORKSPACE */}
-                        <main className="flex-1 flex flex-col items-center justify-start p-4 lg:p-6 relative overflow-y-auto bg-[#F0FDF4]">
-                            {showConfetti && (
-                                <div className="absolute inset-0 flex items-center justify-center z-50 pointer-events-none animate-bounce">
-                                    <span className="text-8xl filter drop-shadow-lg">🌟</span>
-                                </div>
-                            )}
-
-                            <div className="mb-4 text-center canvas-tools">
-                                <span className="inline-block bg-white px-4 py-1.5 rounded-full text-emerald-700 text-xs uppercase tracking-widest font-bold border border-emerald-200 shadow-sm">
-                                    {strings.levelPrefix} {activeStageId} &bull; {currentTaskChar.read}
-                                </span>
-                            </div>
-
-                            <div className="relative group touch-none canvas-container select-none">
-                                <div className="bg-white p-2 rounded-[2rem] shadow-2xl shadow-emerald-100 border-4 border-white ring-2 ring-emerald-100 mb-6 transition-transform duration-300">
-                                    <canvas
-                                        ref={canvasRef}
-                                        width={320} height={320}
-                                        className="bg-white rounded-[1.8rem] cursor-crosshair touch-none w-[300px] h-[300px] sm:w-[380px] sm:h-[380px]"
-                                        onMouseDown={startDrawing} onMouseMove={draw} onMouseUp={endDrawing} onMouseLeave={endDrawing}
-                                        onTouchStart={startDrawing} onTouchMove={draw} onTouchEnd={endDrawing}
-                                    />
-                                    
-                                    <div className="absolute top-4 left-6 pointer-events-none">
-                                        <span className="bg-white/90 backdrop-blur px-3 py-1 rounded-lg text-lg font-bold text-slate-700 shadow-sm border border-slate-100">
-                                            {currentTaskChar.read}
-                                        </span>
-                                    </div>
-
-                                    <div className="absolute top-4 right-4 pointer-events-auto audio-btn">
-                                        <button 
-                                            onClick={() => speak(currentTaskChar.read)}
-                                            className="p-2 bg-emerald-100 hover:bg-emerald-200 text-emerald-700 rounded-full shadow-sm transition-colors"
-                                        >
-                                            <Volume2 size={24} />
-                                        </button>
-                                    </div>
-                                </div>
-                                
-                                <div className="absolute bottom-10 right-6 flex flex-col gap-2 pointer-events-auto">
-                                    <button 
-                                        onClick={handleClear}
-                                        className="p-3 bg-white text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full shadow-md border border-slate-100 transition-all active:scale-90"
-                                        title={strings.clear}
-                                    >
-                                        <Eraser size={22} />
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div className="flex flex-col sm:flex-row gap-3 w-full max-w-sm action-buttons">
-                                <button
-                                    onClick={handleClear}
-                                    className="flex-1 py-3.5 rounded-2xl font-bold border-2 border-emerald-200 text-emerald-700 hover:bg-emerald-50 transition-colors flex items-center justify-center gap-2"
-                                >
-                                    <RotateCcw size={20} /> {strings.repeat}
-                                </button>
-
-                                <button
-                                    onClick={handleNext}
-                                    disabled={currentDrillIndex >= drillQueue.length}
-                                    className={`
-                                        flex-[2] py-3.5 rounded-2xl text-lg font-bold shadow-lg shadow-emerald-200 transition-all active:scale-95 flex items-center justify-center gap-2
-                                        ${currentDrillIndex >= drillQueue.length
-                                            ? 'bg-slate-400 text-white cursor-default'
-                                            : 'bg-emerald-500 hover:bg-emerald-600 text-white'
-                                        }
-                                    `}
-                                >
-                                    {currentDrillIndex >= drillQueue.length ? (
-                                        <>{strings.finish} <CheckCircle className="ml-1"/></>
-                                    ) : (
-                                        <>{strings.next} <ChevronRight size={22} /></>
-                                    )}
-                                </button>
-                            </div>
-
-                            <p className="mt-6 text-emerald-700/60 text-sm font-medium text-center max-w-xs leading-relaxed min-h-[1.5rem]">
-                                {strings.tips} {feedback}
-                            </p>
-                        </main>
-
-                        {/* RIGHT SIDEBAR (NOTEBOOK) */}
-                        <aside className={`
-                            notebook-section absolute lg:relative z-40 top-0 right-0 h-full w-80 bg-white border-l border-emerald-100 flex flex-col transition-transform duration-300 shadow-2xl lg:shadow-none
-                            ${rightSidebarOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'}
-                        `}>
-                            <div className="print-header">
-                                <h1 className="text-2xl font-bold">{strings.reportTitle}</h1>
-                                <p className="text-slate-500">{new Date().toLocaleDateString()} - {currentSubjectData.name} - {strings.levelPrefix} {activeStageId}</p>
-                                <p className="text-emerald-600 font-bold">{strings.creatorName}</p>
-                            </div>
-
-                            {/* HEADER SIDEBAR KANAN */}
-                            <div className="p-4 bg-emerald-50 border-b border-emerald-100 shadow-sm z-10 flex justify-between items-center notebook-title">
-                                <div>
-                                    <h2 className="font-bold text-emerald-900 flex items-center gap-2 text-sm uppercase tracking-wide">
-                                        <Book size={18} className="text-emerald-500"/>
-                                        {strings.notebookTitle}
-                                    </h2>
-                                    <p className="text-xs text-emerald-600 mt-0.5">
-                                        {currentDrillIndex} / {drillQueue.length} {strings.notebookPage}
-                                    </p>
-                                </div>
-                                <div className="flex items-center gap-2 print-btn-wrapper">
-                                    {/* TOMBOL PDF PINDAH KE SINI */}
-                                    <button 
-                                        onClick={() => window.print()}
-                                        className="p-2 bg-white text-emerald-600 border border-emerald-200 rounded-lg hover:bg-emerald-100 transition-colors"
-                                        title={strings.printBtn}
-                                    >
-                                        <Printer size={18} />
-                                    </button>
-                                    <button onClick={() => setRightSidebarOpen(false)} className="lg:hidden text-emerald-500 p-2">
-                                        <X size={20}/>
-                                    </button>
-                                </div>
-                            </div>
-
-                            {/* AREA SCROLL KHUSUS GRID (KOTAK BIRU) */}
-                            {/* DITAMBAHKAN class notebook-scroll-container DISINI */}
-                            <div className="flex-1 overflow-y-auto p-4 custom-scrollbar bg-slate-50/30 min-h-0 notebook-scroll-container">
-                                <div className="grid grid-cols-2 gap-3 pb-4 notebook-grid">
-                                    {drillQueue.map((item, idx) => {
-                                        const status = idx < currentDrillIndex ? 'done' : idx === currentDrillIndex ? 'active' : 'pending';
-                                        
-                                        return (
-                                            <div 
-                                                key={item.uniqueId}
-                                                className={`
-                                                    notebook-item aspect-square rounded-2xl flex items-center justify-center relative transition-all duration-500 overflow-hidden bg-white
-                                                    ${status === 'done' ? 'border-2 border-emerald-400 shadow-sm' : ''}
-                                                    ${status === 'active' ? 'border-2 border-emerald-300 ring-4 ring-emerald-100 z-10' : ''}
-                                                    ${status === 'pending' ? 'border-2 border-slate-100 opacity-60' : ''}
-                                                `}
-                                            >
-                                                {item.userImage ? (
-                                                    <img 
-                                                        src={item.userImage} 
-                                                        alt="Hasil" 
-                                                        className="w-full h-full object-contain p-1"
-                                                    />
-                                                ) : (
-                                                    <span 
-                                                        className={`text-5xl font-bold ${status === 'pending' ? 'text-slate-200' : 'text-emerald-200'}`}
-                                                        style={{ fontFamily: currentSubjectData.fontFamily || 'sans-serif' }}
-                                                    >
-                                                        {item.symbol}
-                                                    </span>
-                                                )}
-                                                
-                                                <span className={`absolute top-2 left-2 text-[10px] font-bold px-2 py-0.5 rounded-full ${status === 'active' ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-400'}`}>
-                                                    {idx + 1}
-                                                </span>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-
-                            </div>
-                            
-                            {/* Footer kosong / disembunyikan tombol lamanya */}
-                            <div className="print-header notebook-footer"></div>
-                        </aside>
-
-                    </div>
-                </div>
-            );
-        };
-
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
+            // Kick off
+            resetDrill();
+            updateSidebars();
+            updateStatsUI();
+        });
     </script>
 </body>
 </html>
