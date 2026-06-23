@@ -34,5 +34,6 @@
       "form_factor": "wide",
       "label": "GlobalScript - Learning Dashboard"
     }
-  ]
+  ],
+  "description": "An interactive platform to learn and practice writing global alphabets and traditional scripts."
 }
