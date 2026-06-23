@@ -5,7 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>GlobalScript - Belajar Menulis Dunia & Nusantara</title>
 
+    <meta name="title" content="GlobalScript - Learn to Write Ancient & World Scripts">
+    <meta name="description" content="An interactive digital platform for students and children to practice writing global alphabets and traditional Indonesian ancient scripts.">
+    <meta name="author" content="Angga Conni Saputra">
+
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://anggaconni.github.io/learn-to-write/">
+    <meta property="og:title" content="GlobalScript - Learn to Write Ancient & World Scripts">
+    <meta property="og:description" content="An interactive digital platform for students and children to practice writing global alphabets and traditional Indonesian ancient scripts.">
+    <meta property="og:image" content="https://anggaconni.github.io/learn-to-write/thumbnail.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://anggaconni.github.io/learn-to-write/">
+    <meta property="twitter:title" content="GlobalScript - Learn to Write Ancient & World Scripts">
+    <meta property="twitter:description" content="An interactive digital platform for students and children to practice writing global alphabets and traditional Indonesian ancient scripts.">
+    <meta property="twitter:image" content="https://anggaconni.github.io/learn-to-write/thumbnail.png">
+
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
+
+    <!-- Pastikan baris ini ada di dalam tag <head> index.html Anda -->
+    <link rel="manifest" href="./manifest.json">
     
     <script src="tailwindcss.js"></script>
 
@@ -618,7 +639,7 @@
         // ==========================================
         // 3. STATE
         // ==========================================
-        let appLang = 'id'; 
+        let appLang = 'en'; 
         let activeSubjectKey = 'alphabet'; 
         let activeStageId = 1;
         let drillQueue = [];
@@ -651,7 +672,7 @@
                 if (saved) progress = { ...progress, ...saved };
                 const settings = JSON.parse(localStorage.getItem('globalscript_settings'));
                 if (settings) {
-                    appLang = settings.appLang || 'id';
+                    appLang = settings.appLang || 'en'; // <-- UBAH DI SINI (Sebelumnya 'id')
                     showGuide = settings.showGuide !== undefined ? settings.showGuide : true;
                     showGrid = settings.showGrid !== undefined ? settings.showGrid : true;
                     autoPlayAudio = settings.autoPlayAudio || false;
@@ -659,6 +680,7 @@
                 }
             } catch(e) { console.warn('Load failed', e); }
         }
+
         function saveProgress() {
             try { localStorage.setItem('globalscript_progress', JSON.stringify(progress)); } catch(e){}
         }
@@ -1179,5 +1201,16 @@
             updateStatsUI();
         });
     </script>
+
+    <script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+            .then(reg => console.log('Service Worker Berjaya Didaftarkan!', reg))
+            .catch(err => console.log('Pendaftaran Service Worker Gagal!', err));
+        });
+    }
+    </script>
+
 </body>
 </html>
