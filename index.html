@@ -219,8 +219,11 @@
         <!-- BODY -->
         <div class="flex flex-1 overflow-hidden relative">
             
+            <!-- OVERLAY UNTUK MOBILE -->
+            <div id="mobileOverlay" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40 transition-opacity duration-300 opacity-0 lg:hidden"></div>
+            
             <!-- LEFT SIDEBAR -->
-            <aside id="leftSidebar" class="absolute lg:relative z-30 h-full w-72 bg-white border-r border-emerald-100 flex flex-col transition-transform duration-300 shadow-2xl lg:shadow-none -translate-x-full lg:translate-x-0">
+            <aside id="leftSidebar" class="fixed lg:relative top-0 left-0 z-50 lg:z-30 h-full w-72 bg-white border-r border-emerald-100 flex flex-col transition-transform duration-300 shadow-2xl lg:shadow-none -translate-x-full lg:translate-x-0">
                 <div class="p-4 border-b border-emerald-50 flex justify-between items-center lg:hidden">
                     <span class="font-bold text-emerald-800" id="ui-menuTitle">Pengaturan Belajar</span>
                     <button id="btnCloseLeftSidebar"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-500"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
@@ -369,7 +372,7 @@
             </main>
 
             <!-- RIGHT SIDEBAR (NOTEBOOK) -->
-            <aside id="rightSidebar" class="notebook-section absolute lg:relative z-40 top-0 right-0 h-full w-80 bg-white border-l border-emerald-100 flex flex-col transition-transform duration-300 shadow-2xl lg:shadow-none translate-x-0">
+            <aside id="rightSidebar" class="notebook-section fixed lg:relative top-0 right-0 z-50 lg:z-30 h-full w-80 bg-white border-l border-emerald-100 flex flex-col transition-transform duration-300 shadow-2xl lg:shadow-none translate-x-full lg:translate-x-0">
                 <div class="print-header">
                     <h1 id="printReportTitle" class="text-2xl font-bold">Laporan Belajar</h1>
                     <p id="printReportSubtitle" class="text-slate-500"></p>
@@ -860,11 +863,44 @@
 
         function updateSidebars() {
             const leftSidebar = document.getElementById('leftSidebar');
-            if(leftSidebarOpen) leftSidebar.classList.remove('-translate-x-full');
-            else { leftSidebar.classList.add('-translate-x-full'); leftSidebar.classList.add('lg:translate-x-0'); }
             const rightSidebar = document.getElementById('rightSidebar');
-            if(rightSidebarOpen) { rightSidebar.classList.remove('translate-x-full'); rightSidebar.classList.add('lg:translate-x-0'); }
-            else { rightSidebar.classList.add('translate-x-full'); rightSidebar.classList.remove('lg:translate-x-0'); }
+            const overlay = document.getElementById('mobileOverlay');
+
+            // Logic Sidebar Kiri
+            if(leftSidebarOpen) { 
+                leftSidebar.classList.remove('-translate-x-full'); 
+                leftSidebar.classList.add('translate-x-0'); // Paksa ke posisi nol
+            } else { 
+                leftSidebar.classList.add('-translate-x-full'); 
+                leftSidebar.classList.remove('translate-x-0');
+                leftSidebar.classList.add('lg:translate-x-0'); // Kembalikan ke default desktop
+            }
+            
+            // Logic Sidebar Kanan
+            if(rightSidebarOpen) { 
+                rightSidebar.classList.remove('translate-x-full'); 
+                rightSidebar.classList.add('translate-x-0'); 
+            } else { 
+                rightSidebar.classList.add('translate-x-full'); 
+                rightSidebar.classList.remove('translate-x-0');
+                rightSidebar.classList.add('lg:translate-x-0'); 
+            }
+
+            // Logic Overlay & Z-index Header
+            if (window.innerWidth < 1024) {
+                if (leftSidebarOpen || rightSidebarOpen) {
+                    overlay.classList.remove('hidden');
+                    // Timeout sedikit agar transisi opacity terlihat mulus
+                    setTimeout(() => overlay.classList.remove('opacity-0'), 10);
+                } else {
+                    overlay.classList.add('opacity-0');
+                    setTimeout(() => {
+                        if (!leftSidebarOpen && !rightSidebarOpen) overlay.classList.add('hidden');
+                    }, 300);
+                }
+            } else {
+                overlay.classList.add('hidden'); // Selalu sembunyikan overlay di PC
+            }
         }
 
         // ==========================================
@@ -1099,6 +1135,13 @@
                 updateSidebars(); resetDrill();
             });
 
+            // Menutup sidebar saat area gelap diklik
+            document.getElementById('mobileOverlay').addEventListener('click', () => {
+                leftSidebarOpen = false;
+                rightSidebarOpen = false;
+                updateSidebars();
+            });
+
             const setLang = (lang) => { appLang = lang; saveSettings(); updateUITexts(); resetDrill(); };
             document.getElementById('btnLangId').addEventListener('click', () => setLang('id'));
             document.getElementById('btnLangEn').addEventListener('click', () => setLang('en'));
@@ -1191,6 +1234,7 @@
 
             window.addEventListener('resize', () => {
                 rightSidebarOpen = window.innerWidth >= 1024;
+                if (window.innerWidth >= 1024) leftSidebarOpen = false; // Reset sidebar kiri jika pindah ke mode PC
                 updateSidebars();
                 updateCanvas();
             });
