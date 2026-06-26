@@ -4,7 +4,7 @@
   "short_name": "GlobalScript",
   "lang": "en",
   "dir": "ltr",
-  "start_url": "index.html",
+  "start_url": "https://anggaconni.github.io/learn-to-write/index.html",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
