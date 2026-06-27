@@ -9,6 +9,8 @@ const ASSETS = [
   './icon-192.png',
   './icon-512.png',
   './manifest.json',
+  './thumbnail.png',   // <-- Tambahkan baris ini
+  './screenshot.jpeg', // <-- Tambahkan baris ini
   // Daftarkan semua fail font tempatan anda di bawah
   './fonts/NotoSans-Regular.ttf',
   './fonts/NotoSans-Bold.ttf',
