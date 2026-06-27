@@ -962,8 +962,8 @@
 
             if(showGuide) {
                 ctx.save();
-                let fontSizeScale = 0.60;
-                if(activeSubjectKey === 'batak' || activeSubjectKey === 'bali') fontSizeScale = 0.50; 
+                let fontSizeScale = 0.75;
+                if(activeSubjectKey === 'batak' || activeSubjectKey === 'bali') fontSizeScale = 0.65; 
                 const fontSize = w * fontSizeScale;
                 const curSubj = SUBJECTS[activeSubjectKey];
                 ctx.font = `bold ${fontSize}px ${curSubj.fontFamily}, "Noto Sans", "Arial"`;
