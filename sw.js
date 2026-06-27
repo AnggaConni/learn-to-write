@@ -1,4 +1,4 @@
-const CACHE_NAME = 'globalscript-v1';
+const CACHE_NAME = 'globalscript-v2';
 
 // Senarai fail yang wajib disimpan secara offline
 const ASSETS = [
